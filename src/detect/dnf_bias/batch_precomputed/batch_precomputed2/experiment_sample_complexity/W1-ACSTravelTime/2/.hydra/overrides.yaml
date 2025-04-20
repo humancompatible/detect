@@ -1,0 +1,4 @@
+- seed=2
+- ++scenario=ACSTravelTime
+- ++model=W1
+- +dir_structure=cluster_batch

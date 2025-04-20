@@ -1,0 +1,4 @@
+- seed=2
+- ++scenario=DifferentStates-LA-UT
+- ++model=W1
+- +dir_structure=cluster_batch

@@ -1,0 +1,13 @@
+Config:
+ {'seed': 1, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.5905509919777108, 0.411266759409733, 0.29009941072753853, 0.21383849921353013, 0.1674082971371881] 
+Times spent: [0.009548664093017578, 0.03869271278381348, 0.14571690559387207, 0.4886014461517334, 1.6649971008300781] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3625, 13135, 47600, 172508] 
+Protected dimension: 36 
+Full dimension: 36 

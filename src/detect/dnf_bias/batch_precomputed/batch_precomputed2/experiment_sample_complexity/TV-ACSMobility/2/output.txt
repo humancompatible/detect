@@ -1,0 +1,13 @@
+Config:
+ {'seed': 2, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSMobility', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.5747259533734748, 0.4483823194349543, 0.31553347097073686, 0.25819318367540994, 0.2071040207857707] 
+Times spent: [0.007612943649291992, 0.02437448501586914, 0.0738832950592041, 0.23517799377441406, 0.7377479076385498] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2994, 8963, 26833, 80329] 
+Protected dimension: 38 
+Full dimension: 38 

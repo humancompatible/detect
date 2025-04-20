@@ -1,0 +1,4 @@
+- seed=2
+- ++scenario=ACSEmployment
+- ++model=MMD
+- +dir_structure=cluster_batch

@@ -1,0 +1,14 @@
+Config:
+ {'seed': 4, 'model': 'BRCG', 'state': 'CA', 'scenario': 'ACSMobility', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [MIL = 1.0 | MIL = 1.0 | CIT = 5.0 | CIT = 5.0 | MIL = 1.0] 
+Distances reported: [0.0752212389380531, 0.02222222222222222, 0.03928905519176801, 0.061855670103092786, 0.06418757625590155] 
+Times spent: [5.593889474868774, 7.067791938781738, 7.766655206680298, 9.714374780654907, 15.390758037567139] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [452, 1440, 4276, 12610, 37702] 
+Protected dimension: 38 
+Full dimension: 44 

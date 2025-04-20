@@ -1,0 +1,14 @@
+Config:
+ {'seed': 1, 'model': 'BRCG', 'state': 'CA', 'scenario': 'DifferentStates-MD-MS', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [ANC = 3.0 | ANC = 1.0 AND CIT = 1.0 AND DREM = 2.0 | ANC = 1.0 AND CIT = 1.0 AND DEAR = 2.0 AND DEYE = 2.0 AND NATIVITY = 1.0 | ANC = 1.0 AND CIT = 1.0 AND DEAR = 2.0 | ANC = 1.0 AND CIT = 1.0 AND DEYE = 2.0] 
+Distances reported: [0.03374233128834356, 0.17123287671232884, 0.16444035006909252, 0.169882100750268, 0.16453783820903728] 
+Times spent: [4.016901016235352, 4.553000450134277, 6.2172510623931885, 9.571670770645142, 14.54159665107727] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [652, 1752, 4342, 11196, 29124] 
+Protected dimension: 60 
+Full dimension: 65 

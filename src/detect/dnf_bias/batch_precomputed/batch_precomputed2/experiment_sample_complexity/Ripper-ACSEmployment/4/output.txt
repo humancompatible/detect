@@ -1,0 +1,14 @@
+Config:
+ {'seed': 4, 'model': 'Ripper', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [MIL = 0.0 | MIL = 0.0 | MIL = 0.0 | MIL = 0.0 | CIT = 1.0] 
+Distances reported: [0.5353319057815846, 0.48762376237623767, 0.48322449898671466, 0.4803502341681939, 0.4805587865951401] 
+Times spent: [0.14492249488830566, 0.24969100952148438, 0.6512594223022461, 2.3554513454437256, 10.5510892868042] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [934, 4040, 17764, 78576, 345606] 
+Protected dimension: 41 
+Full dimension: 41 

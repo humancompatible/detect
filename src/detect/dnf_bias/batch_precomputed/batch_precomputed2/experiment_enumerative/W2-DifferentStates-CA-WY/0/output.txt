@@ -1,0 +1,17 @@
+Config:
+ {'seed': 0, 'model': 'W2', 'state': 'CA', 'scenario': 'DifferentStates-CA-WY', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 0.6492448263210296 
+Max MSD: 0.0029935598347729186 
+Max subgroup: (POBP = 2 AND RAC1P = 9.0) 
+Total options: 5772124799 
+Checked options: 8768 
+Of that skipped options: 1359 
+Time spent: 600.8268926143646 
+True number of training samples: 192278 
+Protected dimension: 60 
+Full dimension: 60 

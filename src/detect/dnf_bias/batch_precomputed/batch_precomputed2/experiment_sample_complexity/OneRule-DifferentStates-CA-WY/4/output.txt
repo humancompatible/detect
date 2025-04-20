@@ -1,0 +1,14 @@
+Config:
+ {'seed': 4, 'model': 'OneRule', 'state': 'CA', 'scenario': 'DifferentStates-CA-WY', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Subgroups found: [CIT = 1.0 AND FER = 0.0 AND NATIVITY = 1.0 AND POBP = 0 AND RAC1P = 1.0 | CIT = 1.0 AND DEAR = 2.0 AND DEYE = 2.0 AND DREM = 2.0 AND RAC1P = 1.0 | NATIVITY = 1.0 AND RAC1P = 1.0 | CIT = 1.0 AND POBP = 0 AND RAC1P = 1.0 | FER = 0.0] 
+Distances reported: [0.29014227642276424, 0.42903968012470445, 0.40249259412186156, 0.3666694588291812, 0.022224600192023214] 
+Times spent: [5.780119180679321, 54.11932945251465, 173.05149245262146, 494.76939940452576, 738.4905197620392] 
+Optimal/Valid flags: [True, True, True, True, False] 
+True numbers of training samples: [1000, 3724, 13867, 51636, 192278] 
+Protected dimension: 60 
+Full dimension: 65 

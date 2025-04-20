@@ -1,0 +1,18 @@
+# cannot be run separately, method and experiment config need to be specified
+seed: 0
+model: MMD
+state: CA
+scenario: ACSIncome
+n_samples: 1000000
+train_samples: 100000
+time_limit: 600
+n_min: 10
+
+hydra:
+  sweeper:
+    params:
+      seed: 0, 1, 2, 3, 4
+      model: W1, W2, TV, MMD, MSD
+      scenario:
+        ACSIncome, ACSPublicCoverage, ACSMobility, ACSEmployment, ACSTravelTime,
+        DifferentStates-HI-ME, DifferentStates-CA-WY, DifferentStates-MS-NH, DifferentStates-MD-MS, DifferentStates-LA-UT

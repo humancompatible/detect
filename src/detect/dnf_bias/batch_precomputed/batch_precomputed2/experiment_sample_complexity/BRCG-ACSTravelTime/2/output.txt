@@ -1,0 +1,14 @@
+Config:
+ {'seed': 2, 'model': 'BRCG', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [RAC1P = 3.0 | RAC1P = 1.0 AND SEX = 2.0 | RAC1P = 1.0 AND SEX = 2.0 | CIT = 1.0 AND RAC1P = 1.0 | SEX = 2.0] 
+Distances reported: [0.012396694214876033, 0.06218487394957983, 0.08053797468354432, 0.07152455676448916, 0.06808622502628814] 
+Times spent: [3.804685115814209, 5.579304933547974, 6.932822942733765, 11.57966685295105, 31.77944254875183] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [968, 3570, 12640, 46138, 167376] 
+Protected dimension: 36 
+Full dimension: 38 

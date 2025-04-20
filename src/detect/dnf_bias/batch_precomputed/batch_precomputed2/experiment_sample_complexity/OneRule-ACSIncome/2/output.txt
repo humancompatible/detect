@@ -1,0 +1,14 @@
+Config:
+ {'seed': 2, 'model': 'OneRule', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [AGEP between (17.0, 24.70077) | AGEP between (17.0, 24.70077) | AGEP between (17.0, 24.70077) | AGEP between (17.0, 24.70077) | AGEP between (17.0, 24.70077)] 
+Distances reported: [0.20987831429005416, 0.19784903997749242, 0.19671245284203387, 0.1944183284308183, 0.1938762318078747] 
+Times spent: [0.8725159168243408, 2.64081072807312, 2.36308217048645, 4.290405511856079, 8.080032587051392] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3741, 13989, 52317, 195665] 
+Protected dimension: 26 
+Full dimension: 27 

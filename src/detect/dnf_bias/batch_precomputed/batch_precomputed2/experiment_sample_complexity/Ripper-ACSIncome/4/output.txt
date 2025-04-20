@@ -1,0 +1,14 @@
+Config:
+ {'seed': 4, 'model': 'Ripper', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [POBP = 0 AND RAC1P = 1.0 | AGEP outside (86.30693000000001, 94.0077) AND POBP = 0 AND RAC1P = 1.0 | POBP = 0 AND RAC1P = 1.0 | POBP = 0 AND RAC1P = 1.0 | POBP = 0] 
+Distances reported: [0.21830985915492962, 0.13149655604257987, 0.1301453844806446, 0.12505251365354986, 0.12192693097653579] 
+Times spent: [0.11676478385925293, 0.1715259552001953, 0.3703749179840088, 1.1599669456481934, 4.459459543228149] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [852, 3194, 11418, 42846, 160670] 
+Protected dimension: 26 
+Full dimension: 26 

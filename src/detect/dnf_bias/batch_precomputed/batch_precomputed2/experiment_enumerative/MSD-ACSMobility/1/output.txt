@@ -1,0 +1,17 @@
+Config:
+ {'seed': 1, 'model': 'MSD', 'state': 'CA', 'scenario': 'ACSMobility', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit b29b7e629c8860a245276b16196c0751700e9a46
+Fix skipping of MSD
+
+RESULT
+Max distance: 0.06520832159217566 
+Max MSD: 0.06520832159217566 
+Max subgroup: (ANC = 1.0 AND CIT = 1.0 AND DREM = 2.0 AND MIL = 4.0) 
+Total options: 11567699 
+Checked options: 141861 
+Of that skipped options: 97477 
+Time spent: 600.0046265125275 
+True number of training samples: 80329 
+Protected dimension: 38 
+Full dimension: 38 

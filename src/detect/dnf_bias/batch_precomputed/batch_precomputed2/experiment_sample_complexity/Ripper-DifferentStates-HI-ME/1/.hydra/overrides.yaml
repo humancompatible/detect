@@ -1,0 +1,4 @@
+- seed=1
+- ++scenario=DifferentStates-HI-ME
+- ++model=Ripper
+- +dir_structure=cluster_batch

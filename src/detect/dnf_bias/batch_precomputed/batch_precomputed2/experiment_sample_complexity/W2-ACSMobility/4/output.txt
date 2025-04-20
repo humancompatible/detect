@@ -1,0 +1,13 @@
+Config:
+ {'seed': 4, 'model': 'W2', 'state': 'CA', 'scenario': 'ACSMobility', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.25841758995663655, 0.22019044684071792, 0.19043437670717273, 0.17253163629170043, 0.16284679813707864] 
+Times spent: [0.013756752014160156, 0.03671669960021973, 0.09558916091918945, 0.3047001361846924, 0.996762752532959] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2994, 8963, 26833, 80329] 
+Protected dimension: 38 
+Full dimension: 38 

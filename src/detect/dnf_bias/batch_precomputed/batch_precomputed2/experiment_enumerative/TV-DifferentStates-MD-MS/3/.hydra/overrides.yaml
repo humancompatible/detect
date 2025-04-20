@@ -1,0 +1,4 @@
+- seed=3
+- ++scenario=DifferentStates-MD-MS
+- ++model=TV
+- +dir_structure=cluster_batch

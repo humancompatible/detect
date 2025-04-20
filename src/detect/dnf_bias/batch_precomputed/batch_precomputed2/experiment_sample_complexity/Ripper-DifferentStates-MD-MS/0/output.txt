@@ -1,0 +1,14 @@
+Config:
+ {'seed': 0, 'model': 'Ripper', 'state': 'CA', 'scenario': 'DifferentStates-MD-MS', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [ANC = 1.0 AND POBP = 0 AND POVPIP outside (450.94509, 501.0501) | CIT = 1.0 AND POVPIP outside (450.94509, 501.0501) | ANC = 1.0 AND CIT = 1.0 | ANC = 1.0 AND CIT = 1.0 | CIT = 1.0] 
+Distances reported: [0.276595744680851, 0.3640606767794632, 0.2581834946980175, 0.27221037668798864, 0.2480428512566955] 
+Times spent: [6.021237134933472, 0.2549910545349121, 0.3919486999511719, 0.7233560085296631, 1.6133906841278076] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [658, 1714, 4338, 11256, 29124] 
+Protected dimension: 60 
+Full dimension: 60 

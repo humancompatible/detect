@@ -1,0 +1,4 @@
+- seed=2
+- ++scenario=DifferentStates-MS-NH
+- ++model=W2
+- +dir_structure=cluster_batch

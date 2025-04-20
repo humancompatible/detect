@@ -1,0 +1,4 @@
+- seed=4
+- ++scenario=ACSPublicCoverage
+- ++model=OneRule
+- +dir_structure=cluster_batch

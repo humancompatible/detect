@@ -1,0 +1,13 @@
+Config:
+ {'seed': 2, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.6704164098349445, 0.4955059960974384, 0.38878704979452, 0.3248714972357389, 0.28635888220047034] 
+Times spent: [0.012476682662963867, 0.04544377326965332, 0.17798423767089844, 0.6868886947631836, 2.5172104835510254] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3431, 11771, 40385, 138554] 
+Protected dimension: 42 
+Full dimension: 42 

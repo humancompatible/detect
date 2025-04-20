@@ -1,0 +1,13 @@
+Config:
+ {'seed': 2, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.23391244605850167, 0.21847208670892918, 0.22381546936326852, 0.2241058869546209, 0.22399804417411215] 
+Times spent: [0.01986861228942871, 0.08704781532287598, 0.3857889175415039, 1.5207738876342773, 5.416943550109863] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 4412, 19464, 85867, 378817] 
+Protected dimension: 41 
+Full dimension: 11 

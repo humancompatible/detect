@@ -1,0 +1,13 @@
+Config:
+ {'seed': 2, 'model': 'TV', 'state': 'CA', 'scenario': 'DifferentStates-MS-NH', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.7922207146087817, 0.7738065587380791, 0.6950656989543204, 0.6250783401999893, 0.5847882503898664] 
+Times spent: [0.016132831573486328, 0.04419708251953125, 0.1171424388885498, 0.2899796962738037, 0.7163751125335693] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2153, 4632, 9968, 21452] 
+Protected dimension: 60 
+Full dimension: 60 

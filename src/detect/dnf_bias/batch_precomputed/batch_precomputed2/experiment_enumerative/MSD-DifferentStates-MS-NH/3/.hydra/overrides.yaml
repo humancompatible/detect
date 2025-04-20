@@ -1,0 +1,4 @@
+- seed=3
+- ++scenario=DifferentStates-MS-NH
+- ++model=MSD
+- +dir_structure=cluster_batch

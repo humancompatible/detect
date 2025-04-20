@@ -1,0 +1,14 @@
+Config:
+ {'seed': 0, 'model': 'BRCG', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [AGEP between (65.80658, 75.20752) | AGEP between (9.40094, 18.80188) | AGEP between (9.40094, 18.80188) | AGEP between (65.80658, 75.20752) | AGEP between (9.40094, 18.80188)] 
+Distances reported: [0.1301518438177874, 0.1833582461385152, 0.18324367631910266, 0.09499039077514414, 0.18202808979010782] 
+Times spent: [4.652757406234741, 4.104363203048706, 5.8761091232299805, 12.953588008880615, 57.0194730758667] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [922, 4014, 17474, 78050, 345606] 
+Protected dimension: 41 
+Full dimension: 46 

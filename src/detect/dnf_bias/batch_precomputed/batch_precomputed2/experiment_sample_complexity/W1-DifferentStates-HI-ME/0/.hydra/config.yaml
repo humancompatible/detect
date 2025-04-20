@@ -1,0 +1,8 @@
+seed: 0
+model: W1
+state: CA
+scenario: DifferentStates-HI-ME
+n_samples: 1000000
+train_samples: 100000
+time_limit: 600
+n_min: 10

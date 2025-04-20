@@ -1,0 +1,14 @@
+Config:
+ {'seed': 0, 'model': 'BRCG', 'state': 'CA', 'scenario': 'DifferentStates-MS-NH', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [RAC1P = 1.0 | RAC1P = 1.0 | RAC1P = 1.0 | RAC1P = 1.0 | RAC1P = 1.0] 
+Distances reported: [0.3146417445482866, 0.30071942446043165, 0.31447811447811447, 0.3132265158655356, 0.297532656023222] 
+Times spent: [11.755360841751099, 5.171450853347778, 4.972830772399902, 9.910965919494629, 19.12643837928772] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [642, 1390, 2970, 6366, 13780] 
+Protected dimension: 60 
+Full dimension: 65 

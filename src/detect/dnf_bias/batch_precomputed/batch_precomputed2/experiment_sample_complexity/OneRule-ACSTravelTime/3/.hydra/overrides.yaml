@@ -1,0 +1,4 @@
+- seed=3
+- ++scenario=ACSTravelTime
+- ++model=OneRule
+- +dir_structure=cluster_batch

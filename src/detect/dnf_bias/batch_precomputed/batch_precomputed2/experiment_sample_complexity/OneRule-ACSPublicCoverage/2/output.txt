@@ -1,0 +1,14 @@
+Config:
+ {'seed': 2, 'model': 'OneRule', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [DIS = 2.0 AND MIL = 4.0 | DIS = 2.0 AND MIL = 4.0 | DIS = 2.0 AND MIL = 4.0 | DIS = 2.0 AND DREM = 2.0 AND MIL = 4.0 | DIS = 2.0 AND MIL = 4.0] 
+Distances reported: [0.2242654612697761, 0.16966868727134599, 0.1729051394927431, 0.1788505346013154, 0.173917023232668] 
+Times spent: [4.830198287963867, 11.061002731323242, 35.50220727920532, 151.3299901485443, 341.2341401576996] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3431, 11771, 40385, 138554] 
+Protected dimension: 42 
+Full dimension: 48 

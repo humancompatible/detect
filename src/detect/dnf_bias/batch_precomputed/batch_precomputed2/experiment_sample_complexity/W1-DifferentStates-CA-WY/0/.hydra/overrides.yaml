@@ -1,0 +1,4 @@
+- seed=0
+- ++scenario=DifferentStates-CA-WY
+- ++model=W1
+- +dir_structure=cluster_batch

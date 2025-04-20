@@ -1,0 +1,8 @@
+seed: 2
+model: BRCG
+state: CA
+scenario: ACSPublicCoverage
+n_samples: 1000000
+train_samples: 100000
+time_limit: 600
+n_min: 10

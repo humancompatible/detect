@@ -1,0 +1,17 @@
+Config:
+ {'seed': 1, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 0.6992058987801011 
+Max MSD: 3.691621021357009e-05 
+Max subgroup: (POBP = 2 AND RAC1P = 2.0) 
+Total options: 1229 
+Checked options: 1229 
+Of that skipped options: 494 
+Time spent: 22.721676349639893 
+True number of training samples: 195665 
+Protected dimension: 26 
+Full dimension: 26 

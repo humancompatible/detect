@@ -1,0 +1,14 @@
+Config:
+ {'seed': 2, 'model': 'OneRule', 'state': 'CA', 'scenario': 'ACSMobility', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [MIL = 4.0 AND RAC1P = 1.0 | DEYE = 2.0 AND RAC1P = 8.0 | ANC = 1.0 AND CIT = 1.0 AND DEYE = 2.0 AND MIL = 4.0 AND NATIVITY = 1.0 | ANC = 1.0 AND MIL = 4.0 | ANC = 1.0 AND CIT = 1.0 AND DEYE = 2.0 AND DREM = 2.0 AND MIL = 4.0] 
+Distances reported: [0.10054257923641896, 0.06882737145895042, 0.06275056537562002, 0.07175354400365741, 0.06527939196255228] 
+Times spent: [4.332624912261963, 19.193614959716797, 39.434107065200806, 132.01339435577393, 253.6061646938324] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2994, 8963, 26833, 80329] 
+Protected dimension: 38 
+Full dimension: 44 

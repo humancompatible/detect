@@ -1,0 +1,13 @@
+Config:
+ {'seed': 4, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.4833390587427001, 0.43245477778689606, 0.39849925740753833, 0.3792505482016126, 0.3778010026092143] 
+Times spent: [0.005049943923950195, 0.016122102737426758, 0.06708240509033203, 0.28887009620666504, 1.318126916885376] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3741, 13989, 52317, 195665] 
+Protected dimension: 26 
+Full dimension: 26 

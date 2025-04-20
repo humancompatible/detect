@@ -1,0 +1,17 @@
+Config:
+ {'seed': 4, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.0000000000000002 
+Max MSD: 2.665996459845999e-05 
+Max subgroup: (AGEP between (32.40154, 40.10231) AND CIT = 3.0 AND DIS = 1.0) 
+Total options: 47339 
+Checked options: 47339 
+Of that skipped options: 33188 
+Time spent: 469.0762143135071 
+True number of training samples: 172508 
+Protected dimension: 36 
+Full dimension: 36 

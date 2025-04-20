@@ -1,0 +1,14 @@
+Config:
+ {'seed': 1, 'model': 'OneRule', 'state': 'CA', 'scenario': 'DifferentStates-MS-NH', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [NATIVITY = 1.0 AND RAC1P = 2.0 | DEYE = 2.0 AND RAC1P = 1.0 | NATIVITY = 1.0 AND POBP = 0 AND RAC1P = 2.0 | CIT = 1.0 AND RAC1P = 2.0 | NATIVITY = 1.0 AND RAC1P = 2.0] 
+Distances reported: [0.3710841523341524, 0.3057861864415359, 0.33105147486884123, 0.32167980607877683, 0.32311427898805745] 
+Times spent: [11.991236448287964, 29.932512998580933, 22.98008131980896, 144.02436447143555, 164.24555778503418] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2153, 4632, 9968, 21452] 
+Protected dimension: 60 
+Full dimension: 65 

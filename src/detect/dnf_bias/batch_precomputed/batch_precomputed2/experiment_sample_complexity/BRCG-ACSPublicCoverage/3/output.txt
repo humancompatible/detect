@@ -1,0 +1,14 @@
+Config:
+ {'seed': 3, 'model': 'BRCG', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [DEAR = 2.0 AND DIS = 2.0 AND DREM = 2.0 AND NATIVITY = 1.0 AND RAC1P = 1.0 | DIS = 2.0 | DIS = 2.0 | DIS = 2.0 | DIS = 2.0] 
+Distances reported: [0.17847025495750707, 0.1766612641815235, 0.1711752671061605, 0.17124891297076728, 0.1696042567342867] 
+Times spent: [5.00934624671936, 6.884265184402466, 8.742799520492554, 13.27164340019226, 29.77073335647583] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [706, 2468, 8798, 29898, 102238] 
+Protected dimension: 42 
+Full dimension: 48 

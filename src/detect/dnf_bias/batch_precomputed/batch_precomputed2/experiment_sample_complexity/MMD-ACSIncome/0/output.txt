@@ -1,0 +1,13 @@
+Config:
+ {'seed': 0, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.15204925877820571, 0.1806126988791598, 0.18170345700502444, 0.18004229842565586, 0.1785557550589969] 
+Times spent: [0.011110782623291016, 0.018656015396118164, 0.04047417640686035, 0.10346150398254395, 0.30860280990600586] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3741, 13989, 52317, 195665] 
+Protected dimension: 26 
+Full dimension: 4 

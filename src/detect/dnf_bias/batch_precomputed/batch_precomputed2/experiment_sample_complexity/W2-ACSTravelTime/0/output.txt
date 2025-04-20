@@ -1,0 +1,13 @@
+Config:
+ {'seed': 0, 'model': 'W2', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.31597900169280096, 0.2808967351446188, 0.23757227757383603, 0.22222229240178082, 0.21319145763602732] 
+Times spent: [0.013589143753051758, 0.05261826515197754, 0.2233119010925293, 0.8865683078765869, 2.3432705402374268] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3625, 13135, 47600, 172508] 
+Protected dimension: 36 
+Full dimension: 36 
