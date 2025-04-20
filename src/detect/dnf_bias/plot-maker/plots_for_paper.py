@@ -3,6 +3,7 @@ import re
 import sys
 from collections import defaultdict
 from datetime import date
+from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,8 +44,12 @@ methods = [
     "MMD",
 ]
 
-base_dir_prefix = (
-    "batch_precomputed/experiment_sample_complexity"  # from cluster, final (hopefully)
+SCRIPT_DIR   = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parents[3]
+
+base_dir_prefix = os.path.join(
+    PROJECT_ROOT,
+    "src", "detect", "dnf_bias", "batch_precomputed", "experiment_sample_complexity"
 )
 
 method_colors = {
