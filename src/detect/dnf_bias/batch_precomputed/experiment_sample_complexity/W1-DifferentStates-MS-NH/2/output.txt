@@ -1,0 +1,13 @@
+Config:
+ {'seed': 2, 'model': 'W1', 'state': 'CA', 'scenario': 'DifferentStates-MS-NH', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.2793258232417155, 0.27426521023173644, 0.24522221687989315, 0.22210561910573828, 0.2112589188982305] 
+Times spent: [0.019521236419677734, 0.05736684799194336, 0.18492412567138672, 0.523442268371582, 1.5325157642364502] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 2153, 4632, 9968, 21452] 
+Protected dimension: 60 
+Full dimension: 60 

@@ -1,0 +1,13 @@
+Config:
+ {'seed': 1, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.0566452005375883, 0.07378051599770251, 0.058821170051033676, 0.06652316426475714, 0.06447988777986442] 
+Times spent: [0.0192720890045166, 0.07383394241333008, 0.2588002681732178, 0.7194318771362305, 1.8320322036743164] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3625, 13135, 47600, 172508] 
+Protected dimension: 36 
+Full dimension: 6 

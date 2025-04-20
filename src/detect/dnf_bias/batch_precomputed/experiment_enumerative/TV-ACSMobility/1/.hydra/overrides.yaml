@@ -1,0 +1,4 @@
+- seed=1
+- ++scenario=ACSMobility
+- ++model=TV
+- +dir_structure=cluster_batch

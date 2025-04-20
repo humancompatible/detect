@@ -1,0 +1,13 @@
+Config:
+ {'seed': 1, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.08295690473997407, 0.09967396409453795, 0.09601419974148882, 0.09484530229201063, 0.0945082938822275] 
+Times spent: [0.02883291244506836, 0.10625314712524414, 0.38007116317749023, 1.320906639099121, 4.28890061378479] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3431, 11771, 40385, 138554] 
+Protected dimension: 42 
+Full dimension: 12 

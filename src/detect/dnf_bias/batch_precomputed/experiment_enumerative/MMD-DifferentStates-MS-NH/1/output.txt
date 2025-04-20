@@ -1,0 +1,17 @@
+Config:
+ {'seed': 1, 'model': 'MMD', 'state': 'CA', 'scenario': 'DifferentStates-MS-NH', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.2535663410560174 
+Max MSD: 0.001168897157422474 
+Max subgroup: (AGEP between (85.50855, 95.0095) AND MIL = 2.0 AND POVPIP between (0.0, 50.10501)) 
+Total options: 5772124799 
+Checked options: 782521 
+Of that skipped options: 662061 
+Time spent: 600.00315117836 
+True number of training samples: 21452 
+Protected dimension: 60 
+Full dimension: 60 

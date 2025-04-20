@@ -1,0 +1,17 @@
+Config:
+ {'seed': 4, 'model': 'MSD', 'state': 'CA', 'scenario': 'DifferentStates-MD-MS', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit b29b7e629c8860a245276b16196c0751700e9a46
+Fix skipping of MSD
+
+RESULT
+Max distance: 0.2614980285293126 
+Max MSD: 0.2614980285293126 
+Max subgroup: (POVPIP between (450.94509, 501.0501)) 
+Total options: 5772124799 
+Checked options: 335707 
+Of that skipped options: 247992 
+Time spent: 600.0194323062897 
+True number of training samples: 44482 
+Protected dimension: 60 
+Full dimension: 60 

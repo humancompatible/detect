@@ -1,0 +1,4 @@
+- seed=3
+- ++scenario=ACSPublicCoverage
+- ++model=W1
+- +dir_structure=cluster_batch

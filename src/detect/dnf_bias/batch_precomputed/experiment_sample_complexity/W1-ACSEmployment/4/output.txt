@@ -1,0 +1,13 @@
+Config:
+ {'seed': 4, 'model': 'W1', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.3237052086936751, 0.2969334059262222, 0.28824381001745897, 0.27952960414343697, 0.27707926468470584] 
+Times spent: [0.009815692901611328, 0.053311824798583984, 0.25858092308044434, 1.3162994384765625, 6.1319899559021] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 4412, 19464, 85867, 378817] 
+Protected dimension: 41 
+Full dimension: 41 

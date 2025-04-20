@@ -1,0 +1,13 @@
+Config:
+ {'seed': 0, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.7695459173612238, 0.6826745445690933, 0.6630485733947409, 0.6319960491485788, 0.6256254509423778] 
+Times spent: [0.008806467056274414, 0.041857242584228516, 0.20199918746948242, 0.9369871616363525, 4.273332118988037] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 4412, 19464, 85867, 378817] 
+Protected dimension: 41 
+Full dimension: 41 

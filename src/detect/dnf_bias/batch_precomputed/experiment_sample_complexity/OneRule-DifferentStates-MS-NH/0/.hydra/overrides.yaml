@@ -1,0 +1,4 @@
+- seed=0
+- ++scenario=DifferentStates-MS-NH
+- ++model=OneRule
+- +dir_structure=cluster_batch

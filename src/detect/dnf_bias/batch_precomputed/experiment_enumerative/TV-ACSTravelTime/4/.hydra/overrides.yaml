@@ -1,0 +1,4 @@
+- seed=4
+- ++scenario=ACSTravelTime
+- ++model=TV
+- +dir_structure=cluster_batch

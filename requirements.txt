@@ -1,0 +1,9 @@
+# dnf_bias
+hydra-core==1.3.2
+numpy==2.2.5
+pandas==2.2.3
+folktables==0.0.12
+POT==0.9.5
+ipykernel==6.29.5
+matplotlib==3.10.1
+

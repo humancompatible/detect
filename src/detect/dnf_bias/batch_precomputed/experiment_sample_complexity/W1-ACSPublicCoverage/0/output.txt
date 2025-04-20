@@ -1,0 +1,13 @@
+Config:
+ {'seed': 0, 'model': 'W1', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.21229005349935423, 0.16310125304845646, 0.1306351514436272, 0.11886707278844671, 0.10620741953922447] 
+Times spent: [0.04534006118774414, 0.07580018043518066, 0.37235522270202637, 1.4987215995788574, 5.32401967048645] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3431, 11771, 40385, 138554] 
+Protected dimension: 42 
+Full dimension: 42 

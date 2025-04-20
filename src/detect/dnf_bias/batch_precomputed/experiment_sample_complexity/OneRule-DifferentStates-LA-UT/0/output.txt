@@ -1,0 +1,14 @@
+Config:
+ {'seed': 0, 'model': 'OneRule', 'state': 'CA', 'scenario': 'DifferentStates-LA-UT', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [DIS = 2.0 AND RAC1P = 1.0 | RAC1P = 2.0 | RAC1P = 2.0 | RAC1P = 2.0 | RAC1P = 2.0] 
+Distances reported: [0.23117752431542404, 0.28155883410340743, 0.2632425444859822, 0.25818893386987524, 0.2572570151714365] 
+Times spent: [6.848812103271484, 18.013500452041626, 132.8899528980255, 302.219699382782, 653.8422555923462] 
+Optimal/Valid flags: [True, True, True, True, False] 
+True numbers of training samples: [1000, 2477, 6132, 15183, 37595] 
+Protected dimension: 60 
+Full dimension: 65 

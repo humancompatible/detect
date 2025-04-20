@@ -1,0 +1,17 @@
+Config:
+ {'seed': 1, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSEmployment', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.0000000000000002 
+Max MSD: 0.00011088469234187517 
+Max subgroup: (AGEP between (28.202820000000003, 37.60376) AND CIT = 5.0 AND MIL = 2.0) 
+Total options: 18381599 
+Checked options: 7994 
+Of that skipped options: 2092 
+Time spent: 600.1700994968414 
+True number of training samples: 378817 
+Protected dimension: 41 
+Full dimension: 41 

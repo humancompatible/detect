@@ -1,0 +1,17 @@
+Config:
+ {'seed': 4, 'model': 'TV', 'state': 'CA', 'scenario': 'DifferentStates-CA-WY', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.0000000000000113 
+Max MSD: 0.0020009935228959123 
+Max subgroup: (MIL = 4.0 AND RAC1P = 7.0) 
+Total options: 5772124799 
+Checked options: 10295 
+Of that skipped options: 1687 
+Time spent: 600.0267834663391 
+True number of training samples: 192278 
+Protected dimension: 60 
+Full dimension: 60 

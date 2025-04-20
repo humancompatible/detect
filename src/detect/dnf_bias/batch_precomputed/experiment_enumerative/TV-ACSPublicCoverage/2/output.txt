@@ -1,0 +1,17 @@
+Config:
+ {'seed': 2, 'model': 'TV', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.0000000000000002 
+Max MSD: 0.0001727478450139148 
+Max subgroup: (DEYE = 1.0 AND RAC1P = 7.0) 
+Total options: 56008799 
+Checked options: 32118 
+Of that skipped options: 14075 
+Time spent: 600.000687122345 
+True number of training samples: 138554 
+Protected dimension: 42 
+Full dimension: 42 

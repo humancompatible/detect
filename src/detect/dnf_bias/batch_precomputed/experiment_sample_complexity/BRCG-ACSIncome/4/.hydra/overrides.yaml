@@ -1,0 +1,4 @@
+- seed=4
+- ++scenario=ACSIncome
+- ++model=BRCG
+- +dir_structure=cluster_batch

@@ -1,0 +1,14 @@
+Config:
+ {'seed': 2, 'model': 'OneRule', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [RAC1P = 1.0 AND SEX = 2.0 | RAC1P = 1.0 AND SEX = 2.0 | CIT = 1.0 AND RAC1P = 1.0 | RAC1P = 1.0 AND SEX = 2.0 | RAC1P = 1.0 AND SEX = 2.0] 
+Distances reported: [0.0730027548209366, 0.08067881426268012, 0.06605044515576897, 0.07181199427351176, 0.07709806150813628] 
+Times spent: [10.315932273864746, 24.277605295181274, 107.77450060844421, 140.58806443214417, 539.8950245380402] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3625, 13135, 47600, 172508] 
+Protected dimension: 36 
+Full dimension: 38 

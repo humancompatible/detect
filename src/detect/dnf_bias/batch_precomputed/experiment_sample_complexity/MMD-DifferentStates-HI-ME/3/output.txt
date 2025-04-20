@@ -1,0 +1,13 @@
+Config:
+ {'seed': 3, 'model': 'MMD', 'state': 'CA', 'scenario': 'DifferentStates-HI-ME', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.2560608590031381, 0.24242489862951017, 0.2459358918206505, 0.24832758297885435, 0.24788556178656754] 
+Times spent: [0.040373802185058594, 0.1002655029296875, 0.24402976036071777, 0.5562939643859863, 1.2924935817718506] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 1929, 3720, 7175, 13837] 
+Protected dimension: 60 
+Full dimension: 14 

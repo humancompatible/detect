@@ -1,0 +1,4 @@
+- seed=0
+- ++scenario=DifferentStates-HI-ME
+- ++model=W2
+- +dir_structure=cluster_batch

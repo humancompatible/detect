@@ -1,0 +1,14 @@
+Config:
+ {'seed': 3, 'model': 'Ripper', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [AGEP outside (78.60616, 86.30693000000001) AND CIT = 1.0 AND DIS = 2.0 AND POVPIP between (450.94509, 501.0501) AND RAC1P = 1.0 | CIT = 1.0 AND RAC1P = 1.0 | CIT = 1.0 AND RAC1P = 1.0 | RAC1P = 1.0 | CIT = 1.0 AND RAC1P = 1.0] 
+Distances reported: [0.06345733041575485, 0.06805399325084366, 0.07552205997801847, 0.0648695277118827, 0.0679786827263168] 
+Times spent: [0.12926459312438965, 0.2042832374572754, 0.44427037239074707, 1.3621222972869873, 4.6157310009002686] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [914, 3556, 12738, 46370, 167376] 
+Protected dimension: 36 
+Full dimension: 36 

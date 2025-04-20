@@ -1,0 +1,17 @@
+Config:
+ {'seed': 0, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSPublicCoverage', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 1.224744871391589 
+Max MSD: 0.00023143443903961953 
+Max subgroup: (AGEP between (24.800980000000003, 29.70147) AND DREM = 1.0 AND MIL = 2.0) 
+Total options: 56008799 
+Checked options: 48879 
+Of that skipped options: 23961 
+Time spent: 600.1022522449493 
+True number of training samples: 138554 
+Protected dimension: 42 
+Full dimension: 42 

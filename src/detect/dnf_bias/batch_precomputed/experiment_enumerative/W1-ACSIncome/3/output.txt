@@ -1,0 +1,17 @@
+Config:
+ {'seed': 3, 'model': 'W1', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 0.3813168502864596 
+Max MSD: 4.069331390746796e-05 
+Max subgroup: (AGEP between (70.90539000000001, 78.60616) AND POBP = 5) 
+Total options: 1229 
+Checked options: 1229 
+Of that skipped options: 494 
+Time spent: 27.1518611907959 
+True number of training samples: 195665 
+Protected dimension: 26 
+Full dimension: 26 

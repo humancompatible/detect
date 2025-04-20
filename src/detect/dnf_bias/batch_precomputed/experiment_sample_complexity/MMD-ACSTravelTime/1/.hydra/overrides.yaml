@@ -1,0 +1,4 @@
+- seed=1
+- ++scenario=ACSTravelTime
+- ++model=MMD
+- +dir_structure=cluster_batch

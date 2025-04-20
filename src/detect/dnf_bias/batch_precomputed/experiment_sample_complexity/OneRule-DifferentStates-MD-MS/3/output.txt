@@ -1,0 +1,14 @@
+Config:
+ {'seed': 3, 'model': 'OneRule', 'state': 'CA', 'scenario': 'DifferentStates-MD-MS', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit a2ead450e0279facf70964b49aa9f380ac8f173f
+Fix Onerule rule writeout
+
+RESULT
+Subgroups found: [POVPIP between (450.94509, 501.0501) | DEAR = 2.0 AND DEYE = 2.0 AND POVPIP between (450.94509, 501.0501) | POVPIP between (450.94509, 501.0501) | POVPIP between (450.94509, 501.0501) | RAC1P = 2.0] 
+Distances reported: [0.2762322826316903, 0.2808009586014393, 0.2782178659472838, 0.27229405663894346, 0.08740356557650963] 
+Times spent: [18.811513662338257, 44.927297830581665, 118.61613202095032, 252.37664103507996, 665.5836412906647] 
+Optimal/Valid flags: [True, True, True, True, False] 
+True numbers of training samples: [1000, 2583, 6670, 17225, 44482] 
+Protected dimension: 60 
+Full dimension: 65 

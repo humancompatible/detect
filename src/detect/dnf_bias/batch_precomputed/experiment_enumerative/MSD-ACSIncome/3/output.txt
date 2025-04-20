@@ -1,0 +1,17 @@
+Config:
+ {'seed': 3, 'model': 'MSD', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit b29b7e629c8860a245276b16196c0751700e9a46
+Fix skipping of MSD
+
+RESULT
+Max distance: 0.1938762318078747 
+Max MSD: 0.1938762318078747 
+Max subgroup: (AGEP between (17.0, 24.70077)) 
+Total options: 1229 
+Checked options: 1229 
+Of that skipped options: 494 
+Time spent: 20.154521703720093 
+True number of training samples: 195665 
+Protected dimension: 26 
+Full dimension: 26 

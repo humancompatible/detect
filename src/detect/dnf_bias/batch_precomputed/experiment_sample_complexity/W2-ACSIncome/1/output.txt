@@ -1,0 +1,13 @@
+Config:
+ {'seed': 1, 'model': 'W2', 'state': 'CA', 'scenario': 'ACSIncome', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Distances reported: [0.3958946445976943, 0.38931461110577037, 0.3797779784945485, 0.380898814962052, 0.38254460128872786] 
+Times spent: [0.0060577392578125, 0.018297433853149414, 0.07132530212402344, 0.3014354705810547, 1.3062517642974854] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [1000, 3741, 13989, 52317, 195665] 
+Protected dimension: 26 
+Full dimension: 26 

@@ -1,0 +1,17 @@
+Config:
+ {'seed': 2, 'model': 'MMD', 'state': 'CA', 'scenario': 'ACSTravelTime', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 0cb97131b83ff04d704598c7242d669d394d9ed9
+Fix writeout
+
+RESULT
+Max distance: 0.9759000729485332 
+Max MSD: 5.055825348097601e-05 
+Max subgroup: (CIT = 1.0 AND DIS = 2.0 AND POVPIP between (0.0, 50.10501) AND RAC1P = 7.0 AND SEX = 2.0) 
+Total options: 47339 
+Checked options: 47339 
+Of that skipped options: 33188 
+Time spent: 456.89011549949646 
+True number of training samples: 172508 
+Protected dimension: 36 
+Full dimension: 36 

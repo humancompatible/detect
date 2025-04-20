@@ -1,0 +1,14 @@
+Config:
+ {'seed': 3, 'model': 'Ripper', 'state': 'CA', 'scenario': 'DifferentStates-LA-UT', 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10}
+
+Git hash: commit 967a3cc70a8b3940cdf375e6371455ad490287dc
+Log all found terms
+
+RESULT
+Subgroups found: [RAC1P = 1.0 | DIS = 2.0 AND RAC1P = 1.0 | DIS = 2.0 AND RAC1P = 1.0 | DIS = 2.0 AND RAC1P = 1.0 | DIS = 2.0 AND RAC1P = 1.0] 
+Distances reported: [0.2831050228310502, 0.25046904315197, 0.24392156862745096, 0.24672693266832918, 0.23979494968672865] 
+Times spent: [0.356520414352417, 0.280381441116333, 0.501713752746582, 0.7948949337005615, 1.8970839977264404] 
+Optimal/Valid flags: [True, True, True, True, True] 
+True numbers of training samples: [876, 2132, 5100, 12832, 31602] 
+Protected dimension: 60 
+Full dimension: 60 
