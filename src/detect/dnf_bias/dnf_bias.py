@@ -42,20 +42,13 @@ def load_dataset(csv_path: Path, target_col: str) -> Tuple[pd.DataFrame, pd.Data
     y_df = pd.DataFrame(df[target_col])
     return X_df, y_df
 
-
-FEATURE_PROCESSING = {
-    "POBP": lambda x: int(x) // 100,
-    "OCCP": lambda x: int(x) // 100,
-    "PUMA": lambda x: int(x) // 100,
-    "POWPUMA": lambda x: int(x) // 1000,
-}
-
 def prepare_dataset(
     input_data: pd.DataFrame,
     target_data: pd.DataFrame,
     n_max: int,
     protected_attrs: List[str],
     continuous_feats: List[str],
+    feature_processing: Dict[str, int],
     seed: int = 0,
 ):
     mask = ~input_data.isnull().any(axis=1)
@@ -63,15 +56,16 @@ def prepare_dataset(
     input_data = input_data[mask.values]
     target_data = target_data[mask.values]
 
+    # Preprocess the data
+    for col, div in feature_processing.items():
+        if col in input_data.columns:
+            input_data[col] = input_data[col].map(lambda x: int(x) // div)
+
     values = {}
     bounds = {}
     for col in input_data.columns:
         vals = input_data[col].unique()
         logger.debug(f"{col} has {vals.shape[0]} values")
-        if col in FEATURE_PROCESSING:
-            input_data[col] = input_data[col].map(FEATURE_PROCESSING[col])
-            vals = input_data[col].unique()
-            logger.debug(f"{col} changed - {vals.shape[0]} values")
         if vals.shape[0] <= 1:
             input_data.drop(columns=[col], inplace=True)
             continue
@@ -266,6 +260,13 @@ def main():
     continuous_list = cli.pop("continuous", "").split(",") if "continuous" in cli else []
     continuous_list = [c.strip() for c in continuous_list if c.strip()]
 
+    fp_map: Dict[str, int] = {}
+    fp_spec = cli.pop("feature_processing", "")
+    if fp_spec:
+        for item in fp_spec.split(","):
+            col, div = item.split(":")
+            fp_map[col.strip()] = int(div)
+
     target = cli.pop("target", csv.stem)
 
     model = cli.pop("model", "MMD")
@@ -293,6 +294,7 @@ def main():
         n_samples,
         protected_attrs=protected_list, # or [col for col in X_df.columns if col.lower() in {"sex", "race"}],
         continuous_feats=continuous_list,
+        feature_processing=fp_map,
         seed=seed,
     )
 
@@ -328,7 +330,8 @@ python src/detect/dnf_bias/dnf_bias.py
         target=PINCP
         protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
         continuous=AGEP,PINCP,WKHP,JWMNP,POVPIP
-        
+        feature_processing=POBP:100,OCCP:100,PUMA:100,POWPUMA:1000
+
         model=MMD
         seed=0
         n_samples=1000000
