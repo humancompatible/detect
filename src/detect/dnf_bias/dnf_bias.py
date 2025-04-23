@@ -6,15 +6,8 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-
 from omegaconf import DictConfig
 
-
-from scenarios.folktables_scenarios import (
-    PROTECTED_ATTRS,
-    FEATURE_PROCESSING,
-    CONTINUOUS_FEATURES,
-)
 from data_handler import DataHandler
 from binarizer import Binarizer
 from utils import MMD, TV_binarized, our_metric, wasserstein_distance
@@ -41,23 +34,30 @@ def _parse_cli() -> Dict[str, str]:
         sys.exit("Arguments 'dataset_path' and 'result_folder' are required.")
     return args
 
-
-
-def load_dataset(csv_path: Path, target_col: str) -> Tuple[
-    Binarizer, DataHandler, pd.DataFrame, pd.Series, Binarizer, pd.DataFrame
-]:
+def load_dataset(csv_path: Path, target_col: str) -> Tuple[pd.DataFrame, pd.DataFrame]:
     df = pd.read_csv(csv_path)
     if target_col not in df.columns:
         raise ValueError(f"Target column '{target_col}' missing in CSV.")
+    X_df = df.drop(columns=[target_col])
+    y_df = pd.DataFrame(df[target_col])
+    return X_df, y_df
 
-    input_data = df.drop(columns=[target_col])
-    target_data = pd.DataFrame(df[target_col])
 
-    return input_data, target_data
+FEATURE_PROCESSING = {
+    "POBP": lambda x: int(x) // 100,
+    "OCCP": lambda x: int(x) // 100,
+    "PUMA": lambda x: int(x) // 100,
+    "POWPUMA": lambda x: int(x) // 1000,
+}
 
 def prepare_dataset(
-    input_data: pd.DataFrame, target_data: pd.DataFrame, n_max: int, seed: int = 0):
-
+    input_data: pd.DataFrame,
+    target_data: pd.DataFrame,
+    n_max: int,
+    protected_attrs: List[str],
+    continuous_feats: List[str],
+    seed: int = 0,
+):
     mask = ~input_data.isnull().any(axis=1)
     logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
     input_data = input_data[mask.values]
@@ -75,7 +75,7 @@ def prepare_dataset(
         if vals.shape[0] <= 1:
             input_data.drop(columns=[col], inplace=True)
             continue
-        if col not in CONTINUOUS_FEATURES:
+        if col not in continuous_feats:
             values[col] = vals
         else:
             bounds[col] = (min(vals), max(vals))
@@ -98,7 +98,7 @@ def prepare_dataset(
 
     binarizer = Binarizer(dhandler, target_positive_vals=[True])
 
-    protected_cols = [col for col in input_data.columns if col in PROTECTED_ATTRS]
+    protected_cols = [col for col in input_data.columns if col in protected_attrs]
     dhandler_protected = DataHandler.from_data(
         input_data[protected_cols],
         target_data,
@@ -260,7 +260,13 @@ def main():
     cli = _parse_cli()
     csv = Path(cli.pop("dataset_path"))
     out = Path(cli.pop("result_folder"))
-    target = cli.pop("target", None)
+
+    protected_list = cli.pop("protected", "").split(",") if "protected" in cli else []
+    protected_list = [c.strip() for c in protected_list if c.strip()]
+    continuous_list = cli.pop("continuous", "").split(",") if "continuous" in cli else []
+    continuous_list = [c.strip() for c in continuous_list if c.strip()]
+
+    target = cli.pop("target", csv.stem)
 
     model = cli.pop("model", "MMD")
     seed = int(cli.pop("seed", 0))
@@ -269,11 +275,11 @@ def main():
     time_limit = int(cli.pop("time_limit", 600))
     n_min = int(cli.pop("n_min", 10))
 
-    
     if cli:
         logger.warning("Ignoring unknown args: %s", list(cli.keys()))
 
-    input_data, target_data = load_dataset(csv, target)
+    X_df, y_df = load_dataset(csv, target)
+
     (
         bin_all,
         _handler,
@@ -281,17 +287,26 @@ def main():
         y_df,
         bin_prot,
         X_prot_df,
-    ) = prepare_dataset(input_data, target_data, n_samples)
+    ) = prepare_dataset(
+        X_df,
+        y_df,
+        n_samples,
+        protected_attrs=protected_list, # or [col for col in X_df.columns if col.lower() in {"sex", "race"}],
+        continuous_feats=continuous_list,
+        seed=seed,
+    )
 
-    cfg = {
-        "model": model,
-        "seed": seed,
-        "n_samples": n_samples,
-        "train_samples": train_samples,
-        "time_limit": time_limit,
-        "n_min": n_min,
-        "result_folder": out,
-    }
+    cfg = DictConfig(
+        {
+            "model": model,
+            "seed": seed,
+            "n_samples": n_samples,
+            "train_samples": train_samples,
+            "time_limit": time_limit,
+            "n_min": n_min,
+            "result_folder": out,
+        }
+    )
 
     run_enumerative(
         binarizer=bin_all,
@@ -299,7 +314,7 @@ def main():
         y_orig=y_df,
         binarizer_protected=bin_prot,
         X_prot_orig=X_prot_df,
-        cfg=DictConfig(cfg),
+        cfg=cfg,
     )
 
 if __name__ == "__main__":
@@ -310,7 +325,9 @@ if __name__ == "__main__":
 python src/detect/dnf_bias/dnf_bias.py 
         dataset_path=src/detect/dnf_bias/data/ACSIncome_CA.csv 
         result_folder=results_dir 
-        target=PINCP 
+        target=PINCP
+        protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
+        continuous=AGEP,PINCP,WKHP,JWMNP,POVPIP
         
         model=MMD
         seed=0
