@@ -330,8 +330,8 @@ python src/detect/dnf_bias/dnf_bias.py
         target=PINCP
         protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
         continuous=AGEP,PINCP,WKHP,JWMNP,POVPIP
+        
         feature_processing=POBP:100,OCCP:100,PUMA:100,POWPUMA:1000
-
         model=MMD
         seed=0
         n_samples=1000000
