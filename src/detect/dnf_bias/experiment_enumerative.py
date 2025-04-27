@@ -11,103 +11,14 @@ from omegaconf import DictConfig
 from scenarios.folktables_scenarios import load_scenario
 from utils import MMD, TV_binarized, our_metric, wasserstein_distance
 
+from helper import subg_generator
+
 gitcommit = ""
 
 logger = logging.getLogger(__name__)
 
+counter = DictConfig({"n_options": 0, "n_checked": 0, "n_skipped": 0})
 
-n_options = 0
-n_checked = 0
-n_skipped = 0
-
-
-def recurse_generate(data, n_min, size, i, lengths, order, offset, pos, neg):
-    if sum((data[:, pos] == 1).all(axis=1) & (data[:, neg] == 0).all(axis=1)) < n_min:
-        global n_checked, n_skipped
-        val = recurse(size, i, [lengths[v] for v in order])
-        n_checked += val
-        n_skipped += val
-        return
-    if size == 0:
-        yield (pos, neg)
-        return
-    for j in range(i, len(order) - size + 1):
-        if lengths[order[j]] == 1:
-            yield from recurse_generate(
-                data,
-                n_min,
-                size - 1,
-                j + 1,
-                lengths,
-                order,
-                offset + 1,
-                pos + [offset],
-                neg,
-            )
-            yield from recurse_generate(
-                data,
-                n_min,
-                size - 1,
-                j + 1,
-                lengths,
-                order,
-                offset + 1,
-                pos,
-                neg + [offset],
-            )
-        else:
-            for k in range(lengths[order[j]]):
-                yield from recurse_generate(
-                    data,
-                    n_min,
-                    size - 1,
-                    j + 1,
-                    lengths,
-                    order,
-                    offset + lengths[order[j]],
-                    pos + [offset + k],
-                    neg,
-                )
-        offset += lengths[order[j]]
-
-
-# def generator(data, n_min, feature_order, feature_lens):
-# options = list(range(n_options[size]))
-# while len(options) > 0:
-#     opt_i = np.random.choice(len(options), 1)
-#     opt = options[opt_i]
-#     options.pop(opt_i)
-
-
-def recurse(size, i, lengths):
-    if size == 0:
-        return 1
-    tot = 0
-    for j in range(i, len(lengths) - size + 1):
-        tot += max(lengths[j], 2) * recurse(size - 1, j + 1, lengths)
-    return tot
-
-
-def subg_generator(data, n_min, binarizer):
-    feature_order = []
-    feature_lens = {}
-    for bin in binarizer.get_bin_encodings():
-        if bin.feature.name not in feature_lens:
-            feature_order.append(bin.feature.name)
-            feature_lens[bin.feature.name] = 1
-        else:
-            feature_lens[bin.feature.name] += 1
-
-    global n_options
-    # feature_lens = {k: max(v, 2) for k, v in feature_lens.items()}
-    for size in range(1, len(feature_order)):
-        n_options += recurse(size, 0, list(feature_lens.values()))
-    logger.info(f"In total, there are {n_options} possible subgroups")
-
-    for size in range(1, len(feature_order)):
-        yield from recurse_generate(
-            data, n_min, size, 0, feature_lens, feature_order, 0, [], []
-        )
 
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="enumerative")
@@ -155,18 +66,19 @@ def run_experiment(cfg: DictConfig):
         X0cat = X_categ[~y].astype(float)
         X1cat = X_categ[y].astype(float)
 
-    global n_options, n_checked, n_skipped
-    n_options = 0
-    n_checked = 0
-    n_skipped = 0
 
-    subgroups = subg_generator(X_prot, cfg.n_min, binarizer_protected)
+    global counter
+    counter.n_options = 0
+    counter.n_checked = 0
+    counter.n_skipped = 0
+
+    subgroups = subg_generator(X_prot, cfg.n_min, binarizer_protected, counter, logger)
 
     max_dist = 0
     max_sg = ([], [])
     t_start = time.time()
     for sg_pos, sg_neg in subgroups:
-        n_checked += 1
+        counter.n_checked += 1
         logger.info(f"{sg_pos}, {sg_neg}")
         if cfg.model == "MSD":
             mask = X_prot[:, sg_pos].all(axis=1) & (~X_prot[:, sg_neg]).all(axis=1)
@@ -237,9 +149,9 @@ def run_experiment(cfg: DictConfig):
         out_file.write(f"Max distance: {max_dist} \n")
         out_file.write(f"Max MSD: {max_MSD} \n")
         out_file.write(f"Max subgroup: ({' AND '.join(sorted(map(str, term)))}) \n")
-        out_file.write(f"Total options: {n_options} \n")
-        out_file.write(f"Checked options: {n_checked} \n")
-        out_file.write(f"Of that skipped options: {n_skipped} \n")
+        out_file.write(f"Total options: {counter.n_options} \n")
+        out_file.write(f"Checked options: {counter.n_checked} \n")
+        out_file.write(f"Of that skipped options: {counter.n_skipped} \n")
         out_file.write(f"Time spent: {t_tot} \n")
         out_file.write(f"True number of training samples: {n_samples} \n")
         out_file.write(f"Protected dimension: {d_prot} \n")
