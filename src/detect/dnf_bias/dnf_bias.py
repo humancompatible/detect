@@ -249,36 +249,7 @@ def run_enumerative(
 
 
 
-
-def main():
-    cli = _parse_cli()
-    csv = Path(cli.pop("dataset_path"))
-    out = Path(cli.pop("result_folder"))
-
-    protected_list = cli.pop("protected", "").split(",") if "protected" in cli else []
-    protected_list = [c.strip() for c in protected_list if c.strip()]
-    continuous_list = cli.pop("continuous", "").split(",") if "continuous" in cli else []
-    continuous_list = [c.strip() for c in continuous_list if c.strip()]
-
-    fp_map: Dict[str, int] = {}
-    fp_spec = cli.pop("feature_processing", "")
-    if fp_spec:
-        for item in fp_spec.split(","):
-            col, div = item.split(":")
-            fp_map[col.strip()] = int(div)
-
-    target = cli.pop("target", csv.stem)
-
-    model = cli.pop("model", "MMD")
-    seed = int(cli.pop("seed", 0))
-    n_samples = int(cli.pop("n_samples", 1000000))
-    train_samples = int(cli.pop("train_samples", 100000))
-    time_limit = int(cli.pop("time_limit", 600))
-    n_min = int(cli.pop("n_min", 10))
-
-    if cli:
-        logger.warning("Ignoring unknown args: %s", list(cli.keys()))
-
+def dnf_bias(csv, out, target, protected_list, continuous_list, fp_map, model, seed, n_samples, train_samples, time_limit, n_min):
     X_df, y_df = load_dataset(csv, target)
 
     (
@@ -319,6 +290,52 @@ def main():
         cfg=cfg,
     )
 
+
+def main():
+    cli = _parse_cli()
+    csv = Path(cli.pop("dataset_path"))
+    out = Path(cli.pop("result_folder"))
+
+    protected_list = cli.pop("protected", "").split(",") if "protected" in cli else []
+    protected_list = [c.strip() for c in protected_list if c.strip()]
+    continuous_list = cli.pop("continuous", "").split(",") if "continuous" in cli else []
+    continuous_list = [c.strip() for c in continuous_list if c.strip()]
+
+    fp_map: Dict[str, int] = {}
+    fp_spec = cli.pop("feature_processing", "")
+    if fp_spec:
+        for item in fp_spec.split(","):
+            col, div = item.split(":")
+            fp_map[col.strip()] = int(div)
+
+    target = cli.pop("target", csv.stem)
+
+    model = cli.pop("model", "MMD")
+    seed = int(cli.pop("seed", 0))
+    n_samples = int(cli.pop("n_samples", 1000000))
+    train_samples = int(cli.pop("train_samples", 100000))
+    time_limit = int(cli.pop("time_limit", 600))
+    n_min = int(cli.pop("n_min", 10))
+
+    if cli:
+        logger.warning("Ignoring unknown args: %s", list(cli.keys()))
+
+    dnf_bias(
+        csv=csv,
+        out=out,
+        target=target,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        model=model,
+        seed=seed,
+        n_samples=n_samples,
+        train_samples=train_samples,
+        time_limit=time_limit,
+        n_min=n_min,
+    )
+    
+
 if __name__ == "__main__":
     main()
 
@@ -334,7 +351,7 @@ python src/detect/dnf_bias/dnf_bias.py
         feature_processing=POBP:100,OCCP:100,PUMA:100,POWPUMA:1000
         model=MMD
         seed=0
-        n_samples=1000000
+        n_samples=1000
         train_samples=100000
         time_limit=600
         n_min=10
