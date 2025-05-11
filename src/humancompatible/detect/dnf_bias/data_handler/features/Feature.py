@@ -7,7 +7,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from data_handler.types import OneDimData
+from ..types import OneDimData
 
 
 class Monotonicity(Enum):

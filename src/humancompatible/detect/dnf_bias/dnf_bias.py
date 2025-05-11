@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
-from data_handler import DataHandler
-from binarizer import Binarizer
-from utils import MMD, TV_binarized, our_metric, wasserstein_distance
+from .data_handler import DataHandler
+from .binarizer import Binarizer
+from .utils import MMD, TV_binarized, our_metric, wasserstein_distance
 
-from helper import subg_generator
+from .helper import subg_generator
 
 
 logger = logging.getLogger(__name__)
@@ -230,8 +230,7 @@ def run_enumerative(
 
     import os
     # Save the output and error logs to a file in the current run directory
-    with open(os.path.join(run_dir, "output.txt"), "w") as out_file:
-        print(f"Config:\n {cfg}", file=sys.stderr)
+    with open(os.path.join(run_dir, "output.txt"), "a") as out_file:
         out_file.write(f"Config:\n {cfg}\n")
         out_file.write("RESULT\n")
         out_file.write(f"Max distance: {max_dist} \n")
@@ -247,7 +246,116 @@ def run_enumerative(
 
     print(f"Result saved to {os.path.join(run_dir, 'output.txt')}")
 
+    return max_dist, max_MSD, sorted(map(str, term))
 
+
+def prepare_logs(out: Path) -> None:
+    out.mkdir(parents=True, exist_ok=True)
+    log_path = out / "output.txt"
+    root = logging.getLogger()
+    if any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_path)
+           for h in root.handlers):
+        return
+    for h in list(root.handlers):
+        root.removeHandler(h)
+    fh = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+    root.addHandler(fh)
+    root.setLevel(logging.INFO)
+
+
+def dnf_bias(
+    csv: Path,
+    out: Path,
+    target: str,
+    protected_list: List[str],
+    continuous_list: List[str],
+    fp_map: Dict[str, int],
+    model: str = "MMD",
+    seed: int = 0,
+    n_samples: int = 1_000_000,
+    train_samples: int = 100_000,
+    time_limit: int = 600,
+    n_min: int = 10,
+) -> Tuple[float, float, List[str]]:
+    """Running DNF bias detection experiments on given CSV dataset.
+
+    Args:
+        csv (Path): Path to the input CSV file.
+        out (Path): Directory where 'output.txt' will be saved.
+        target (str): Name of the column to treat as the binary target variable.
+        protected_list (List[str]): Comma-separated list of columns to treat as protected attributes; subgroups
+            are defined over these attributes.
+        continuous_list (List[str]): List of columns to treat as continuous features.
+        fp_map (Dict[str, int]): Mapping of column names to integer divisors for
+            cardinality reduction before binarization (e.g., {"POBP":100}).
+        model (str, optional): Distance metric to optimize. One of
+            - 'MMD' - Maximum Mean Discrepancy
+            - 'MSD' - Mean Subgroup Difference  
+            - 'W1' - 1-Wasserstein (Earth Mover's Distance)  
+            - 'W2' - 2-Wasserstein  
+            - 'TV' - Total Variation  
+            Defaults to 'MMD'.
+        seed (int, optional): Random seed for dataset subsampling. Defaults to 0.
+        n_samples (int, optional): Maximum number of rows to sample from the dataset. Defaults to 1_000_000.
+        train_samples (int, optional): Reserved for future use. Defaults to 100_000.
+        time_limit (int, optional): Time budget for the search in seconds. Defaults to 600.
+        n_min (int, optional): Minimum subgroup support (number of rows). Defaults to 10.
+
+    Returns:
+        Tuple[float, float, List[str]]: A tuple of:
+            - max_distance (float): The highest distance value found across all
+                valid subgroups.
+            - max_msd (float): The MSD score corresponding to the best subgroup.
+            - best_literals (List[str]): A list of human-readable strings
+                describing the positive/negative bins that define the best subgroup.
+
+    Writes a summary file ('output.txt') into 'out' containing
+       detailed information about the run (max distance, subgroup description,
+       counters, and timing).
+    """
+
+    X_df, y_df = load_dataset(csv, target)
+
+    (
+        bin_all,
+        _handler,
+        X_df,
+        y_df,
+        bin_prot,
+        X_prot_df,
+    ) = prepare_dataset(
+        X_df,
+        y_df,
+        n_samples,
+        protected_attrs=protected_list,
+        continuous_feats=continuous_list,
+        feature_processing=fp_map,
+        seed=seed,
+    )
+
+    cfg = DictConfig(
+        {
+            "model": model,
+            "seed": seed,
+            "n_samples": n_samples,
+            "train_samples": train_samples,
+            "time_limit": time_limit,
+            "n_min": n_min,
+            "result_folder": out,
+        }
+    )
+
+    prepare_logs(out)
+    return run_enumerative(
+        binarizer=bin_all,
+        X_orig=X_df,
+        y_orig=y_df,
+        binarizer_protected=bin_prot,
+        X_prot_orig=X_prot_df,
+        cfg=cfg,
+    )
 
 
 def main():
@@ -279,53 +387,29 @@ def main():
     if cli:
         logger.warning("Ignoring unknown args: %s", list(cli.keys()))
 
-    X_df, y_df = load_dataset(csv, target)
-
-    (
-        bin_all,
-        _handler,
-        X_df,
-        y_df,
-        bin_prot,
-        X_prot_df,
-    ) = prepare_dataset(
-        X_df,
-        y_df,
-        n_samples,
-        protected_attrs=protected_list, # or [col for col in X_df.columns if col.lower() in {"sex", "race"}],
-        continuous_feats=continuous_list,
-        feature_processing=fp_map,
+    dnf_bias(
+        csv=csv,
+        out=out,
+        target=target,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        model=model,
         seed=seed,
+        n_samples=n_samples,
+        train_samples=train_samples,
+        time_limit=time_limit,
+        n_min=n_min,
     )
-
-    cfg = DictConfig(
-        {
-            "model": model,
-            "seed": seed,
-            "n_samples": n_samples,
-            "train_samples": train_samples,
-            "time_limit": time_limit,
-            "n_min": n_min,
-            "result_folder": out,
-        }
-    )
-
-    run_enumerative(
-        binarizer=bin_all,
-        X_orig=X_df,
-        y_orig=y_df,
-        binarizer_protected=bin_prot,
-        X_prot_orig=X_prot_df,
-        cfg=cfg,
-    )
+    
 
 if __name__ == "__main__":
     main()
 
 
 '''
-python src/detect/dnf_bias/dnf_bias.py 
-        dataset_path=src/detect/dnf_bias/data/ACSIncome_CA.csv 
+python src/humancompatible/detect/dnf_bias/dnf_bias.py 
+        dataset_path=src/humancompatible/detect/dnf_bias/data/ACSIncome_CA.csv 
         result_folder=results_dir 
         target=PINCP
         protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
