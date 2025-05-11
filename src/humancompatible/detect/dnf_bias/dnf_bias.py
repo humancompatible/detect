@@ -230,8 +230,7 @@ def run_enumerative(
 
     import os
     # Save the output and error logs to a file in the current run directory
-    with open(os.path.join(run_dir, "output.txt"), "w") as out_file:
-        print(f"Config:\n {cfg}", file=sys.stderr)
+    with open(os.path.join(run_dir, "output.txt"), "a") as out_file:
         out_file.write(f"Config:\n {cfg}\n")
         out_file.write("RESULT\n")
         out_file.write(f"Max distance: {max_dist} \n")
@@ -247,8 +246,23 @@ def run_enumerative(
 
     print(f"Result saved to {os.path.join(run_dir, 'output.txt')}")
 
-    return max_dist, max_MSD, term
+    return max_dist, max_MSD, sorted(map(str, term))
 
+
+def prepare_logs(out: Path) -> None:
+    out.mkdir(parents=True, exist_ok=True)
+    log_path = out / "output.txt"
+    root = logging.getLogger()
+    if any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_path)
+           for h in root.handlers):
+        return
+    for h in list(root.handlers):
+        root.removeHandler(h)
+    fh = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    fh.setLevel(logging.INFO)
+    fh.setFormatter(logging.Formatter("[%(levelname)s] %(message)s"))
+    root.addHandler(fh)
+    root.setLevel(logging.INFO)
 
 
 def dnf_bias(
@@ -333,6 +347,7 @@ def dnf_bias(
         }
     )
 
+    prepare_logs(out)
     return run_enumerative(
         binarizer=bin_all,
         X_orig=X_df,
@@ -393,8 +408,8 @@ if __name__ == "__main__":
 
 
 '''
-python src/detect/dnf_bias/dnf_bias.py 
-        dataset_path=src/detect/dnf_bias/data/ACSIncome_CA.csv 
+python src/humancompatible/detect/dnf_bias/dnf_bias.py 
+        dataset_path=src/humancompatible/detect/dnf_bias/data/ACSIncome_CA.csv 
         result_folder=results_dir 
         target=PINCP
         protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
