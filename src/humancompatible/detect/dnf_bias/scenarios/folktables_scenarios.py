@@ -273,45 +273,63 @@ def load_custom_scenarios(seed, n_max, year="2018", horizon="1-Year", **kwargs):
 def load_scenario(
     name, seed, n_max, state="CA", year="2018", horizon="1-Year", **kwargs
 ):
-    if name == "ACSIncome":
-        from folktables import ACSIncome as Dataset
-    elif name == "ACSPublicCoverage":
-        from folktables import ACSPublicCoverage as Dataset
-    elif name == "ACSMobility":
-        from folktables import ACSMobility as Dataset
-    elif name == "ACSEmployment":
-        from folktables import ACSEmployment as Dataset
-    elif name == "ACSTravelTime":
-        from folktables import ACSTravelTime as Dataset
-    elif name.split("-")[0] == "DifferentStates":
-        states = sorted([name.split("-")[1], name.split("-")[2]])
-        if states == ["HI", "ME"]:  # Hawaii and Maine
-            kwargs["states"] = ["HI", "ME"]
-            kwargs["code_states"] = [15.0, 23.0]
-            return load_custom_scenarios(seed, n_max, year, horizon, **kwargs)
-        elif states == ["CA", "WY"]:  # California and Wyoming
-            kwargs["states"] = ["CA", "WY"]
-            kwargs["code_states"] = [6.0, 56.0]
-        elif states == ["MS", "NH"]:  # Mississippi and New Hampshire
-            kwargs["states"] = ["MS", "NH"]
-            kwargs["code_states"] = [28.0, 33.0]
-        elif states == ["MD", "MS"]:  # Maryland and Mississippi
-            kwargs["states"] = ["MD", "MS"]
-            kwargs["code_states"] = [24.0, 28.0]
-        elif states == ["LA", "UT"]:  # Louisiana and Utah
-            kwargs["states"] = ["LA", "UT"]
-            kwargs["code_states"] = [22.0, 49.0]
-        else:
-            raise ValueError(f'Scenario "{name}" with given states does not exist.')
+    # if name == "ACSIncome":
+    #     from folktables import ACSIncome as Dataset
+    # elif name == "ACSPublicCoverage":
+    #     from folktables import ACSPublicCoverage as Dataset
+    # elif name == "ACSMobility":
+    #     from folktables import ACSMobility as Dataset
+    # elif name == "ACSEmployment":
+    #     from folktables import ACSEmployment as Dataset
+    # elif name == "ACSTravelTime":
+    #     from folktables import ACSTravelTime as Dataset
+    # elif name.split("-")[0] == "DifferentStates":
+    #     states = sorted([name.split("-")[1], name.split("-")[2]])
+    #     if states == ["HI", "ME"]:  # Hawaii and Maine
+    #         kwargs["states"] = ["HI", "ME"]
+    #         kwargs["code_states"] = [15.0, 23.0]
+    #         return load_custom_scenarios(seed, n_max, year, horizon, **kwargs)
+    #     elif states == ["CA", "WY"]:  # California and Wyoming
+    #         kwargs["states"] = ["CA", "WY"]
+    #         kwargs["code_states"] = [6.0, 56.0]
+    #     elif states == ["MS", "NH"]:  # Mississippi and New Hampshire
+    #         kwargs["states"] = ["MS", "NH"]
+    #         kwargs["code_states"] = [28.0, 33.0]
+    #     elif states == ["MD", "MS"]:  # Maryland and Mississippi
+    #         kwargs["states"] = ["MD", "MS"]
+    #         kwargs["code_states"] = [24.0, 28.0]
+    #     elif states == ["LA", "UT"]:  # Louisiana and Utah
+    #         kwargs["states"] = ["LA", "UT"]
+    #         kwargs["code_states"] = [22.0, 49.0]
+    #     else:
+    #         raise ValueError(f'Scenario "{name}" with given states does not exist.')
         
-        return load_custom_scenarios(seed, n_max, year, horizon, **kwargs)
-    else:
-        raise ValueError(f'Scenario "{name}" does not exist.')
+    #     return load_custom_scenarios(seed, n_max, year, horizon, **kwargs)
+    # else:
+    #     raise ValueError(f'Scenario "{name}" does not exist.')
 
-    data_source = ACSDataSource(survey_year=year, horizon=horizon, survey="person")
-    states = [state] if state is not None else None
-    data = data_source.get_data(states=states, download=True)
-    input_data, target_data, _ = Dataset.df_to_pandas(data)
+    # data_source = ACSDataSource(survey_year=year, horizon=horizon, survey="person")
+    # states = [state] if state is not None else None
+    # data = data_source.get_data(states=states, download=True)
+    # input_data, target_data, _ = Dataset.df_to_pandas(data)
+
+    df = pd.read_csv("C:\personal\work\detect\src\detect\dnf_bias\data\ACSIncome_CA.csv")
+    input_data = df.drop(columns=['PINCP'])
+    target_data = pd.DataFrame(df['PINCP'])
+    
+    print("INPUT DATA\n")
+    print(type(input_data))
+    print(input_data)
+    print("TARGET DATA\n")
+    print(type(target_data))
+    print(target_data)
+    print("END OF DATA\n")
+    print("\n\n\n")
+
+    merged = input_data.copy()
+    merged['PINCP'] = target_data['PINCP'].values
+    merged.to_csv('merged_data.csv', index=False)
+
 
     mask = ~input_data.isnull().any(axis=1)
     logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
