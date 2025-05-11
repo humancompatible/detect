@@ -8,11 +8,11 @@ import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
 
-from data_handler import DataHandler
-from binarizer import Binarizer
-from utils import MMD, TV_binarized, our_metric, wasserstein_distance
+from .data_handler import DataHandler
+from .binarizer import Binarizer
+from .utils import MMD, TV_binarized, our_metric, wasserstein_distance
 
-from helper import subg_generator
+from .helper import subg_generator
 
 
 logger = logging.getLogger(__name__)

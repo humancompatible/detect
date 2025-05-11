@@ -5,9 +5,9 @@ from enum import Enum
 import numpy as np
 import pandas as pd
 
-from data_handler import DataHandler
-from data_handler.features import Binary, Categorical, Contiguous, Feature, Mixed
-from data_handler.types import CategValue, DataLike, OneDimData
+from ..data_handler import DataHandler
+from ..data_handler.features import Binary, Categorical, Contiguous, Feature, Mixed
+from ..data_handler.types import CategValue, DataLike, OneDimData
 
 BinValue = float | tuple[float, float] | CategValue | list[CategValue] | bool
 

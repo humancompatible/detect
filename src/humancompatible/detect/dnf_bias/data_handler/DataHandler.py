@@ -3,7 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from data_handler.features import (
+from .features import (
     Binary,
     Categorical,
     Contiguous,
@@ -11,7 +11,7 @@ from data_handler.features import (
     Monotonicity,
     make_feature,
 )
-from data_handler.types import CategValue, DataLike, FeatureID, OneDimData
+from .types import CategValue, DataLike, FeatureID, OneDimData
 
 
 class DataHandler:

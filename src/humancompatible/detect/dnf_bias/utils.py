@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import ot
 
-from binarizer import Bin, Binarizer
+from .binarizer import Bin, Binarizer
 
 logger = logging.getLogger(__name__)
 
