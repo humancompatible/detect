@@ -743,7 +743,7 @@ Max subgroup: (POBP = 2 AND RAC1P = 2.0)
 Total options: 1229 
 Checked options: 1229 
 Of that skipped options: 494 
-Time spent: 15.507577419281006 
+Time spent: 16.192437410354614 
 True number of training samples: 195665 
 Protected dimension: 26 
 Full dimension: 26 
