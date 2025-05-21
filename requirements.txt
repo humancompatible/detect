@@ -5,6 +5,7 @@ folktables==0.0.12
 POT==0.9.5
 ipykernel==6.29.5
 matplotlib==3.10.1
+pyomo==6.9.2
 
 pytest==8.3.5
 notebook==7.4.2

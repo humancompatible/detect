@@ -410,23 +410,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-
-'''
-python src/humancompatible/detect/dnf_bias/dnf_bias.py 
-        dataset_path=src/humancompatible/detect/dnf_bias/data/ACSIncome_CA.csv 
-        result_folder=results_dir 
-        target=PINCP
-        protected=SEX,RAC1P,AGEP,POBP,_POBP,DIS,CIT,MIL,ANC,NATIVITY,DEAR,DEYE,DREM,FER,POVPIP
-        continuous=AGEP,PINCP,WKHP,JWMNP,POVPIP
-        
-        feature_processing=POBP:100,OCCP:100,PUMA:100,POWPUMA:1000
-        model=MMD
-        seed=0
-        n_samples=1000000
-        train_samples=100000
-        time_limit=600
-        n_min=10
-
-'''
-
-

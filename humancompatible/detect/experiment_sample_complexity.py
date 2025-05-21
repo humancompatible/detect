@@ -8,10 +8,10 @@ import hydra
 import numpy as np
 from omegaconf import DictConfig
 
-from methods import test_BRCG, test_RIPPER
-from one_rule import OneRule
-from scenarios.folktables_scenarios import load_scenario
-from utils import (
+from humancompatible.detect.methods import test_BRCG, test_RIPPER
+from humancompatible.detect.one_rule import OneRule
+from humancompatible.detect.scenarios.folktables_scenarios import load_scenario
+from humancompatible.detect.utils import (
     MMD,
     TV_binarized,
     balance_datasets,
@@ -20,13 +20,23 @@ from utils import (
     wasserstein_distance,
 )
 
-gitcommit = ""
-
-logger = logging.getLogger(__name__)
-
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="distances")
 def run_experiment(cfg: DictConfig):
+    logger = logging.getLogger(__name__)
+
+    try:
+        gitcommit = cfg.gitcommit
+    except Exception:
+        import subprocess
+        from hydra.utils import get_original_cwd
+        res = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True,
+            cwd=get_original_cwd(),
+        )
+        gitcommit = res.stdout.strip()
+
     binarizer, dhandler, X_orig, y_orig, binarizer_protected, X_prot_orig = (
         load_scenario(cfg.scenario, cfg.seed, cfg.n_samples, state=cfg.state)
     )
@@ -197,12 +207,6 @@ if __name__ == "__main__":
         ["git", "status", "--porcelain"], capture_output=True, text=True
     )
     if result.stdout.strip() == "":
-        res = subprocess.run(
-            ["git", "rev-list", "--format=%B", "-n", "1", "HEAD"],
-            capture_output=True,
-            text=True,
-        )
-        gitcommit = res.stdout.strip()
         run_experiment()
     else:
         raise Exception("Git status is not clean. Commit changes first.")
