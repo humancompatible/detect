@@ -9,24 +9,26 @@ import numpy as np
 from omegaconf import DictConfig
 
 from humancompatible.detect.scenarios.folktables_scenarios import load_scenario
-
 from humancompatible.detect.utils import MMD, TV_binarized, our_metric, wasserstein_distance
-
 from humancompatible.detect.helper import subg_generator
 
-
-from pathlib import Path
-from hydra.core.hydra_config import HydraConfig
-def _safe_output_dir() -> str:
-    try:
-        return HydraConfig.get().runtime.output_dir
-    except ValueError:
-        return str(Path.cwd())
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="enumerative")
 def run_experiment(cfg: DictConfig):
     logger = logging.getLogger(__name__)
     counter = DictConfig({"n_options": 0, "n_checked": 0, "n_skipped": 0})
+
+    try:
+        gitcommit = cfg.gitcommit
+    except Exception:
+        import subprocess
+        from hydra.utils import get_original_cwd
+        res = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True,
+            cwd=get_original_cwd(),
+        )
+        gitcommit = res.stdout.strip()
 
     binarizer, dhandler, X_orig, y_orig, binarizer_protected, X_prot_orig = (
         load_scenario(cfg.scenario, cfg.seed, cfg.n_samples, state=cfg.state)
@@ -70,7 +72,6 @@ def run_experiment(cfg: DictConfig):
     if cfg.model == "MMD":
         X0cat = X_categ[~y].astype(float)
         X1cat = X_categ[y].astype(float)
-
 
     counter.n_options = 0
     counter.n_checked = 0
@@ -142,12 +143,13 @@ def run_experiment(cfg: DictConfig):
     term += [bin_feats[r].negate_self() for r in max_sg[1]]
 
     # Get the current working directory, which Hydra sets for each run
-    run_dir = _safe_output_dir()
+    run_dir = hydra.core.hydra_config.HydraConfig.get().runtime.output_dir
 
     # Save the output and error logs to a file in the current run directory
     with open(os.path.join(run_dir, "output.txt"), "w") as out_file:
         print(f"Config:\n {cfg}", file=sys.stderr)
         out_file.write(f"Config:\n {cfg}\n")
+        out_file.write(f"\nGit hash: {gitcommit}\n\n")
         out_file.write("RESULT\n")
         out_file.write(f"Max distance: {max_dist} \n")
         out_file.write(f"Max MSD: {max_MSD} \n")
@@ -162,6 +164,12 @@ def run_experiment(cfg: DictConfig):
 
     print(f"Result saved to {os.path.join(run_dir, 'output.txt')}")
 
-def run_experiment_from_cfg(cfg: DictConfig):
-    return run_experiment.__wrapped__(cfg)
 
+if __name__ == "__main__":
+    result = subprocess.run(
+        ["git", "status", "--porcelain"], capture_output=True, text=True
+    )
+    if result.stdout.strip() == "":
+        run_experiment()
+    else:
+        raise Exception("Git status is not clean. Commit changes first.")
