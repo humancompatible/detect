@@ -164,6 +164,7 @@ def run_enumerative(
     subgroups = subg_generator(X_prot, cfg.n_min, binarizer_protected, counter, logger)
 
     max_dist = 0
+    max_MSD = 0
     max_sg = ([], [])
     t_start = time.time()
     for sg_pos, sg_neg in subgroups:
@@ -266,12 +267,12 @@ def prepare_logs(out: Path) -> None:
 
 
 def dnf_bias(
-    csv: Path,
-    out: Path,
+    csv: Path | str,
+    out: Path | str,
     target: str,
     protected_list: List[str],
-    continuous_list: List[str],
-    fp_map: Dict[str, int],
+    continuous_list: List[str] = [],
+    fp_map: Dict[str, int] = {},
     model: str = "MMD",
     seed: int = 0,
     n_samples: int = 1_000_000,
@@ -282,14 +283,14 @@ def dnf_bias(
     """Running DNF bias detection experiments on given CSV dataset.
 
     Args:
-        csv (Path): Path to the input CSV file.
-        out (Path): Directory where 'output.txt' will be saved.
+        csv (Path, str): Path to the input CSV file.
+        out (Path, str): Directory where 'output.txt' will be saved.
         target (str): Name of the column to treat as the binary target variable.
         protected_list (List[str]): Comma-separated list of columns to treat as protected attributes; subgroups
             are defined over these attributes.
-        continuous_list (List[str]): List of columns to treat as continuous features.
-        fp_map (Dict[str, int]): Mapping of column names to integer divisors for
-            cardinality reduction before binarization (e.g., {"POBP":100}).
+        continuous_list (List[str], optional): List of columns to treat as continuous features. Defaults to [].
+        fp_map (Dict[str, int], optional): Mapping of column names to integer divisors for 
+            cardinality reduction before binarization (e.g., {"POBP":100}). Defaults to {}.
         model (str, optional): Distance metric to optimize. One of
             - 'MMD' - Maximum Mean Discrepancy
             - 'MSD' - Mean Subgroup Difference  
@@ -316,6 +317,9 @@ def dnf_bias(
        counters, and timing).
     """
 
+    csv = Path(csv)
+    out = Path(out)
+    
     X_df, y_df = load_dataset(csv, target)
 
     (

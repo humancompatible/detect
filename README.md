@@ -6,7 +6,7 @@ Bias detection
 
 - Install all libraries from `requirements.txt`.
 
-- Install code "in editable mode", by running the following comand in your activated venv:
+- Install code "in editable mode", by running the following command in your activated venv:
     ```bash
     pip install -e .
     ```
