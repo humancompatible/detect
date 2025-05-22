@@ -1,3 +1,4 @@
+import subprocess
 import os
 import re
 import sys
@@ -8,257 +9,241 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 
-scenarios = [
-    "ACSIncome",
-    "ACSPublicCoverage",
-    "ACSMobility",
-    "ACSEmployment",
-    "ACSTravelTime",
-    "DifferentStates-HI-ME",
-    "DifferentStates-CA-WY",
-    "DifferentStates-MS-NH",
-    "DifferentStates-MD-MS",
-    "DifferentStates-LA-UT",
-]
-scenario_titles = {
-    "ACSIncome": "ACSIncome (CA)",
-    "ACSPublicCoverage": "ACSPublicCoverage (CA)",
-    "ACSMobility": "ACSMobility (CA)",
-    "ACSEmployment": "ACSEmployment (CA)",
-    "ACSTravelTime": "ACSTravelTime (CA)",
-    "DifferentStates-HI-ME": "Havaii X Maine",
-    "DifferentStates-CA-WY": "California X Wyoming",
-    "DifferentStates-MS-NH": "Mississippi X New Hampshire",
-    "DifferentStates-MD-MS": "Maryland X Mississippi",
-    "DifferentStates-LA-UT": "Louisiana X Utah",
-}
 
-methods = [
-    "OneRule",
-    # "OneRuleBalanceData",
-    "BRCG",
-    "Ripper",
-    "W1",
-    "W2",
-    "TV",
-    "MMD",
-]
+def load_config():
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parents[2]
 
-SCRIPT_DIR   = Path(__file__).resolve().parent
-PROJECT_ROOT = SCRIPT_DIR.parents[3]
+    return {
+        "scenarios": [
+            "ACSIncome",
+            "ACSPublicCoverage",
+            "ACSMobility",
+            "ACSEmployment",
+            "ACSTravelTime",
+            "DifferentStates-HI-ME",
+            "DifferentStates-CA-WY",
+            "DifferentStates-MS-NH",
+            "DifferentStates-MD-MS",
+            "DifferentStates-LA-UT",
+        ],
+        "scenario_titles": {
+            "ACSIncome": "ACSIncome (CA)",
+            "ACSPublicCoverage": "ACSPublicCoverage (CA)",
+            "ACSMobility": "ACSMobility (CA)",
+            "ACSEmployment": "ACSEmployment (CA)",
+            "ACSTravelTime": "ACSTravelTime (CA)",
+            "DifferentStates-HI-ME": "Havaii X Maine",
+            "DifferentStates-CA-WY": "California X Wyoming",
+            "DifferentStates-MS-NH": "Mississippi X New Hampshire",
+            "DifferentStates-MD-MS": "Maryland X Mississippi",
+            "DifferentStates-LA-UT": "Louisiana X Utah",
+        },
+        "methods": [
+            "OneRule",
+            # "OneRuleBalanceData",
+            "BRCG",
+            "Ripper",
+            "W1",
+            "W2",
+            "TV",
+            "MMD",
+        ],
+        "base_dir_prefix": os.path.join(
+            project_root,
+            "humancompatible", "detect", "batch_precomputed", "experiment_sample_complexity"
+        ),
+        "method_colors": {
+            "OneRuleBalanceData": "red",
+            "OneRule": "red",
+            "BRCG": "orange",
+            "Ripper": "magenta",
+            "TV": "green",
+            "W1": "blue",
+            "W2": "cyan",
+            "MMD": "brown",
+        },
+        "method_lines": {
+            "OneRuleBalanceData": "--",
+            "OneRule": "--",
+            "BRCG": "--",
+            "Ripper": "--",
+            "TV": "-",
+            "W1": "-",
+            "W2": "-",
+            "MMD": "-",
+        },
+        "method_names": {
+            "OneRuleBalanceData": "MSD (ours)",
+            "OneRule": "MSD (ours)",
+            "BRCG": "MSD (via BRCG)",
+            "Ripper": "MSD (via Ripper)",
+            "W1": "Wasserstein-1",
+            "W2": "Wasserstein-2",
+            "TV": "Total Variation",
+            "MMD": "MMD",
+        },
+    }
 
-base_dir_prefix = os.path.join(
-    PROJECT_ROOT,
-    "src", "detect", "dnf_bias", "batch_precomputed", "experiment_sample_complexity"
-)
+def extract_data(config):
+    """Read all experiment output.txt files into a nested dictionary.
 
-method_colors = {
-    "OneRuleBalanceData": "red",
-    "OneRule": "red",
-    "BRCG": "orange",
-    "Ripper": "magenta",
-    "TV": "green",
-    "W1": "blue",
-    "W2": "cyan",
-    "MMD": "brown",
-}
-method_lines = {
-    "OneRuleBalanceData": "--",
-    "OneRule": "--",
-    "BRCG": "--",
-    "Ripper": "--",
-    "TV": "-",
-    "W1": "-",
-    "W2": "-",
-    "MMD": "-",
-}
-method_names = {
-    "OneRuleBalanceData": "MSD (ours)",
-    "OneRule": "MSD (ours)",
-    "BRCG": "MSD (via BRCG)",
-    "Ripper": "MSD (via Ripper)",
-    "W1": "Wasserstein-1",
-    "W2": "Wasserstein-2",
-    "TV": "Total Variation",
-    "MMD": "MMD",
-}
+    Args:
+        config (dict): Configuration dictionary.
 
+    Returns:
+        dict: data[method][metric][scenario] = list of parsed values.
+    """
+    scenarios = config["scenarios"]
+    methods = config["methods"]
+    base_dir = config["base_dir_prefix"]
 
-def extract_data():
-    extracted_data = []
-    base_dir = base_dir_prefix
-
+    extracted = []
     for method in methods:
         for scenario in scenarios:
             for i in range(5):
-                folder_path = os.path.join(base_dir, f"{method}-{scenario}", str(i))
-                output_file = os.path.join(folder_path, "output.txt")
-                if not os.path.isfile(output_file):
-                    print(f"passing {i} {output_file}")
+                folder = os.path.join(base_dir, f"{method}-{scenario}", str(i))
+                out_f = os.path.join(folder, "output.txt")
+                if not os.path.isfile(out_f):
+                    print(f"passing {i} {out_f}")
                     continue
+                with open(out_f, "r", errors="ignore") as f:
+                    for line in f:
+                        m = re.search(r"Distances reported: \[(.+)\]", line)
+                        if m:
+                            d = [float(v) for v in m.group(1).split(", ")]
+                            extracted.append(("Distance", scenario, method, d))
+                        m = re.search(r"Optimal/Valid flags: \[(.+)\]", line)
+                        if m:
+                            flag = [v.strip()=="True" for v in m.group(1).split(", ")]
+                            extracted.append(("Optimal/Valid", scenario, method, flag))
+                        m = re.search(r"True numbers of training samples: \[(.+)\]", line)
+                        if m:
+                            s = [int(v) for v in m.group(1).split(", ")]
+                            extracted.append(("# Samples", scenario, method, s))
 
-                with open(output_file, "r", errors="ignore") as file:
-                    lines = file.readlines()
-                    for line in lines:
-                        dist = re.search(r"Distances reported: \[(.+)\]", line)
-                        if dist:
-                            dists = [float(v) for v in dist.group(1).split(", ")]
-                            extracted_data.append(("Distance", scenario, method, dists))
-                        opt = re.search(r"Optimal/Valid flags: \[(.+)\]", line)
-                        if opt:
-                            opts = [
-                                v.strip() == "True" for v in opt.group(1).split(", ")
-                            ]
-                            extracted_data.append(
-                                ("Optimal/Valid", scenario, method, opts)
-                            )
-                        nsamples = re.search(
-                            r"True numbers of training samples: \[(.+)\]", line
-                        )
-                        if nsamples:
-                            samples = [int(v) for v in nsamples.group(1).split(", ")]
-                            extracted_data.append(
-                                ("# Samples", scenario, method, samples)
-                            )
+    data = {}
+    for metric, scen, method, val in extracted:
+        data.setdefault(method, {})\
+            .setdefault(metric, defaultdict(list))[scen].append(val)
+    return data
 
-    data_dict = {}
+def plot_metrics(data, config, plot_type):
+    """Generate and save a 2×5 grid of plots for the requested metric.
 
-    for (
-        valname,
-        scenario,
-        method,
-        val,
-    ) in extracted_data:
-        if method not in data_dict:
-            data_dict[method] = {}
-        if valname not in data_dict[method]:
-            data_dict[method][valname] = defaultdict(list)
-        data_dict[method][valname][scenario].append(val)
+    Args:
+        data (dict): Extracted data from `extract_data()`.
+        config (dict): Configuration dict.
+        plot_type (str): One of "RSE", "relative", "base".
+    """
+    scenarios = config["scenarios"]
+    titles = config["scenario_titles"]
+    methods = config["methods"]
+    colors = config["method_colors"]
+    lines = config["method_lines"]
+    names = config["method_names"]
 
-    return data_dict
+    r, c = 2, 5
+    fig, axs = plt.subplots(r, c, figsize=(12, 5))
 
-
-all_data = extract_data()
-
-r, c = 2, 5
-# fig, axs = plt.subplots(r, c, figsize=(15, 6))
-fig, axs = plt.subplots(r, c, figsize=(12, 5))
-
-for method in methods:
-    if method not in all_data:
-        continue
-    data_dict = all_data[method]
-    for j, scenario in enumerate(scenarios):
-        if scenario not in data_dict["Distance"]:
+    for method in methods:
+        if method not in data:
             continue
-        ax = axs[j // c, j % c]
+        md = data[method]
+        for j, scen in enumerate(scenarios):
+            if scen not in md.get("Distance", {}):
+                continue
+            ax = axs[j // c, j % c]
 
-        vals = np.array(data_dict["Distance"][scenario])
-        validity = np.array(data_dict["Optimal/Valid"][scenario], dtype=bool)
-        sorted_mean = [
-            np.mean(vals[:, k][validity[:, k]])
-            for k in range(vals.shape[1])
-            if validity[:, k].any()
-        ]
-        sorted_std = [
-            np.std(vals[:, k][validity[:, k]])
-            for k in range(vals.shape[1])
-            if validity[:, k].any()
-        ]
-        x = np.array(data_dict["# Samples"][scenario][0])[validity.any(axis=0)]
-
-        if sys.argv[1] == "RSE":
-            valid_samples = validity.sum(axis=0)
-            ax.plot(
-                x,
-                (sorted_std / np.sqrt(valid_samples[valid_samples > 0])) / sorted_mean,
-                marker="x",
-                linestyle=method_lines[method],
-                color=method_colors[method],
-                label=f"{method_names[method]}",
-            )
-
-            if j % c == 0:
-                ax.set_ylabel("Relative Standard Error")
-            if j // c == 1:
-                ax.set_xlabel("Number of samples")
-            ax.set_xscale("log")
-            ax.set_title(scenario_titles[scenario])
-            ax.grid(True, which="both", ls=":")
-            handles, labels = ax.get_legend_handles_labels()
-
-        elif sys.argv[1] == "relative":
-            final_mean = sorted_mean[-1]
-            sorted_std = [
-                np.std(vals[:, k][validity[:, k]] / final_mean)
+            vals = np.array(md["Distance"][scen])
+            validity = np.array(md["Optimal/Valid"][scen], dtype=bool)
+            means = [
+                np.mean(vals[:, k][validity[:, k]])
                 for k in range(vals.shape[1])
                 if validity[:, k].any()
             ]
-            ax.fill_between(
-                x,
-                (np.array(sorted_mean) / final_mean - np.array(sorted_std)),
-                (np.array(sorted_mean) / final_mean + np.array(sorted_std)),
-                color=method_colors[method],
-                alpha=0.2,
-            )
-            ax.plot(
-                x,
-                sorted_mean / final_mean,
-                linestyle=method_lines[method],
-                color=method_colors[method],
-                label=f"{method_names[method]}",
-            )
+            stds = [
+                np.std(vals[:, k][validity[:, k]])
+                for k in range(vals.shape[1])
+                if validity[:, k].any()
+            ]
+            x = np.array(md["# Samples"][scen][0])[validity.any(axis=0)]
 
-            if j % c == 0:
-                ax.set_ylabel("Relative distance measure")
+            if plot_type == "RSE":
+                vs = validity.sum(axis=0)
+                y = (np.array(stds) / np.sqrt(vs[vs>0])) / np.array(means)
+                ax.plot(
+                    x, y,
+                    marker="x", linestyle=lines[method],
+                    color=colors[method], label=names[method]
+                )
+                ax.set_ylabel("Relative Standard Error" if j % c==0 else "")
+            elif plot_type == "relative":
+                final = means[-1]
+                rs = [
+                    np.std(vals[:, k][validity[:, k]]/final)
+                    for k in range(vals.shape[1]) if validity[:, k].any()
+                ]
+                ax.fill_between(
+                    x, np.array(means)/final-np.array(rs),
+                    np.array(means)/final+np.array(rs),
+                    color=colors[method], alpha=0.2
+                )
+                ax.plot(
+                    x, np.array(means)/final,
+                    linestyle=lines[method], color=colors[method],
+                    label=names[method]
+                )
+                ax.set_ylabel("Relative distance measure" if j % c==0 else "")
+            elif plot_type == "base":
+                ax.fill_between(
+                    x, np.array(means)-np.array(stds),
+                    np.array(means)+np.array(stds),
+                    color=colors[method], alpha=0.2
+                )
+                ax.plot(
+                    x, means,
+                    linestyle=lines[method], color=colors[method],
+                    label=names[method]
+                )
+                ax.set_ylabel("Distance measures" if j % c==0 else "")
+            else:
+                raise ValueError("Specify plot type: RSE, relative, or base")
+
+            ax.set_xscale("log")
+            ax.set_title(titles[scen])
+            ax.grid(True, which="both", ls=":")
             if j // c == 1:
                 ax.set_xlabel("Number of samples")
-            ax.set_xscale("log")
-            ax.set_title(scenario_titles[scenario])
-            ax.grid(True, which="both", ls=":")
-            # ax.legend(loc="upper right")
-            handles, labels = ax.get_legend_handles_labels()
 
-        elif sys.argv[1] == "base":
-            ax.fill_between(
-                x,
-                (np.array(sorted_mean) - np.array(sorted_std)),
-                (np.array(sorted_mean) + np.array(sorted_std)),
-                color=method_colors[method],
-                alpha=0.2,
-            )
-            ax.plot(
-                x,
-                sorted_mean,
-                linestyle=method_lines[method],
-                color=method_colors[method],
-                label=f"{method_names[method]}",
-            )
+    handles, labels = axs[0,0].get_legend_handles_labels()
+    fig.legend(
+        handles, labels, loc="lower center", ncol=len(methods),
+        bbox_to_anchor=(0.5, 0)
+    )
+    plt.tight_layout(rect=[0, 0.05, 1, 1])
+    outname = f"final_complexity_{plot_type}.pdf"
+    plt.savefig(outname)
+    plt.show()
 
-            if j % c == 0:
-                ax.set_ylabel("Distance measures")
-            if j // c == 1:
-                ax.set_xlabel("Number of samples")
-            ax.set_xscale("log")
-            ax.set_title(scenario_titles[scenario])
-            ax.grid(True, which="both", ls=":")
-            # ax.legend(loc="upper right")
-            handles, labels = ax.get_legend_handles_labels()
+def main():
+    """Parse CLI arg and dispatch to the appropriate plotting function."""
+    if len(sys.argv) != 2 or sys.argv[1] not in ("RSE", "relative", "base"):
+        print("Usage: python plots_for_paper.py [RSE|relative|base]")
+        sys.exit(1)
+    plot_type = sys.argv[1]
 
-        else:
-            print("specify what type of a plot you want - base, RSE, relative")
-            exit()
+    cfg = load_config()
+    data = extract_data(cfg)
+    plot_metrics(data, cfg, plot_type)
 
-# fig.legend(handles, labels, loc="upper center", ncol=len(methods), bbox_to_anchor=(0.5, 1))
-fig.legend(
-    handles, labels, loc="lower center", ncol=len(methods), bbox_to_anchor=(0.5, 0)
-)
 
-# plt.tight_layout(rect=[0, 0, 1, 0.95])
-plt.tight_layout(rect=[0, 0.05, 1, 1])
-output_path = (
-    f"final_complexity_{sys.argv[1]}.pdf"
-)
-plt.savefig(output_path)
+if __name__ == "__main__":
+    result = subprocess.run(
+        ["git", "status", "--porcelain"], capture_output=True, text=True
+    )
+    if result.stdout.strip() == "":
+        main()
+    else:
+        raise Exception("Git status is not clean. Commit changes first.")
 
-plt.show()
