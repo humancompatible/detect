@@ -229,11 +229,9 @@ def compute_MSD(
             target) are assumed to be protected. Defaults to `None`.
         continuous_list (List[str], optional): A list of column names to treat
             as continuous features. Defaults to `[]`.
-        fp_map (Dict[str, Callable[[Any], Any] | Dict[Any, Any]], optional):
-            A mapping of column names to functions or dictionaries for
-            preprocessing (e.g., cardinality reduction or value mapping)
-            before binarization. For instance: `{"POBP": (lambda x: x // 100)}`
-            or `{"education": {"High School": 0, "College": 1}}`. Defaults to `{}`.
+        fp_map (Dict[str, Callable[[int], int]], optional):
+            A mapping of column names to functions for preprocessing (e.g., cardinality reduction)
+            before binarization. For instance: `{"POBP": (lambda x: x // 100)}`. Defaults to `{}`.
         seed (int | None, optional): Random seed for dataset subsampling. If `None`,
             no seed is set, resulting in non-reproducible sampling. Defaults to `None`.
         n_samples (int, optional): The maximum number of rows to take from the dataset
