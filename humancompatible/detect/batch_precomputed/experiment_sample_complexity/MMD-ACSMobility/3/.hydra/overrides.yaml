@@ -1,4 +1,0 @@
-- seed=3
-- ++scenario=ACSMobility
-- ++model=MMD
-- +dir_structure=cluster_batch

@@ -1,4 +1,0 @@
-- seed=0
-- ++scenario=ACSIncome
-- ++model=W2
-- +dir_structure=cluster_batch

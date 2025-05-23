@@ -1,4 +1,0 @@
-- seed=1
-- ++scenario=DifferentStates-MD-MS
-- ++model=MMD
-- +dir_structure=cluster_batch

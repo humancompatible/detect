@@ -1,4 +1,0 @@
-- seed=0
-- ++scenario=ACSEmployment
-- ++model=W2
-- +dir_structure=cluster_batch

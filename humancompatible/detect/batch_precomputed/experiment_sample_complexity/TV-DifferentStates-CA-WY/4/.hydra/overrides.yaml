@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=DifferentStates-CA-WY
-- ++model=TV
-- +dir_structure=cluster_batch

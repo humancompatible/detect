@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=DifferentStates-LA-UT
-- ++model=Ripper
-- +dir_structure=cluster_batch

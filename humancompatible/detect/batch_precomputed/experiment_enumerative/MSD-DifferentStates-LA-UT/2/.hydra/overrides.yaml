@@ -1,4 +1,0 @@
-- seed=2
-- ++scenario=DifferentStates-LA-UT
-- ++model=MSD
-- +dir_structure=cluster_batch

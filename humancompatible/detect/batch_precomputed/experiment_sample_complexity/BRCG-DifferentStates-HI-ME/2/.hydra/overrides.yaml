@@ -1,4 +1,0 @@
-- seed=2
-- ++scenario=DifferentStates-HI-ME
-- ++model=BRCG
-- +dir_structure=cluster_batch

@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=ACSIncome
-- ++model=OneRule
-- +dir_structure=cluster_batch

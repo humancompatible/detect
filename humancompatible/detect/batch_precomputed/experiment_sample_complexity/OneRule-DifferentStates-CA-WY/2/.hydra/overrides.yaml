@@ -1,4 +1,0 @@
-- seed=2
-- ++scenario=DifferentStates-CA-WY
-- ++model=OneRule
-- +dir_structure=cluster_batch

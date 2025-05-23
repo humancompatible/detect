@@ -1,4 +1,0 @@
-- seed=3
-- ++scenario=DifferentStates-CA-WY
-- ++model=Ripper
-- +dir_structure=cluster_batch

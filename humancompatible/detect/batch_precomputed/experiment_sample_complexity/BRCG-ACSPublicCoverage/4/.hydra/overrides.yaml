@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=ACSPublicCoverage
-- ++model=BRCG
-- +dir_structure=cluster_batch
