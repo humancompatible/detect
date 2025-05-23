@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import subprocess
@@ -166,10 +167,32 @@ def run_experiment(cfg: DictConfig):
 
 
 if __name__ == "__main__":
-    result = subprocess.run(
-        ["git", "status", "--porcelain"], capture_output=True, text=True
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--skip-git-check",
+        action="store_true",
+        help="Run even if the working tree is dirty "
+             "(useful inside notebooks / CI).",
     )
-    if result.stdout.strip() == "":
+
+    args, _ = parser.parse_known_args()
+
+    if "--skip-git-check" in sys.argv:
+        sys.argv.remove("--skip-git-check")
+
+    skip = args.skip_git_check
+
+    if skip:
         run_experiment()
     else:
-        raise Exception("Git status is not clean. Commit changes first.")
+        result = subprocess.run(
+            ["git", "status", "--porcelain"], capture_output=True, text=True
+        )
+        if result.stdout.strip() == "":
+            run_experiment()
+        else:
+            raise RuntimeError(
+                "Git status is not clean. Commit or stash changes first, "
+                "or rerun with --skip-git-check."
+            )
+

@@ -1,5 +1,7 @@
+import argparse
 import subprocess
 import os
+import sys
 import re
 from collections import defaultdict
 from datetime import date
@@ -215,10 +217,32 @@ def main():
 
 
 if __name__ == "__main__":
-    result = subprocess.run(
-        ["git", "status", "--porcelain"], capture_output=True, text=True
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--skip-git-check",
+        action="store_true",
+        help="Run even if the working tree is dirty "
+             "(useful inside notebooks / CI).",
     )
-    if result.stdout.strip() == "":
+
+    args, _ = parser.parse_known_args()
+
+    if "--skip-git-check" in sys.argv:
+        sys.argv.remove("--skip-git-check")
+
+    skip = args.skip_git_check
+
+    if skip:
         main()
     else:
-        raise Exception("Git status is not clean. Commit changes first.")
+        result = subprocess.run(
+            ["git", "status", "--porcelain"], capture_output=True, text=True
+        )
+        if result.stdout.strip() == "":
+            main()
+        else:
+            raise RuntimeError(
+                "Git status is not clean. Commit or stash changes first, "
+                "or rerun with --skip-git-check."
+            )
+
