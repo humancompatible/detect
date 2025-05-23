@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=ACSEmployment
-- ++model=Ripper
-- +dir_structure=cluster_batch

@@ -1,6 +1,0 @@
-# @package _global_
-
-hydra:
-  sweep:
-    dir: batch_out/${hydra.job.name}/${model}-${scenario}
-    subdir: ${seed}

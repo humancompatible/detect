@@ -1,4 +1,0 @@
-- seed=4
-- ++scenario=ACSTravelTime
-- ++model=BRCG
-- +dir_structure=cluster_batch

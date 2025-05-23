@@ -1,4 +1,0 @@
-- seed=3
-- ++scenario=DifferentStates-LA-UT
-- ++model=OneRule
-- +dir_structure=cluster_batch

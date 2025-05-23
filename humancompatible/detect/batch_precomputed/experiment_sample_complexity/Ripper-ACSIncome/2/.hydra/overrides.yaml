@@ -1,4 +1,0 @@
-- seed=2
-- ++scenario=ACSIncome
-- ++model=Ripper
-- +dir_structure=cluster_batch
