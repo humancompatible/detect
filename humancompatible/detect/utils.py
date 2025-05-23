@@ -1,269 +1,180 @@
 import logging
+from typing import List
 
 import numpy as np
-import ot
-
-from .binarizer import Bin, Binarizer
 
 logger = logging.getLogger(__name__)
 
 
-def our_metric(truth: np.ndarray[bool], estimate: np.ndarray[bool]) -> float:
+def evaluate_subgroup_discrepancy(
+    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
+) -> float:
+    """
+    Calculates fairness metric, based on the difference in positive outcomes
+    between a specified subgroup and its complement.
+
+    The subgroup discrepancy quantifies the absolute difference in the proportion of positive
+    outcomes (where `y` is True) for individuals within the `subgroup` versus
+    those outside the `subgroup` (the complement).
+
+    Args:
+        subgroup (np.ndarray[bool] or np.ndarray[int]): A boolean (or integer 0/1)
+            NumPy array indicating membership in the subgroup. `True` or `1` for
+            members of the subgroup, `False` or `0` otherwise. Must have the same
+            shape as `y`.
+        y (np.ndarray[bool] or np.ndarray[int]): A boolean (or integer 0/1) NumPy
+            array representing the true outcomes. `True` or `1` for positive
+            outcomes, `False` or `0` for negative outcomes. Must have the same
+            shape as `subgroup`.
+
+    Returns:
+        float: The absolute difference between the mean of `y` within the `subgroup`
+               and the mean of `y` outside the `subgroup`.
+
+    Raises:
+        AssertionError: If `subgroup` and `y` have different shapes. (Note: This
+                        uses a direct `assert`, which might be disabled in optimized
+                        builds. For production, consider `if not ... raise ValueError`.)
+        ValueError: If the `subgroup` is empty (contains no `True` values) or if
+                    its complement is empty (contains all `True` values).
+
+    Examples:
+        >>> import numpy as np
+        >>> # Scenario 1: No difference
+        >>> subgroup_1 = np.array([True, True, False, False])
+        >>> y_1 = np.array([True, False, True, False])
+        >>> our_metric(subgroup_1, y_1)
+        0.0
+
+        >>> # Scenario 2: Subgroup has higher positive outcome rate
+        >>> subgroup_2 = np.array([True, True, True, False, False])
+        >>> y_2 = np.array([True, True, False, False, False])
+        >>> our_metric(subgroup_2, y_2)
+        0.6666666666666666
+
+        >>> # Scenario 3: Using integer arrays (will be converted to bool)
+        >>> subgroup_3 = np.array([1, 1, 0, 0])
+        >>> y_3 = np.array([1, 0, 1, 0])
+        >>> our_metric(subgroup_3, y_3)
+        0.0
+
+        >>> # Scenario 4: Subgroup is empty (will raise ValueError)
+        >>> subgroup_empty = np.array([False, False, False])
+        >>> y_empty = np.array([True, False, True])
+        >>> try:
+        ...     our_metric(subgroup_empty, y_empty)
+        ... except ValueError as e:
+        ...     print(e)
+        Subgroup is empty. Cannot calculate metric.
+
+        >>> # Scenario 5: Subgroup contains all samples (will raise ValueError)
+        >>> subgroup_full = np.array([True, True, True])
+        >>> y_full = np.array([True, False, True])
+        >>> try:
+        ...     our_metric(subgroup_full, y_full)
+        ... except ValueError as e:
+        ...     print(e)
+        Subgroup contains all samples. Cannot calculate metric.
+    """
     # trunk-ignore(bandit/B101)
     assert (
-        truth.shape == estimate.shape
-    ), "Classification and ground truth have different shape"
+        subgroup.shape == y.shape
+    ), f"Vector y and subgroup mapping have different shapes: {y.shape} and {subgroup.shape}, respectively."
 
-    if truth.dtype != bool:
-        print("assuming truth values are 0, 1")
-        truth = truth == 1
-    if estimate.dtype != bool:
-        print("assuming estimate values are 0, 1")
-        estimate = estimate == 1
-
-    return np.abs(np.mean(estimate[truth]) - np.mean(estimate[~truth]))
-    # n_pos = np.sum(truth)
-    # n_neg = truth.shape[0] - n_pos
-    # errors = truth != estimate
-    # return 1 - (np.sum(errors[truth]) / n_pos) - (np.sum(errors[~truth]) / n_neg)
-    # essentially  1 - np.mean(errors[truth]) - np.mean(errors[~truth])
-
-
-def accuracy(truth: np.ndarray[bool], estimate: np.ndarray[bool]) -> float:
-    # trunk-ignore(bandit/B101)
-    assert (
-        truth.shape == estimate.shape
-    ), "Classification and ground truth have different shape"
-
-    if truth.dtype != bool:
-        print("assuming truth values are 0, 1")
-        truth = truth == 1
-    if estimate.dtype != bool:
-        print("assuming estimate values are 0, 1")
-        estimate = estimate == 1
-
-    return np.mean(truth == estimate)
-
-
-def balance_datasets(
-    y: np.ndarray[bool], datasets: list[np.ndarray], seed: int
-) -> list[np.ndarray]:
-    pos = np.sum(y)
-    neg = y.shape[0] - pos
-    np.random.seed(seed)
-    if pos > neg:
-        to_drop = np.random.choice(np.where(y)[0], size=(pos - neg,), replace=False)
-    elif neg > pos:
-        to_drop = np.random.choice(np.where(~y)[0], size=(neg - pos,), replace=False)
-    else:
-        to_drop = []
-    keep_mask = np.ones_like(y, dtype=bool)
-    keep_mask[to_drop] = False
-
-    pruned_datasets = [d[keep_mask] for d in datasets]
-    return pruned_datasets
-
-
-def _eval_term(
-    term: list[Bin],
-    binarizer: Binarizer,
-    X_test: np.ndarray[bool],
-    binary_negs_only: bool,
-):
-    mask = np.ones((X_test.shape[0],), dtype=bool)
-    if binary_negs_only:
-        bin_feats = [
-            str(f)
-            for f in binarizer.get_bin_encodings(
-                include_negations=False, include_binary_negations=True
-            )
-        ]
-    else:
-        bin_feats = [
-            str(f) for f in binarizer.get_bin_encodings(include_negations=True)
-        ]
-    for feat in term:
-        feat_i = bin_feats.index(str(feat))
-        mask &= X_test[:, feat_i]
-    return mask
-
-
-def eval_terms(
-    dnf: list[list[Bin]],
-    binarizer: Binarizer,
-    X_test: np.ndarray[bool],
-    binary_negs_only: bool = False,
-):
-    masks = [_eval_term(term, binarizer, X_test, binary_negs_only) for term in dnf]
-    return masks
-
-
-def print_dnf(
-    dnf: list[list[Bin]], binarizer: Binarizer, term_evals: np.ndarray[float]
-):
-    positive, negative = binarizer.target_name()
-    if len(dnf) == 0:
-        term_strs = ["False"]
-    else:
-        term_strs = ["(" + " AND ".join(sorted(map(str, term))) + ")" for term in dnf]
-        if "()" in term_strs:
-            term_evals = [term_evals[term_strs.index("()")]]
-            term_strs = ["True"]
-        maxlen = max(map(len, term_strs))
-        ordering = np.argsort(term_strs)
-        # ordering = np.argsort(-term_evals)
-        term_strs = [
-            term_strs[i]
-            + " " * (maxlen - len(term_strs[i]))
-            + f" <-- (term's our objective: {np.round(term_evals[i], 6)})"
-            for i in ordering
-        ]
-
-    print(
-        "IF \n    " + "\n OR ".join(term_strs) + f"\nTHEN\n {positive} ELSE {negative}",
-    )
-
-
-def _tv_recurse(
-    set1: np.ndarray[int],
-    set2: np.ndarray[int],
-    curr_i: int,
-    valid_values: list[list[int]],
-    vector: np.ndarray[int],
-) -> float:
-    # computes 2*total variation between set1 and set2
-    if curr_i == len(valid_values):
-        p1 = np.mean((set1 == vector).all(axis=1))
-        p2 = np.mean((set2 == vector).all(axis=1))
-        return abs(p1 - p2)
-    else:
-        tv_sum = 0
-        for val in valid_values[curr_i]:
-            vector[curr_i] = val
-            tv_sum += _tv_recurse(set1, set2, curr_i + 1, valid_values, vector)
-        return tv_sum
-
-
-def total_variation(set1: np.ndarray[int], set2: np.ndarray[int]) -> float:
-    all_data = np.concatenate([set1, set2], axis=0)
-    valid_values = [np.unique(all_data[:, i]) for i in range(all_data.shape[1])]
-    return _tv_recurse(set1, set2, 0, valid_values, np.empty((set1.shape[1],))) / 2
-
-
-def TV_binarized(X0: np.ndarray[int], X1: np.ndarray[int]) -> float:
-    dist = 0
-    n0, n1 = X0.shape[0], X1.shape[0]
-    X0, counts0 = np.unique(X0, return_counts=True, axis=0)
-    X1, counts1 = np.unique(X1, return_counts=True, axis=0)
-    unseen_mask = np.ones((X1.shape[0],), dtype=bool)
-    for count0, x in zip(counts0, X0):
-        count1 = 0
-        indices = np.where(np.all(X1 == x, axis=1))[0]
-        if indices.shape[0] != 0:
-            unseen_mask[indices[0]] = False
-            count1 = counts1[indices[0]]
-        dist += abs(count0 / n0 - count1 / n1)
-    for count1, x in zip(counts1[unseen_mask], X1[unseen_mask]):
-        indices = np.where(np.all(X0 == x, axis=1))[0]
-        if indices.shape[0] != 0:
-            # already accounted for
-            logger.warning(f"Seen indices did not contain {indices}")
-            continue
-        dist += count1 / n1  # prob in the other is 0
-    return dist / 2
-
-
-def wasserstein_distance(
-    X0: np.ndarray[float], X1: np.ndarray[float], Wtype: str, true_dimension: int
-) -> float:
-    n0, n1 = X0.shape[0], X1.shape[0]
-    X0, counts0 = np.unique(X0, return_counts=True, axis=0)
-    X1, counts1 = np.unique(X1, return_counts=True, axis=0)
-    if Wtype == "W1":
-        dist_matrix = ot.dist(X0, X1, p=2, metric="euclidean") / np.sqrt(
-            2 * true_dimension
+    # Convert to boolean arrays if not already
+    if subgroup.dtype != bool:
+        logger.warning(
+            f"Subgroup mapping has dtype {subgroup.dtype} instead of bool. Assuming value for True is 1."
         )
-    else:
-        dist_matrix = ot.dist(X0, X1, p=2, metric="sqeuclidean") / (2 * true_dimension)
-    # print(np.max(dist_matrix))
-    dist = ot.emd2(counts0 / n0, counts1 / n1, dist_matrix, numItermax=1e6)
-    if Wtype == "W2":
-        dist = np.sqrt(dist)
-    return dist
+        subgroup = subgroup == 1
+    if y.dtype != bool:
+        logger.warning(
+            f"Vector y has dtype {y.dtype} instead of bool. Assuming value for True is 1."
+        )
+        y = y == 1
+
+    # Check if subgroup or its complement is empty
+    if not np.any(subgroup):
+        raise ValueError("Subgroup is empty. Cannot calculate metric.")
+    if not np.any(~subgroup):
+        raise ValueError("Subgroup contains all samples. Cannot calculate metric.")
+
+    mean_subgroup = np.mean(y[subgroup])
+    mean_notsubgroup = np.mean(y[~subgroup])
+
+    return np.abs(mean_subgroup - mean_notsubgroup)
 
 
-def _overlap_kernel(X: np.ndarray[float], Y: np.ndarray[float]):
-    m = X.shape[0]
-    n = Y.shape[0]
-    # takes too much memory
-    # overlaps = np.stack([X for _ in range(n)]).transpose(1, 0, 2) == np.stack(
-    #     [Y for _ in range(m)]
-    # )
-    # return overlaps.mean(axis=2)
-    mean_overlaps = np.empty((m, n))
-    for i in range(m):
-        mean_overlaps[i] = np.mean(Y == X[i].reshape((1, -1)), axis=1)
-    return mean_overlaps
+def subgroup_map_from_conjuncts(
+    conjuncts: List[int], X: np.ndarray[np.bool_]
+) -> np.ndarray[np.bool_]:
+    """
+    Generates a boolean subgroup mapping based on the conjunction (AND) of specified features.
 
+    This function creates a boolean array where each element is `True` only if the
+    corresponding row in `X` has `True` values across all columns specified in `conjuncts`.
+    Essentially, it identifies individuals who meet all criteria defined by the conjuncts.
 
-def MMD(X0: np.ndarray[float], X1: np.ndarray[float]) -> float:
-    n0, n1 = X0.shape[0], X1.shape[0]
-    X0, counts0 = np.unique(X0, return_counts=True, axis=0)
-    X1, counts1 = np.unique(X1, return_counts=True, axis=0)
+    Args:
+        conjuncts (List[int]): A list of integer indices (column indices) from the
+                               input array `X`. Each index represents a feature
+                               that must be `True` for an individual to be included
+                               in the subgroup.
+        X (np.ndarray[np.bool_]): A 2D NumPy array of boolean values, where rows
+                                  represent individuals and columns represent features.
 
-    K00 = _overlap_kernel(X0, X0)
-    K00 = K00 * counts0.reshape((-1, 1)) * counts0
-    # only remove the computation on the same samples, samples with equivalent values are counted in
-    # this assumes kernel returns 1 for the same sample
-    K00[np.eye(X0.shape[0], X0.shape[0], dtype=bool)] -= counts0
-    K01 = _overlap_kernel(X0, X1)
-    K01 = K01 * counts0.reshape((-1, 1)) * counts1
-    K11 = _overlap_kernel(X1, X1)
-    K11 = K11 * counts1.reshape((-1, 1)) * counts1
-    K11[np.eye(X1.shape[0], X1.shape[0], dtype=bool)] -= counts1
+    Returns:
+        np.ndarray[np.bool_]: A 1D boolean NumPy array (`mapping`) of the same
+                              length as the number of rows in `X`. An element
+                              `mapping[i]` is `True` if `X[i, conj]` is `True` for
+                              all `conj` in `conjuncts`, and `False` otherwise.
 
-    mmd_estimate = (
-        K00.sum() / (n0 * (n0 - 1))
-        + K11.sum() / (n1 * (n1 - 1))
-        - 2 * K01.sum() / (n0 * n1)
-    )
-    return np.sqrt(mmd_estimate)
+    Raises:
+        IndexError: If any index in `conjuncts` is out of bounds for the columns of `X`.
 
+    Examples:
+        >>> import numpy as np
+        >>> X_data = np.array([
+        ...     [True,  True,  False, True],   # Row 0
+        ...     [True,  False, True,  True],   # Row 1
+        ...     [False, True,  True,  False],  # Row 2
+        ...     [True,  True,  True,  True]    # Row 3
+        ... ])
+        >>>
+        >>> # Subgroup where feature at index 0 AND feature at index 1 are True
+        >>> conjuncts_1 = [0, 1]
+        >>> subgroup_map_from_conjuncts(conjuncts_1, X_data)
+        array([ True, False, False,  True])
+        >>> # Explanation: Only Row 0 and Row 3 have both X[:,0] and X[:,1] as True.
 
-def term_hamming_distance(term1: list[Bin], term2: list[Bin]) -> int:
-    hd = 0
-    for b in term1:
-        if b not in term2:
-            hd += 1
-    hd_rest = len(term2) - (len(term1) - hd)
-    return hd + hd_rest
+        >>> # Subgroup where feature at index 2 is True
+        >>> conjuncts_2 = [2]
+        >>> subgroup_map_from_conjuncts(conjuncts_2, X_data)
+        array([False,  True,  True,  True])
 
+        >>> # Subgroup where feature at index 0 AND feature at index 2 are True
+        >>> conjuncts_3 = [0, 2]
+        >>> subgroup_map_from_conjuncts(conjuncts_3, X_data)
+        array([False,  True, False,  True])
 
-def eval_spsf(
-    y_model: np.ndarray[bool],
-    ingroup: np.ndarray[bool],
-    get_direction: bool = False,
-) -> float | tuple[float, bool]:
-    p_group = np.mean(ingroup)
-    p_pos = np.mean(y_model)
-    p_joint = np.mean(ingroup & y_model)
+        >>> # Test with an empty list of conjuncts (should return all True)
+        >>> subgroup_map_from_conjuncts([], X_data)
+        array([ True,  True,  True,  True])
 
-    if get_direction:
-        return np.abs(p_group * p_pos - p_joint), p_group * p_pos > p_joint
-    return np.abs(p_group * p_pos - p_joint)
+        >>> # Test with an invalid conjunct index (will raise IndexError)
+        >>> try:
+        ...     subgroup_map_from_conjuncts([0, 99], X_data)
+        ... except IndexError as e:
+        ...     print(e)
+        index 99 is out of bounds for axis 1 with size 4
+    """
+    # Initialize the mapping with all True values. This ensures that if conjuncts
+    # is empty, all individuals are included (logical AND of no conditions is True).
+    mapping = np.ones((X.shape[0],), dtype=bool)
 
-
-def eval_fpsf(
-    y_true: np.ndarray[bool],
-    y_model: np.ndarray[bool] | np.ndarray[float],
-    ingroup: np.ndarray[bool],
-    get_direction: bool = False,
-) -> float:
-    assert y_true.shape == y_model.shape and y_model.shape == ingroup.shape
-    p_group = np.mean(ingroup & ~y_true)
-    p_pos = np.mean(y_model[~y_true])
-    p_joint = np.sum(y_model[ingroup & ~y_true]) / y_true.shape[0]
-
-    if get_direction:
-        return np.abs(p_group * p_pos - p_joint), p_group * p_pos > p_joint
-    return np.abs(p_group * p_pos - p_joint)
+    # Iterate through each specified conjunct (feature index)
+    for conj in conjuncts:
+        # Perform a logical AND operation between the current mapping and the
+        # specified feature column. This filters down the subgroup.
+        mapping &= X[:, conj]  # This will raise IndexError if `conj` is out of bounds
+    return mapping
