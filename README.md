@@ -68,6 +68,7 @@ pip install -e .
 To generate the documentation, install sphinx and run:
 
 ```bash
+pip install -r docs/requirements.txt
 sphinx-apidoc -o docs/source/ humancompatible/detect  -f -e
 sphinx-build -M html docs/source/ docs/build/
 ```
