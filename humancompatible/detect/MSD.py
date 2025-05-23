@@ -187,7 +187,7 @@ def prepare_dataset(
     if n_max < n:
         samples = np.random.choice(n, size=n_max, replace=False)
     else:
-        samples = np.random.shuffle(np.arange(n))
+        samples = np.random.permutation(np.arange(n))
 
     input_data = input_data.iloc[samples]
     target_data = target_data[target_data.columns[0]].iloc[samples]
@@ -300,5 +300,5 @@ def compute_MSD(
     mio = OneRule()
     rule = mio.find_rule(X_bin, y_bin, n_min=n_min, time_limit=time_limit)
     subgroup_map = subgroup_map_from_conjuncts(rule, X_bin)
-    MSD_val = evaluate_subgroup_discrepancy(subgroup_map, y)
+    MSD_val = evaluate_subgroup_discrepancy(subgroup_map, y_bin)
     return MSD_val, rule
