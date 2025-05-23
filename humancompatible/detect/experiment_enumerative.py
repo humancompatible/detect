@@ -1,3 +1,4 @@
+import argparse
 import logging
 import os
 import subprocess
@@ -8,21 +9,28 @@ import hydra
 import numpy as np
 from omegaconf import DictConfig
 
-from scenarios.folktables_scenarios import load_scenario
-from utils import MMD, TV_binarized, our_metric, wasserstein_distance
-
-from helper import subg_generator
-
-gitcommit = ""
-
-logger = logging.getLogger(__name__)
-
-counter = DictConfig({"n_options": 0, "n_checked": 0, "n_skipped": 0})
-
+from humancompatible.detect.scenarios.folktables_scenarios import load_scenario
+from humancompatible.detect.utils import MMD, TV_binarized, our_metric, wasserstein_distance
+from humancompatible.detect.helper import subg_generator
 
 
 @hydra.main(version_base="1.3", config_path="conf", config_name="enumerative")
 def run_experiment(cfg: DictConfig):
+    logger = logging.getLogger(__name__)
+    counter = DictConfig({"n_options": 0, "n_checked": 0, "n_skipped": 0})
+
+    try:
+        gitcommit = cfg.gitcommit
+    except Exception:
+        import subprocess
+        from hydra.utils import get_original_cwd
+        res = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True,
+            cwd=get_original_cwd(),
+        )
+        gitcommit = res.stdout.strip()
+
     binarizer, dhandler, X_orig, y_orig, binarizer_protected, X_prot_orig = (
         load_scenario(cfg.scenario, cfg.seed, cfg.n_samples, state=cfg.state)
     )
@@ -66,8 +74,6 @@ def run_experiment(cfg: DictConfig):
         X0cat = X_categ[~y].astype(float)
         X1cat = X_categ[y].astype(float)
 
-
-    global counter
     counter.n_options = 0
     counter.n_checked = 0
     counter.n_skipped = 0
@@ -159,21 +165,34 @@ def run_experiment(cfg: DictConfig):
 
     print(f"Result saved to {os.path.join(run_dir, 'output.txt')}")
 
-# TODO: uncomment this in the end
-# if __name__ == "__main__":
-#     result = subprocess.run(
-#         ["git", "status", "--porcelain"], capture_output=True, text=True
-#     )
-#     if result.stdout.strip() == "":
-#         res = subprocess.run(
-#             ["git", "rev-list", "--format=%B", "-n", "1", "HEAD"],
-#             capture_output=True,
-#             text=True,
-#         )
-#         gitcommit = res.stdout.strip()
-#         run_experiment()
-#     else:
-#         raise Exception("Git status is not clean. Commit changes first.")
 
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument(
+        "--skip-git-check",
+        action="store_true",
+        help="Run even if the working tree is dirty "
+             "(useful inside notebooks / CI).",
+    )
 
-run_experiment()
+    args, _ = parser.parse_known_args()
+
+    if "--skip-git-check" in sys.argv:
+        sys.argv.remove("--skip-git-check")
+
+    skip = args.skip_git_check
+
+    if skip:
+        run_experiment()
+    else:
+        result = subprocess.run(
+            ["git", "status", "--porcelain"], capture_output=True, text=True
+        )
+        if result.stdout.strip() == "":
+            run_experiment()
+        else:
+            raise RuntimeError(
+                "Git status is not clean. Commit or stash changes first, "
+                "or rerun with --skip-git-check."
+            )
+

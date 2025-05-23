@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from binarizer import Bin, Binarizer
+from humancompatible.detect.binarizer import Bin, Binarizer
 
 
 def test_RIPPER(

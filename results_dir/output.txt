@@ -735,7 +735,7 @@
 [INFO] [15, 23], [16]
 [INFO] [15, 24], [16]
 Config:
- {'model': 'MMD', 'seed': 0, 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10, 'result_folder': WindowsPath('C:/personal/work/detect/results_dir')}
+ {'model': 'MMD', 'seed': 0, 'n_samples': 1000000, 'train_samples': 100000, 'time_limit': 600, 'n_min': 10, 'result_folder': WindowsPath('../results_dir')}
 RESULT
 Max distance: 0.6992058987801011 
 Max MSD: 3.691621021357009e-05 
@@ -743,7 +743,7 @@ Max subgroup: (POBP = 2 AND RAC1P = 2.0)
 Total options: 1229 
 Checked options: 1229 
 Of that skipped options: 494 
-Time spent: 15.507577419281006 
+Time spent: 15.408156633377075 
 True number of training samples: 195665 
 Protected dimension: 26 
 Full dimension: 26 
