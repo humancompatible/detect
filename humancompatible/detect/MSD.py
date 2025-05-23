@@ -42,24 +42,21 @@ def load_dataset(csv_path: Path, target_col: str) -> Tuple[pd.DataFrame, pd.Data
         >>> dummy_df = pd.DataFrame(dummy_data)
         >>> dummy_csv_path = Path("dummy_dataset.csv")
         >>> dummy_df.to_csv(dummy_csv_path, index=False)
-        >>>
         >>> X, y = load_dataset(dummy_csv_path, "target")
         >>> print("X DataFrame:\\n", X)
-        >>> print("\\ny DataFrame:\\n", y)
-        >>>
-        >>> # Clean up the dummy file
-        >>> dummy_csv_path.unlink()
         X DataFrame:
            feature1  feature2
         0         1         4
         1         2         5
         2         3         6
-
+        >>> print("y DataFrame:\\n", y)
         y DataFrame:
            target
         0       7
         1       8
         2       9
+        >>> # Clean up the dummy file
+        >>> dummy_csv_path.unlink()
     """
     df = pd.read_csv(csv_path)
     if target_col not in df.columns:
