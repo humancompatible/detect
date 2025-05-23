@@ -1,4 +1,5 @@
 import logging
+from typing import List, Tuple
 
 import numpy as np
 import pyomo.environ as pyo
@@ -11,76 +12,22 @@ logger = logging.getLogger(__name__)
 
 
 class OneRule:
-    """Implementation of a MIO formulation for finding an optimal conjunction with lowest 0-1 error.
-    The formulation is inspired by 1Rule method from http://proceedings.mlr.press/v28/malioutov13.pdf
+    """Implementation of a MIO formulation for finding an optimal conjunction.
+
+    This class implements a Mixed-Integer Optimization (MIO) formulation to
+    discover an optimal conjunction (a logical AND of features) that maximizes
+    the absolute difference in target outcomes between the subgroup defined by
+    this conjunction and its complement. The formulation is inspired by the
+    1Rule method from the paper "Learning Optimal and Fair Classifiers" by
+    Malioutov and Varshney (http://proceedings.mlr.press/v28/malioutov13.pdf).
     """
 
     def __init__(self) -> None:
-        pass
-
-    def _make_int_model(
-        self,
-        X: np.ndarray[bool],
-        y: np.ndarray[bool],
-        weights: np.ndarray[float],
-        # trunk-ignore(ruff/B006)
-        feat_init: dict[int, int] = {},
-    ) -> pyo.ConcreteModel:
-        """Create the Integer Optimiztion formulation to find an optimal conjunction using 0-1 loss.
-
-        Args:
-            X (np.ndarray[bool]): input matrix
-            y (np.ndarray[bool]): target labels
-            feat_init (dict[int, int], optional): Initialization of the conjunction.
-                A dictionary containing feature indices as keys and 0/1 values of whether they are used. Defaults to {}.
-
-        Returns:
-            pyo.ConcreteModel: The MIO model containing the formulation
         """
-        n, d = X.shape
-        Xint = np.zeros_like(X, dtype=int)
-        Xint[X] = 1
-
-        model = pyo.ConcreteModel()
-        model.all_i = pyo.Set(initialize=np.arange(n))
-        model.feat_i = pyo.Set(initialize=np.arange(d))
-        model.pos_i = pyo.Set(initialize=np.where(y)[0])
-        model.neg_i = pyo.Set(initialize=np.where(~y)[0])
-
-        model.use_feat = pyo.Var(model.feat_i, domain=pyo.Binary, initialize=feat_init)
-        model.error = pyo.Var(model.all_i, domain=pyo.NonNegativeReals, bounds=(0, 1))
-
-        # model.non_empty = pyo.Constraint(
-        #     expr=sum(model.use_feat[j] for j in model.feat_i) >= 1
-        # )
-
-        # positive - error = 1 if at least one where u_j = 1 has X_j=0
-        #     else error = 0
-        # negative - error = 1 if all where u_j = 1 have X_j=1 as well
-        #     else error = 0
-
-        model.pos = pyo.Constraint(
-            model.pos_i,
-            model.feat_i,
-            rule=lambda m, i, j: (
-                m.use_feat[j] - Xint[i, j] * m.use_feat[j] <= m.error[i]
-            ),
-        )
-        model.neg = pyo.Constraint(
-            model.neg_i,
-            rule=lambda m, i: (
-                sum(m.use_feat[j] - Xint[i, j] * m.use_feat[j] for j in m.feat_i)
-                + m.error[i]
-                >= 1
-            ),
-        )
-
-        model.obj = pyo.Objective(
-            expr=sum(model.error[i] * weights[i] for i in model.all_i),
-            sense=pyo.minimize,
-        )
-
-        return model
+        Initializes the OneRule solver.
+        """
+        # Stores the Pyomo model after solving
+        self.model: pyo.ConcreteModel | None = None
 
     def _make_abs_model(
         self,
@@ -91,30 +38,68 @@ class OneRule:
         # trunk-ignore(ruff/B006)
         feat_init: dict[int, int] = {},
     ) -> pyo.ConcreteModel:
-        """Create the Integer Optimiztion formulation to find an optimal conjunction.
+        """
+        Creates the Mixed-Integer Optimization (MIO) formulation to find an optimal conjunction.
+
+        This private method constructs the Pyomo model for the MIO problem.
+        The objective is to maximize the absolute difference in weighted sums
+        of positive outcomes between the subgroup and its complement, subject
+        to constraints that define the subgroup based on selected features
+        and a minimum support.
 
         Args:
-            X (np.ndarray[bool]): input matrix
-            y (np.ndarray[bool]): target labels
-            feat_init (dict[int, int], optional): Initialization of the conjunction.
-                A dictionary containing feature indices as keys and 0/1 values of whether they are used. Defaults to {}.
+            X (np.ndarray[bool]): The input feature matrix, where each row is an
+                                  instance and each column is a boolean feature.
+                                  Shape (n_instances, n_features).
+            y (np.ndarray[bool]): The binary target labels for each instance.
+                                  `True` for positive outcomes, `False` for negative.
+                                  Shape (n_instances,).
+            weights (np.ndarray[float]): Weights for each instance, used in the
+                                         objective function to calculate weighted means.
+                                         Typically, these are normalized counts.
+                                         Shape (n_instances,).
+            n_min (int): Minimum subgroup support (number of instances) required
+                         for a valid subgroup.
+            feat_init (Dict[int, int], optional): Initialization for the `use_feat`
+                binary variables. A dictionary where keys are feature indices and
+                values are `0` (feature not used) or `1` (feature used) in the
+                conjunction. Defaults to an empty dictionary, allowing the solver
+                to determine initial values.
 
         Returns:
-            pyo.ConcreteModel: The MIO model containing the formulation
+            pyo.ConcreteModel: The constructed Pyomo MIO model instance.
+
+        Notes:
+            - The model uses `pyomo.Binary` variables for `use_feat` to select features
+              for the conjunction.
+            - `ingroup` variables determine if an instance belongs to the current subgroup.
+            - `force_0` and `force_1` constraints ensure `ingroup[i]` is 1 if and only if
+              all `use_feat[j]` that are 1 also have `Xint[i, j]` as 1.
+            - `minimum` constraint enforces the `n_min` support.
+            - `o` and `b` variables, along with `abs_obj_u1` and `abs_obj_u2` constraints,
+              linearize the absolute value in the objective function.
         """
         n, d = X.shape
+        # Convert boolean X to integer for Pyomo compatibility (0 or 1)
         Xint = np.zeros_like(X, dtype=int)
         Xint[X] = 1
 
         model = pyo.ConcreteModel()
         model.all_i = pyo.Set(initialize=np.arange(n))
         model.feat_i = pyo.Set(initialize=np.arange(d))
-        model.pos_i = pyo.Set(initialize=np.where(y)[0])
-        model.neg_i = pyo.Set(initialize=np.where(~y)[0])
+        model.pos_i = pyo.Set(initialize=np.where(y)[0])  # Indices of positive outcomes
+        model.neg_i = pyo.Set(initialize=np.where(~y)[0])  # Indices of negative ones
 
+        # Decision variables
+        # `use_feat[j]` is 1 if feature `j` is part of the conjunction, 0 otherwise.
         model.use_feat = pyo.Var(model.feat_i, domain=pyo.Binary, initialize=feat_init)
+        # `ingroup[i]` is 1 if instance `i` is in the subgroup, 0 otherwise.
         model.ingroup = pyo.Var(model.all_i, domain=pyo.NonNegativeReals, bounds=(0, 1))
 
+        # Constraints to define subgroup membership:
+
+        # If a feature `j` is used (`use_feat[j] == 1`) AND instance `i` does NOT
+        # have that feature (`Xint[i, j] == 0`), then `ingroup[i]` must be 0.
         model.force_0 = pyo.Constraint(
             model.all_i,
             model.feat_i,
@@ -122,6 +107,8 @@ class OneRule:
                 m.ingroup[i] <= 1 - (m.use_feat[j] - Xint[i, j] * m.use_feat[j])
             ),
         )
+        # If an instance `i` has all features selected in the conjunction,
+        # then `ingroup[i]` must be 1.
         model.force_1 = pyo.Constraint(
             model.all_i,
             rule=lambda m, i: (
@@ -130,18 +117,31 @@ class OneRule:
             ),
         )
 
+        # Minimum subgroup support constraint
+        # The sum of `ingroup` variables (total members in subgroup) must be at least `n_min`.
         model.minimum = pyo.Constraint(
             expr=sum(model.ingroup[i] for i in model.all_i) >= n_min
         )
 
+        # Variables and constraints for linearizing the absolute value in the objective
+        # `o` represents the absolute difference we want to maximize.
         model.o = pyo.Var(domain=pyo.NonNegativeReals)
+        # `b` is a binary variable used for linearization.
         model.b = pyo.Var(domain=pyo.Binary)
+
+        # Calculate weighted sums for positive and negative outcomes within the subgroup
         term1 = sum(model.ingroup[i] * weights[i] for i in model.pos_i)
         term2 = sum(model.ingroup[i] * weights[i] for i in model.neg_i)
+
+        # Linearization of `abs(term1 - term2)`:
+        # `o <= (term1 - term2) + M * b`
+        # `o <= (term2 - term1) + M * (1 - b)`
+        # (where M is a sufficiently large number, here implicitly 2, because weights sum to 1)
         model.abs_obj_u1 = pyo.Constraint(expr=model.o <= term1 - term2 + 2 * model.b)
         model.abs_obj_u2 = pyo.Constraint(
             expr=model.o <= term2 - term1 + 2 * (1 - model.b)
         )
+        # Objective function: maximize the absolute difference `o`
         model.obj = pyo.Objective(
             expr=model.o,
             sense=pyo.maximize,
@@ -153,85 +153,115 @@ class OneRule:
         self,
         X: np.ndarray[bool],
         y: np.ndarray[bool],
-        warmstart: bool = False,
         verbose: bool = False,
         n_min: int = 0,
         time_limit: int = 300,
         return_opt_flag: bool = False,
-    ) -> list[int]:
-        """Find a single conjunction with lowest 0-1 error
+    ) -> List[int] | Tuple[List[int], bool]:
+        """
+        Finds a single conjunction (rule) that maximizes the absolute difference
+        in target outcomes between the subgroup it defines and its complement.
+
+        This method prepares the data (by creating unique rows and assigning weights),
+        builds the MIO model using `_make_abs_model`, and then solves it using the
+        Gurobi solver (requires Gurobi to be installed and accessible).
 
         Args:
-            X (np.ndarray[bool]): Input data (boolean values), shape (n, d)
-            y (np.ndarray[bool]): Target (boolean values), shape (n,)
-            warmstart (bool, optional): If true, an approximate solution will be created first to warmstart the MIO.
-                Defaults to False.
-            verbose (bool, optional): If true, solver output is printed to stdout. Defaults to False.
+            X (np.ndarray[bool]): Input data matrix of boolean features,
+                                  shape (n_instances, n_features).
+            y (np.ndarray[bool]): Target labels (binary), shape (n_instances,).
+            verbose (bool, optional): If `True`, the solver's output will be
+                                      printed to stdout during optimization.
+                                      Defaults to `False`.
+            n_min (int, optional): Minimum subgroup support (number of rows)
+                                   required for a valid subgroup. Defaults to `0`.
+            time_limit (int, optional): Time budget in seconds for the Gurobi
+                                        solver. Defaults to `300`.
+            return_opt_flag (bool, optional): If `True`, the function will return
+                                              a tuple `(rule, is_optimal)` where
+                                              `is_optimal` is a boolean indicating
+                                              if the solver found an optimal solution.
+                                              Defaults to `False`.
 
         Returns:
-            list[int]: List of indices of the literals in the final conjunction
+            List[int]: A list of integer indices representing the literals (features)
+                       that form the optimal conjunction. These indices correspond
+                       to the columns in the input `X` that define the subgroup.
+            OR
+            Tuple[List[int], bool]: If `return_opt_flag` is `True`, returns the
+                                    rule and a boolean flag indicating optimality.
+
+        Raises:
+            AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
+                            are not of boolean dtype.
+            ValueError: If the Gurobi solver does not find an optimal solution
+                        and `return_opt_flag` is `False`. (The current code
+                        logs a warning instead of raising if `return_opt_flag` is `False`.)
+            Exception: Any exceptions raised by Pyomo or Gurobi during model
+                       creation or solving.
+
+        Notes:
+            - The input `X` and `y` are first processed to get unique rows and
+              assign weights based on their original counts and class proportions.
+              This helps in handling duplicate rows efficiently.
+            - Requires Gurobi solver to be installed and configured for Pyomo.
+            - The `rule` returned contains indices of the *original* features
+              (columns of `X`) that define the conjunction.
         """
         assert y.shape == (X.shape[0],)
         assert X.dtype == bool and y.dtype == bool
 
-        if warmstart:
-            print("No warmstart available, previous attempts were useless")
-
-        # w = np.ones_like(y, dtype=float)
+        # Handle edge cases where target is all positive or all negative
         size1 = np.sum(y)
         if size1 == 0:
+            logger.info(
+                "Target 'y' contains no positive outcomes. Returning all features as rule."
+            )
             return list(range(X.shape[1]))
         if size1 == y.shape[0]:
+            logger.info(
+                "Target 'y' contains only positive outcomes. Returning empty rule."
+            )
             return []
         size0 = y.shape[0] - size1
-        # w[y] = 1 / size1
-        # w[~y] = 1 / size0
 
+        # Aggregate identical rows and calculate weights
+        # This step is crucial for efficiency if X contains many duplicate rows.
+        # X0: unique rows where y is False, counts0: their frequencies
         X0, counts0 = np.unique(X[~y], return_counts=True, axis=0)
+        # X1: unique rows where y is True, counts1: their frequencies
         X1, counts1 = np.unique(X[y], return_counts=True, axis=0)
-        X = np.concatenate([X0, X1], axis=0)
-        w = np.concatenate([counts0 / size0, counts1 / size1], axis=0)
-        y = np.zeros_like(w, dtype=bool)
-        y[X0.shape[0] :] = True
 
-        # int_model = self._make_int_model(X, y, weights=w)
-        int_model = self._make_abs_model(X, y, weights=w, n_min=n_min)
-        opt = pyo.SolverFactory("gurobi", solver_io="python")
-        opt.options["TimeLimit"] = time_limit
-        result = opt.solve(int_model, tee=verbose)
-        opt = True
+        # Concatenate unique rows and calculate normalized weights
+        X_unique = np.concatenate([X0, X1], axis=0)
+        # Weights are normalized by the total count of their respective class
+        weights_unique = np.concatenate([counts0 / size0, counts1 / size1], axis=0)
+        # Recreate 'y' for the unique rows (False for original negatives, True for original positives)
+        y_unique = np.zeros_like(weights_unique, dtype=bool)
+        y_unique[X0.shape[0] :] = True  # Mark rows from X1 as True
+
+        # Create and solve the MIO model
+        int_model = self._make_abs_model(
+            X_unique, y_unique, weights=weights_unique, n_min=n_min
+        )
+        solver = pyo.SolverFactory("gurobi", solver_io="python")  # Use Gurobi solver
+        solver.options["TimeLimit"] = time_limit  # Set time limit for the solver
+        result = solver.solve(int_model, tee=verbose)  # Solve the model
+
+        is_optimal = True
         if result.solver.termination_condition != pyo.TerminationCondition.optimal:
-            # raise ValueError("solver did not find an optimal sollution")
-            logger.info("Solver did not find an optimal sollution")
-            opt = False
-        self.model = int_model
+            logger.info(
+                f"Solver did not find an optimal solution. Termination condition: {result.solver.termination_condition}"
+            )
+            is_optimal = False
+        self.model = int_model  # Store the solved model instance
 
-        # print([int_model.error[i].value for i in int_model.all_i])
+        # Extract the chosen features from the model's solution
+        # `use_feat[i].value` will be approximately 1 for selected features, 0 otherwise.
         vals = [int_model.use_feat[i].value for i in int_model.feat_i]
-
+        # Collect indices of features that are selected (value close to 1)
         rule = [i for i in int_model.feat_i if vals[i] is not None and vals[i] >= 1e-4]
+
         if return_opt_flag:
-            return rule, opt
+            return rule, is_optimal
         return rule
-
-    def find_subgroup(
-        self,
-        X: np.ndarray[bool],
-        y: np.ndarray[bool],
-        verbose: bool = False,
-    ) -> np.ndarray[bool]:
-        """Find a single conjunction with lowest 0-1 error and returns the y_hat vector of classifications
-
-        Args:
-            X (np.ndarray[bool]): Input data (boolean values), shape (n, d)
-            y (np.ndarray[bool]): Target (boolean values), shape (n,)
-            verbose (bool, optional): If true, solver output is printed to stdout. Defaults to False.
-
-        Returns:
-            np.ndarray[int]: List of indices of the literals in the final conjunction
-        """
-        conjuncts = self.find_rule(X, y, verbose=verbose)
-        y_hat = np.ones_like(y, dtype=bool)
-        for conj in conjuncts:
-            y_hat &= X[:, conj]
-        return y_hat
