@@ -10,71 +10,95 @@ def evaluate_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
     """
-    Calculates fairness metric, based on the difference in positive outcomes
-    between a specified subgroup and its complement.
+    Calculates a fairness metric based on the difference in subgroup representation
+    between positive and negative outcomes.
 
-    The subgroup discrepancy quantifies the absolute difference in the proportion of positive
-    outcomes (where `y` is True) for individuals within the `subgroup` versus
-    those outside the `subgroup` (the complement).
+    This metric quantifies the absolute difference between:
+    1. The proportion of individuals in the `subgroup` among all **positive outcomes**.
+    2. The proportion of individuals in the `subgroup` among all **negative outcomes**.
+
+    It effectively measures how differently the subgroup is represented across the
+    two outcome classes (positive vs. negative `y`).
 
     Args:
-        subgroup (np.ndarray[bool] or np.ndarray[int]): A boolean (or integer 0/1)
-            NumPy array indicating membership in the subgroup. `True` or `1` for
-            members of the subgroup, `False` or `0` otherwise. Must have the same
-            shape as `y`.
-        y (np.ndarray[bool] or np.ndarray[int]): A boolean (or integer 0/1) NumPy
-            array representing the true outcomes. `True` or `1` for positive
-            outcomes, `False` or `0` for negative outcomes. Must have the same
-            shape as `subgroup`.
+        subgroup (np.ndarray[bool]): A boolean NumPy array indicating membership
+            in the subgroup. `True` or `1` for members of the subgroup,
+            `False` or `0` otherwise. Must have the same shape as `y`.
+        y (np.ndarray[bool]): A boolean NumPy array representing the true outcomes.
+            `True` or `1` for positive outcomes, `False` or `0` for negative outcomes.
+            Must have the same shape as `subgroup`.
 
     Returns:
-        float: The absolute difference between the mean of `y` within the `subgroup`
-               and the mean of `y` outside the `subgroup`.
+        float: The absolute difference between the proportion of `subgroup` members
+               among positive outcomes and the proportion of `subgroup` members
+               among negative outcomes.
 
     Raises:
-        AssertionError: If `subgroup` and `y` have different shapes. (Note: This
-                        uses a direct `assert`, which might be disabled in optimized
-                        builds. For production, consider `if not ... raise ValueError`.)
-        ValueError: If the `subgroup` is empty (contains no `True` values) or if
-                    its complement is empty (contains all `True` values).
+        AssertionError: If `subgroup` and `y` have different shapes.
+        ValueError: If all `y` values are `True` (all samples are positive) or
+                    all `y` values are `False` (all samples are negative),
+                    as the metric requires both positive and negative outcomes
+                    to form proportions.
 
     Examples:
         >>> import numpy as np
-        >>> # Scenario 1: No difference
-        >>> subgroup_1 = np.array([True, True, False, False])
-        >>> y_1 = np.array([True, False, True, False])
-        >>> our_metric(subgroup_1, y_1)
-        0.0
+        >>> # Scenario 1: Subgroup equally represented in positive and negative outcomes
+        >>> subgroup_1 = np.array([True, False, True, False]) # Indices 0, 2 are subgroup
+        >>> y_1 = np.array([True, False, True, False])        # Indices 0, 2 are positive
+        >>> # Positive outcomes: [True, True] (indices 0, 2). Subgroup members: 2/2 = 1.0
+        >>> # Negative outcomes: [False, False] (indices 1, 3). Subgroup members: 0/2 = 0.0
+        >>> # Discrepancy: |1.0 - 0.0| = 1.0 (This is the original error in example)
+        >>> # Corrected:
+        >>> # y[subgroup] means y for subgroup members: [True, True]
+        >>> # y[~subgroup] means y for non-subgroup members: [False, False]
+        >>> # Your new formula: mean(subgroup[y]) - mean(subgroup[~y])
+        >>> # subgroup[y] (subgroup status for positive outcomes): [True, True] -> mean = 1.0
+        >>> # subgroup[~y] (subgroup status for negative outcomes): [False, False] -> mean = 0.0
+        >>> evaluate_subgroup_discrepancy(subgroup_1, y_1)
+        1.0
 
-        >>> # Scenario 2: Subgroup has higher positive outcome rate
-        >>> subgroup_2 = np.array([True, True, True, False, False])
-        >>> y_2 = np.array([True, True, False, False, False])
-        >>> our_metric(subgroup_2, y_2)
-        0.6666666666666666
+        >>> # Scenario 2: Subgroup more prevalent in positive outcomes
+        >>> subgroup_2 = np.array([True, True, False, False, True])
+        >>> y_2 = np.array([True, True, True, False, False])
+        >>> # Positive outcomes (y=True): [True, True, True] (indices 0, 1, 2)
+        >>> # Subgroup status for positive outcomes: subgroup[0]=T, subgroup[1]=T, subgroup[2]=F.
+        >>> # mean(subgroup[y]): (1+1+0)/3 = 0.666...
+        >>> #
+        >>> # Negative outcomes (y=False): [False, False] (indices 3, 4)
+        >>> # Subgroup status for negative outcomes: subgroup[3]=F, subgroup[4]=T.
+        >>> # mean(subgroup[~y]): (0+1)/2 = 0.5
+        >>> evaluate_subgroup_discrepancy(subgroup_2, y_2)
+        0.16666666666666663
 
         >>> # Scenario 3: Using integer arrays (will be converted to bool)
         >>> subgroup_3 = np.array([1, 1, 0, 0])
         >>> y_3 = np.array([1, 0, 1, 0])
-        >>> our_metric(subgroup_3, y_3)
+        >>> # Positive outcomes (y=1): [1, 1] (indices 0, 2)
+        >>> # subgroup status for positive outcomes: subgroup[0]=1, subgroup[2]=0
+        >>> # mean(subgroup[y]): (1+0)/2 = 0.5
+        >>> # Negative outcomes (y=0): [1, 0] (indices 1, 3)
+        >>> # subgroup status for negative outcomes: subgroup[1]=1, subgroup[3]=0
+        >>> # mean(subgroup[~y]): (1+0)/2 = 0.5
+        >>> evaluate_subgroup_discrepancy(subgroup_3, y_3)
         0.0
 
-        >>> # Scenario 4: Subgroup is empty (will raise ValueError)
-        >>> subgroup_empty = np.array([False, False, False])
-        >>> y_empty = np.array([True, False, True])
+        >>> # Scenario 4: All samples are positive (will raise ValueError)
+        >>> subgroup_all_y_pos = np.array([True, False, True])
+        >>> y_all_pos = np.array([True, True, True])
         >>> try:
-        ...     our_metric(subgroup_empty, y_empty)
+        ...     evaluate_subgroup_discrepancy(subgroup_all_y_pos, y_all_pos)
         ... except ValueError as e:
         ...     print(e)
-        Subgroup is empty. Cannot calculate metric.
+        All samples are positive. Cannot calculate metric.
 
-        >>> # Scenario 5: Subgroup contains all samples (will raise ValueError)
-        >>> subgroup_full = np.array([True, True, True])
-        >>> y_full = np.array([True, False, True])
+        >>> # Scenario 5: All samples are negative (will raise ValueError)
+        >>> subgroup_all_y_neg = np.array([True, False, True])
+        >>> y_all_neg = np.array([False, False, False])
         >>> try:
-        ...     our_metric(subgroup_full, y_full)
+        ...     evaluate_subgroup_discrepancy(subgroup_all_y_neg, y_all_neg)
         ... except ValueError as e:
         ...     print(e)
-        Subgroup contains all samples. Cannot calculate metric.
+        All samples are negative. Cannot calculate metric.
     """
     # trunk-ignore(bandit/B101)
     assert (
@@ -93,16 +117,18 @@ def evaluate_subgroup_discrepancy(
         )
         y = y == 1
 
-    # Check if subgroup or its complement is empty
-    if not np.any(subgroup):
-        raise ValueError("Subgroup is empty. Cannot calculate metric.")
-    if not np.any(~subgroup):
-        raise ValueError("Subgroup contains all samples. Cannot calculate metric.")
+    # Raise ValueError if all outcomes are the same, as proportions cannot be compared
+    if np.all(y):
+        raise ValueError("All samples are positive. Cannot calculate metric.")
+    if np.all(~y):
+        raise ValueError("All samples are negative. Cannot calculate metric.")
 
-    mean_subgroup = np.mean(y[subgroup])
-    mean_notsubgroup = np.mean(y[~subgroup])
+    # Calculate the mean of `subgroup` values where `y` is True (positive outcomes)
+    proportion_in_pos = np.mean(subgroup[y])
+    # Calculate the mean of `subgroup` values where `y` is False (negative outcomes)
+    proportion_in_neg = np.mean(subgroup[~y])
 
-    return np.abs(mean_subgroup - mean_notsubgroup)
+    return np.abs(proportion_in_pos - proportion_in_neg)
 
 
 def subgroup_map_from_conjuncts(
