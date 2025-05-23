@@ -62,25 +62,25 @@ class DataHandler:
         target_name: str | None = None,
     ) -> DataHandler:
         """
-                Construct a DataHandler instance.
+        Construct a DataHandler instance.
 
         Parameters:
         -----------
-        X : array-like (2 dimensional)
-            Input features. Shape: (num_samples, num_features)
-        y : array-like (1 dimensional)
-            Target feature (e.g., labels or regression targets). Shape: (num_samples,)
-        categ : dictionary
-            Dictionary with indices (or column names for DataFrame) of categorical features as keys
-                and a list of unique categorical values as values
-            If the list is empty, each unique value of the feature is considered categorical
-            If the list is non-empty, but does not cover all values, the feature is considered mixed
-        regression : bool
-            True if the task is regression, False if y is categorical and task is classification.
-        feature_names : optional list of strings
-            List of feature names, if None it is recovered from column names if X is a DataFrame
-        target_name : optional string
-            Name of the target feature, if None it is recovered from X if X is a pandas Series
+            X : array-like (2 dimensional)
+                Input features. Shape: (num_samples, num_features)
+            y : array-like (1 dimensional)
+                Target feature (e.g., labels or regression targets). Shape: (num_samples,)
+            categ : dictionary
+                Dictionary with indices (or column names for DataFrame) of categorical features as keys
+                    and a list of unique categorical values as values
+                If the list is empty, each unique value of the feature is considered categorical
+                If the list is non-empty, but does not cover all values, the feature is considered mixed
+            regression : bool
+                True if the task is regression, False if y is categorical and task is classification.
+            feature_names : optional list of strings
+                List of feature names, if None it is recovered from column names if X is a DataFrame
+            target_name : optional string
+                Name of the target feature, if None it is recovered from X if X is a pandas Series
         """
         if isinstance(X, pd.DataFrame):
             if feature_names is None:
