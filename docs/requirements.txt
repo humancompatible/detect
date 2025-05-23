@@ -5,3 +5,4 @@ sphinx-autodoc-typehints # Recommended if you use type hints extensively
 # Your project's dependencies for autodoc to import successfully:
 numpy
 pandas
+pyomo
