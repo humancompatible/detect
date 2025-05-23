@@ -4,11 +4,11 @@ from typing import Callable, Dict, List, Tuple
 
 import numpy as np
 import pandas as pd
-from one_rule import OneRule
-from utils import evaluate_subgroup_discrepancy, subgroup_map_from_conjuncts
 
 from .binarizer import Binarizer
 from .data_handler import DataHandler
+from .one_rule import OneRule
+from .utils import evaluate_subgroup_discrepancy, subgroup_map_from_conjuncts
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
