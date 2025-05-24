@@ -1,10 +1,10 @@
 Race,Age,Target
-Green,0-18,1
+Green,0-18,0
 Green,0-18,1
 Green,0-18,1
 Green,0-18,1
 Green,0-18,0
-Green,18-30,0
+Green,18-30,1
 Green,18-30,1
 Green,18-30,0
 Green,18-30,1
@@ -49,7 +49,7 @@ Blue,60+,1
 Blue,60+,1
 Blue,60+,1
 Blue,60+,0
-Purple,0-18,0
+Purple,0-18,1
 Purple,0-18,0
 Purple,0-18,0
 Purple,0-18,1
@@ -57,7 +57,7 @@ Purple,0-18,1
 Purple,18-30,0
 Purple,18-30,0
 Purple,18-30,0
-Purple,18-30,1
+Purple,18-30,0
 Purple,18-30,1
 Purple,30-45,0
 Purple,30-45,1
