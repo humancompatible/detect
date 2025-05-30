@@ -10,38 +10,57 @@ A reference implementation of the **Maximum Subgroup Discrepancy (MSD)** metric 
 
 ---
 
-## Maximum Subgroup Discrepancy (MSD)
+## Problem statement
 
-Conventional two-sample distances (Wasserstein, Total Variation, MMD, …) have **exponential sample complexity** in high-dimensional or intersectional settings.
-**MSD** side-steps this by maximising the discrepancy **over all protected sub-groups** and enjoys **linear sample complexity** w.r.t. the number of protected attributes.
-It also returns an _interpretable_ logical description (a DNF conjunction) of the most-biased subgroup.
+In a fairness (or data-drift) audit we rarely ask  
+"*Are the two distributions identical?*".  
+
+The practical question is
+
+> **Is there *any* combination of protected attributes (race × age × …) for which people are treated noticeably differently?**
+
+Formally, let  
+
+* **X** ∈ ℝ<sup>d</sup> be the feature space,  
+* **P** and **Q** two distributions we want to compare (e.g. training vs census, positives vs negatives),  
+* **𝒫** ⊂ {1,…,d} the indices of *protected* features (age, sex, race, …).
+
+A **sub-group** *S* is all samples whose protected attributes take one fixed value each  
+(e.g. *Race = Blue* ∧ *Age ∈ [0,18]*).  
+We must consider every such intersection – their number is exponential in |𝒫|.
 
 ---
 
-## Repository Layout
+## Maximum Subgroup Discrepancy (MSD)
 
-    detect/
-    ├── humancompatible/
-    │ └── detect/
-    │   ├── dnf_bias.py
-    │   ├── .py and folders/ binarizer, data_handler, utils, ...
-    │   ├── experiment_enumerative.py
-    |   ├── experiment_sample_complexity.py
-    │   └── plot-maker/
-    |     ├── plot_exploration.py
-    |     └── plots_for_paper.py
-    |
-    ├── data/
-    |
-    ├── examples/
-    | ├── 00_experiments/
-    |   ├── experiments.ipynb
-    |   └── plots.ipynb
-    │ └── 01_usage_dnf_bias.ipynb
-    │
-    ├── tests/
-    ├── requirements.txt
-    └── setup.py
+We define the distance between **P** and **Q** as the *largest* protected-sub-group gap  
+
+```math
+
+\text{MSD}(P,Q;\,𝒫)=
+\max_{S\;\text{sub-group on }𝒫}\;
+\bigl|\;P(S)-Q(S)\;\bigr|.
+
+```
+
+
+* Two distributions are *fair* iff all sub-groups have similar mass.  
+* The **arg max** immediately tells you *which* group is most disadvantaged – an interpretable logical rule.
+
+---
+
+## Why classical distances fail
+
+| Distance | Needs to look at | Worst-case samples | Drawback |
+|----------|-----------------|--------------------|----------|
+| Wasserstein, Total Variation, MMD, … | full *d*-dimensional joint | Ω(2<sup>d</sup>) | exponential sample cost, no group explanation |
+| **MSD (ours)** | only the protected marginal | **O(d)** | exact group, human-readable |
+
+MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
+
+<div align="center">
+  <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
+</div>
 
 ---
 
@@ -54,7 +73,7 @@ cd detect
 
 # 2. create & activate a fresh env
 python -m venv .venv
-source .venv/bin/activate           # Windows: .venv\Scripts\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 
 # 3. install dependencies
 pip install -r requirements.txt
@@ -62,6 +81,10 @@ pip install -r requirements.txt
 # 4. editable install
 pip install -e .
 ```
+
+> The MIO back-end defaults to Gurobi; academic licences are free for research-only use.
+
+---
 
 ## Documentation
 
