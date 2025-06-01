@@ -1,15 +1,5 @@
 # detect
 
-## Bias Detection via Maximum Subgroup Discrepancy
-
-A reference implementation of the **Maximum Subgroup Discrepancy (MSD)** metric and the mixed-integer-optimization (MIO) solver that powers it, as introduced in:
-
-> _Bias Detection via Maximum Subgroup Discrepancy_
-> Jiří Němeček, Mark Kozdoba, Illia Kryvoviaz, Tomáš Pevný, Jakub Mareček
-> ACM KDD 2025
-
----
-
 ## Problem statement
 
 In a fairness (or data-drift) audit we rarely ask  
@@ -95,3 +85,13 @@ pip install -r docs/requirements.txt
 sphinx-apidoc -o docs/source/ humancompatible/detect  -f -e
 sphinx-build -M html docs/source/ docs/build/
 ```
+
+---
+
+## References
+
+A reference implementation of the **Maximum Subgroup Discrepancy (MSD)** metric and the mixed-integer-optimization (MIO) solver that powers it, as introduced in:
+
+> _Bias Detection via Maximum Subgroup Discrepancy_
+> Jiří Němeček, Mark Kozdoba, Illia Kryvoviaz, Tomáš Pevný, Jakub Mareček
+> ACM KDD 2025
