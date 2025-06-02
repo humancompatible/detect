@@ -15,8 +15,7 @@ Formally, let
 * **P** and **Q** two distributions we want to compare (e.g. training vs census, positives vs negatives),  
 * **𝒫** ⊂ {1,…,d} the indices of *protected* features (age, sex, race, …).
 
-A **sub-group** *S* is all samples whose protected attributes take one fixed value each  
-(e.g. *Race = Blue* ∧ *Age ∈ [0,18]*).  
+A **sub-group** *S* is all samples whose protected attributes take one fixed value each.  
 We must consider every such intersection – their number is exponential in |𝒫|.
 
 ---
@@ -48,9 +47,35 @@ We define the distance between **P** and **Q** as the *largest* protected-sub-gr
 
 MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
 
+---
+
+## Quick-start
+
 <div align="center">
   <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
 </div>
+<br>
+
+
+```python
+from humancompatible.detect.MSD import compute_MSD
+
+# tiny toy set 
+# (col 1 = Race, col 2 = Age-bin, col 3 = binary target) 
+msd, rule_idx = compute_MSD(
+    csv_path = csv,
+    target = "Target",
+    protected_list = ["Race", "Age"],
+)
+```
+
+---
+
+## More to explore
+- `examples/01_usage.ipynb` – a 5-minute notebook reproducing the call above,
+then translating `rule_idx` back to human-readable conditions.
+
+Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
 ---
 
