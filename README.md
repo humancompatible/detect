@@ -81,6 +81,53 @@ Feel free to start with the light notebook, then dive into the experiments with 
 
 ## Installation
 
+### Requirements
+- **Python ≥ 3.10**  
+
+- **A MILP solver** (to solve the mixed-integer program)  
+  * Gurobi 10.x is auto-detected if present - free academic licences are available.
+
+
+### (Optional) create a fresh environment
+```bash
+python -m venv .venv
+# ── Activate it ─────────────────────────────────────────────
+# Linux / macOS
+source .venv/bin/activate
+# Windows – cmd.exe
+.venv\Scripts\activate.bat
+# Windows – PowerShell
+.venv\Scripts\Activate.ps1
+```
+
+### Install the package
+
+> **Package not on PyPI yet?**  
+> Until we complete the PyPI release you can install the latest snapshot
+> straight from GitHub in one line::
+
+MSD is not yet on PyPI, :
+
+```bash
+python -m pip install git+https://github.com/humancompatible/detect.git
+```
+
+If you prefer an editable (developer) install:
+
+```bash
+git clone https://github.com/humancompatible/detect.git
+cd detect
+python -m pip install -r requirements.txt
+python -m pip install -e .
+```
+
+### Verify it worked
+```bash
+python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
+```
+
+
+
 ```bash
 # 1. clone the repo
 git clone https://github.com/humancompatible/detect.git
@@ -96,8 +143,6 @@ pip install -r requirements.txt
 # 4. editable install
 pip install -e .
 ```
-
-> The MIO back-end defaults to Gurobi; academic licences are free for research-only use.
 
 ---
 
