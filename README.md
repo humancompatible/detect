@@ -104,9 +104,7 @@ source .venv/bin/activate
 
 > **Package not on PyPI yet?**  
 > Until we complete the PyPI release you can install the latest snapshot
-> straight from GitHub in one line::
-
-MSD is not yet on PyPI, :
+> straight from GitHub in one line:
 
 ```bash
 python -m pip install git+https://github.com/humancompatible/detect.git
@@ -126,23 +124,8 @@ python -m pip install -e .
 python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
 ```
 
-
-
-```bash
-# 1. clone the repo
-git clone https://github.com/humancompatible/detect.git
-cd detect
-
-# 2. create & activate a fresh env
-python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\Scripts\activate
-
-# 3. install dependencies
-pip install -r requirements.txt
-
-# 4. editable install
-pip install -e .
-```
+If the import fails you’ll see: <br>
+`ModuleNotFoundError: No module named 'humancompatible'`.
 
 ---
 
