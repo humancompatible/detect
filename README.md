@@ -1,90 +1,89 @@
-# detect
+# HumanCompatible - Detect
 
-## Problem statement
+[![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
 
-In a fairness (or data-drift) audit we rarely ask  
-"*Are the two distributions identical?*".  
+A library of methods for detecting Bias (lack of Fairness) in AI models (or datasets).
 
-The practical question is
+## AI Fairness
 
-> **Is there *any* combination of protected attributes (race × age × …) for which people are treated noticeably differently?**
+In a fairness auditing, one would generally like to know if two distributions are identical.
+These distributions could be a distribution of internal private training data and publicly accessible data from a nation-wide census, i.e., a good baseline.
+Or one can compare samples classified positively and negatively, to see if groups are represented equally in each class.
 
-Formally, let  
+In other words, we ask
 
-* **X** ∈ ℝ<sup>d</sup> be the feature space,  
-* **P** and **Q** two distributions we want to compare (e.g. training vs census, positives vs negatives),  
+> Is there *some* combination of protected attributes (race × age × …) for which people are treated noticeably differently?
+
+Samples belonging to a given combination of protected attributes is called a subgroup.
+<!-- Formally, let
+
+* **X** ∈ ℝ<sup>d</sup> be the feature space,
+* **P** and **Q** two distributions we want to compare (e.g. training vs census, positives vs negatives),
 * **𝒫** ⊂ {1,…,d} the indices of *protected* features (age, sex, race, …).
 
-A **sub-group** *S* is all samples whose protected attributes take one fixed value each.  
+A **sub-group** *S* is all samples whose protected attributes take one fixed value each.
 We must consider every such intersection – their number is exponential in |𝒫|.
+ -->
 
----
+## Using HumanCompatible.Detect
 
-## Maximum Subgroup Discrepancy (MSD)
+1) Install the library:
+    ```bash
+    python -m pip install git+https://github.com/humancompatible/detect.git
+    ```
+2) Compute the bias:
+    ```python
+    from humancompatible.detect.MSD import compute_MSD
 
-We define the distance between **P** and **Q** as the *largest* protected-sub-group gap  
+    # toy example
+    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
+    msd, rule_idx = compute_MSD(
+        csv_path = csv,
+        target = "Target",
+        protected_list = ["Race", "Age"],
+    )
+    ```
 
-```math
-
-\text{MSD}(P,Q;\,𝒫)=
-\max_{S\;\text{sub-group on }𝒫}\;
-\bigl|\;P(S)-Q(S)\;\bigr|.
-
-```
-
-
-* Two distributions are *fair* iff all sub-groups have similar mass.  
-* The **arg max** immediately tells you *which* group is most disadvantaged – an interpretable logical rule.
-
----
-
-## Why classical distances fail
-
-| Distance | Needs to look at | Worst-case samples | Drawback |
-|----------|-----------------|--------------------|----------|
-| Wasserstein, Total Variation, MMD, … | full *d*-dimensional joint | Ω(2<sup>d</sup>) | exponential sample cost, no group explanation |
-| **MSD (ours)** | only the protected marginal | **O(d)** | exact group, human-readable |
-
-MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
-
----
-
-## Quick-start
-
-<div align="center">
-  <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
-</div>
-<br>
-
-
-```python
-from humancompatible.detect.MSD import compute_MSD
-
-# tiny toy set 
-# (col 1 = Race, col 2 = Age-bin, col 3 = binary target) 
-msd, rule_idx = compute_MSD(
-    csv_path = csv,
-    target = "Target",
-    protected_list = ["Race", "Age"],
-)
-```
-
----
-
-## More to explore
+### More to explore
 - `examples/01_usage.ipynb` – a 5-minute notebook reproducing the call above,
 then translating `rule_idx` back to human-readable conditions.
 
 Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
+We also provide [documentation](https://humancompatible-detect.readthedocs.io/en/latest/detect.MSD.html). For more details on installation, see [Installation details](#installation-details).
+
 ---
 
-## Installation
+## Methods
+
+### Maximum Subgroup Discrepancy (MSD)
+
+MSD is the subgroup maximal difference in probability mass of a given subgroup, comparing the mass given by each distribution.
+
+<div align="center">
+  <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
+</div>
+
+<!-- ```math
+
+\text{MSD}(P,Q;\,𝒫)=
+\max_{S\;\text{sub-group on }𝒫}\;
+\bigl|\;P(S)-Q(S)\;\bigr|.
+
+``` -->
+
+* Naturally, two distributions are *fair* iff all sub-groups have similar mass.
+* The **arg max** immediately tells you *which* group is most disadvantaged as an interpretable attribute-value combination.
+* MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
+
+---
+
+## Installation details
 
 ### Requirements
-- **Python ≥ 3.10**  
+- **Python ≥ 3.10**
 
-- **A MILP solver** (to solve the mixed-integer program)  
+- **A MILP solver** (to solve the mixed-integer program)
   * Gurobi 10.x is auto-detected if present - free academic licences are available.
 
 
@@ -102,9 +101,7 @@ source .venv/bin/activate
 
 ### Install the package
 
-> **Package not on PyPI yet?**  
-> Until we complete the PyPI release you can install the latest snapshot
-> straight from GitHub in one line:
+> Before we complete the PyPI release you can install the latest snapshot straight from GitHub in one line:
 
 ```bash
 python -m pip install git+https://github.com/humancompatible/detect.git
@@ -127,24 +124,32 @@ python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD import
 If the import fails you’ll see: <br>
 `ModuleNotFoundError: No module named 'humancompatible'`.
 
+
+<!--
 ---
 
-## Documentation
+## Why classical distances fail
 
-To generate the documentation, install sphinx and run:
+| Distance | Needs to look at | Worst-case samples | Drawback |
+|----------|-----------------|--------------------|----------|
+| Wasserstein, Total Variation, MMD, … | full *d*-dimensional joint | Ω(2<sup>d</sup>) | exponential sample cost, no group explanation |
+| **MSD (ours)** | only the protected marginal | **O(d)** | exact group, human-readable |
 
-```bash
-pip install -r docs/requirements.txt
-sphinx-apidoc -o docs/source/ humancompatible/detect  -f -e
-sphinx-build -M html docs/source/ docs/build/
-```
-
+MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
+ -->
 ---
+
 
 ## References
 
-A reference implementation of the **Maximum Subgroup Discrepancy (MSD)** metric and the mixed-integer-optimization (MIO) solver that powers it, as introduced in:
+If you use the MSD in your work, please cite the following work:
 
-> _Bias Detection via Maximum Subgroup Discrepancy_
-> Jiří Němeček, Mark Kozdoba, Illia Kryvoviaz, Tomáš Pevný, Jakub Mareček
-> ACM KDD 2025
+```bibtex
+@inproceedings{MSD,
+  author = {Jiří Němeček and Mark Kozdoba and Illia Kryvoviaz and Tomáš Pevný and Jakub Mareček},
+  title = {Bias Detection via Maximum Subgroup Discrepancy},
+  year = {2025},
+  booktitle = {Proceedings of the 31st ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
+  series = {KDD '25}
+}
+```
