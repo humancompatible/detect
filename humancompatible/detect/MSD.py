@@ -15,6 +15,7 @@ def compute_MSD(
     y_bin: np.ndarray[np.bool_],
     time_limit: int = 600,
     n_min: int = 0,
+    solver: str = "appsi_highs",
 ) -> Tuple[float, List[int]]:
     """Computes the Maximum Subgroup Discrepancy (MSD) to detect bias.
 
@@ -43,7 +44,9 @@ def compute_MSD(
     """
 
     mio = OneRule()
-    rule = mio.find_rule(X_bin, y_bin, n_min=n_min, time_limit=time_limit)
+    rule = mio.find_rule(
+        X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
+    )
     subgroup_map = subgroup_map_from_conjuncts(rule, X_bin)
     MSD_val = evaluate_subgroup_discrepancy(subgroup_map, y_bin)
 
