@@ -86,10 +86,14 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 
 ### Requirements
 
+Requirements are included in the `requirements.txt` file. They include:
+
 - **Python ≥ 3.10**
 
-- **A MILP solver** (to solve the mixed-integer program)
-  - Gurobi 10.x is auto-detected if present - free academic licences are available.
+- **A MILP solver** (to solve the mixed-integer program in the case of MSD)
+  - The default solver is [HiGHS](https://highs.dev/). This is an open-source solver included in the requirements.
+  - A faster, but proprietary solver [Gurobi](https://www.gurobi.com/) can also easily be used. Free academic licences are available. This solver was used in the original paper.
+  - We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html). Note that the implementation sets the graceful time limit only for solvers Gurobi, Cplex, HiGHS, Xpress, and GLPK.
 
 ### (Optional) create a fresh environment
 
@@ -127,10 +131,11 @@ python -m pip install -e .
 python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
 ```
 
-If the import fails you’ll see: <br>
-`ModuleNotFoundError: No module named 'humancompatible'`.
+If the import fails you’ll see:
 
-## <!--
+```bash
+ModuleNotFoundError: No module named 'humancompatible'
+```
 
 ## Why classical distances fail
 

@@ -156,7 +156,7 @@ def detect_bias(
     y: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[Any, int]] = {},
+    fp_map: Dict[str, Callable[[Any], int]] = {},
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -178,7 +178,7 @@ def detect_bias(
             Defaults to None.
         continuous_list (List[str], optional): A list of column names identified
             as continuous features. Defaults to [].
-        fp_map (Dict[str, Callable[Any, int]], optional): A dictionary for feature
+        fp_map (Dict[str, Callable[[Any], int]], optional): A dictionary for feature
             processing, where keys are column names and values are mapping
             functions to apply for preprocessing specific features. Defaults to {}.
         seed (int | None, optional): A seed for random number generation to ensure
@@ -241,7 +241,7 @@ def detect_bias_csv(
     target_col: str,
     protected_list: List[str] | None = None,
     continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[Any, int]] = {},
+    fp_map: Dict[str, Callable[[Any], int]] = {},
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -262,7 +262,7 @@ def detect_bias_csv(
             Defaults to None.
         continuous_list (List[str], optional): A list of column names identified
             as continuous features. Defaults to [].
-        fp_map (Dict[str, Callable[Any, int]], optional): A dictionary for feature
+        fp_map (Dict[str, Callable[[Any], int]], optional): A dictionary for feature
             processing, where keys are column names and values are mapping
             functions to apply for preprocessing specific features. Defaults to {}.
         seed (int | None, optional): A seed for random number generation to ensure
@@ -317,7 +317,7 @@ def detect_bias_two_samples(
     X2: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[Any, int]] = {},
+    fp_map: Dict[str, Callable[[Any], int]] = {},
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -337,7 +337,7 @@ def detect_bias_two_samples(
             concatenated DataFrame will be treated as protected. Defaults to None.
         continuous_list (List[str], optional): A list of column names identified
             as continuous features. Defaults to [].
-        fp_map (Dict[str, Callable[Any, int]], optional): A dictionary for feature
+        fp_map (Dict[str, Callable[[Any], int]], optional): A dictionary for feature
             processing, where keys are column names and values are mapping
             functions to apply for preprocessing specific features. Defaults to {}.
         seed (int | None, optional): A seed for random number generation to ensure
