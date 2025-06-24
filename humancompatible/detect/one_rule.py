@@ -211,6 +211,7 @@ class OneRule:
         """
         assert y.shape == (X.shape[0],)
         assert X.dtype == bool and y.dtype == bool
+        assert n_min <= min(sum(y), sum(~y))
 
         # Handle edge cases where target is all positive or all negative
         size1 = np.sum(y)

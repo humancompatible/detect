@@ -131,10 +131,11 @@ python -m pip install -e .
 python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
 ```
 
-If the import fails you’ll see: <br>
-`ModuleNotFoundError: No module named 'humancompatible'`.
+If the import fails you’ll see:
 
-## <!--
+```bash
+ModuleNotFoundError: No module named 'humancompatible'
+```
 
 ## Why classical distances fail
 
