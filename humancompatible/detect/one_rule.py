@@ -157,6 +157,7 @@ class OneRule:
         n_min: int = 0,
         time_limit: int = 300,
         return_opt_flag: bool = False,
+        solver_name: str = "appsi_highs",
     ) -> List[int] | Tuple[List[int], bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
