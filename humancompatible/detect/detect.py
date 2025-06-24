@@ -152,12 +152,12 @@ def detect_bias(
     X: pd.DataFrame,
     y: pd.DataFrame,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias in a given dataset using specified methods.
 
@@ -206,6 +206,13 @@ def detect_bias(
     if seed is not None:
         logger.info(f"Seeding the run with seed={seed}")
         np.random.seed(seed)
+    
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -237,12 +244,12 @@ def detect_bias_csv(
     csv_path: Path | str,
     target_col: str,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias in a dataset loaded from a CSV file.
 
@@ -295,6 +302,12 @@ def detect_bias_csv(
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
         protected_list = list(X_df.columns)
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     return detect_bias(
         X_df,
@@ -313,12 +326,12 @@ def detect_bias_two_samples(
     X1: pd.DataFrame,
     X2: pd.DataFrame,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias between two distinct samples (datasets).
 
@@ -365,14 +378,21 @@ def detect_bias_two_samples(
         - This function relies on `detect_bias` for the core bias detection logic.
     """
 
-    if X1.columns != X2.columns:
+    if X1.columns.tolist() != X2.columns.tolist():
         raise ValueError("The samples must have the same features")
 
     X_df = pd.concat([X1, X2])
     y_df = pd.DataFrame(np.stack(np.zeros(X1.shape[0]), np.ones(X2.shape[0]), axis=0))
+
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
-        protected_list = list(X_df.columns)
+        protected_list = X_df.columns.tolist()
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     return detect_bias(
         X_df,
