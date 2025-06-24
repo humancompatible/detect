@@ -244,9 +244,33 @@ class OneRule:
         int_model = self._make_abs_model(
             X_unique, y_unique, weights=weights_unique, n_min=n_min
         )
-        solver = pyo.SolverFactory("gurobi", solver_io="python")  # Use Gurobi solver
-        solver.options["TimeLimit"] = time_limit  # Set time limit for the solver
-        result = solver.solve(int_model, tee=verbose)  # Solve the model
+
+        # Solver setup
+        if solver_name == "gurobi":
+            solver = pyo.SolverFactory(solver_name, solver_io="python")
+        else:
+            solver = pyo.SolverFactory(solver_name)
+
+        # Set time limit for the solver
+        if "cplex" in solver_name:
+            solver.options["timelimit"] = time_limit
+        elif "glpk" in solver_name:
+            solver.options["tmlim"] = time_limit
+        elif "xpress" in solver_name:
+            solver.options["soltimelimit"] = time_limit
+            # Use the below instead for XPRESS versions before 9.0
+            # self.solver.options['maxtime'] = TIME_LIMIT
+        elif "highs" in solver_name:
+            solver.options["time_limit"] = time_limit
+        elif "gurobi" in solver_name:
+            solver.options["TimeLimit"] = time_limit
+        else:
+            logger.warning(
+                f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
+            )
+
+        # Solve the model
+        result = solver.solve(int_model, load_solutions=False, tee=verbose)
 
         is_optimal = True
         if result.solver.termination_condition != pyo.TerminationCondition.optimal:
@@ -254,6 +278,13 @@ class OneRule:
                 f"Solver did not find an optimal solution. Termination condition: {result.solver.termination_condition}"
             )
             is_optimal = False
+
+        try:
+            int_model.solutions.load_from(result)
+        except ValueError:
+            logger.info("No solution found. Try increasing `time_limit`.")
+            return None, False
+
         self.model = int_model  # Store the solved model instance
 
         # Extract the chosen features from the model's solution
