@@ -31,7 +31,6 @@ class OneRule:
         y: np.ndarray[bool],
         weights: np.ndarray[float],
         n_min: int,
-        # trunk-ignore(ruff/B006)
         feat_init: dict[int, int] = {},
     ) -> pyo.ConcreteModel:
         """
