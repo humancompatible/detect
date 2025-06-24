@@ -145,7 +145,6 @@ ModuleNotFoundError: No module named 'humancompatible'
 | **MSD (ours)**                       | only the protected marginal | **O(d)**           | exact group, human-readable                   |
 
 MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
--->
 
 ---
 
