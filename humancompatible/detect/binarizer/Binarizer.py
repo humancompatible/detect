@@ -47,7 +47,7 @@ class Operation(Enum):
                 result |= vals == r
             return result
         elif op == Operation.NOT_IN:
-            return ~Operation.perform(Operation.NOT_IN, vals, reference)
+            return ~Operation.perform(Operation.IN, vals, reference)
         elif op == Operation.BETWEEN:
             return (vals >= reference[0]) & (vals < reference[1])
         elif op == Operation.OUTSIDE:
@@ -84,6 +84,9 @@ class Bin:
             return Bin(self.feature, self.operation, negated_value)
         else:
             return Bin(self.feature, Operation.negated(self.operation), self.value)
+
+    def evaluate(self, values: np.ndarray[int | float | str]) -> np.ndarray[bool]:
+        return Operation.perform(self.operation, values, self.value)
 
     def __repr__(self):
         return f"Bin({repr(self.feature)}, {repr(self.operation)}, {repr(self.value)})"
@@ -256,3 +259,7 @@ class Binarizer:
             for bin in binariaztions:
                 flat.append(bin)
         return flat
+
+    @property
+    def data_handler(self):
+        return self.__original_dhandler

@@ -223,13 +223,15 @@ def detect_bias(
     y_bin = binarizer.encode_y(y)
 
     if method == "MSD":
-        val, rule = compute_MSD(X_bin, y_bin, **method_kwargs)
+        val, indices = compute_MSD(X_bin, y_bin, **method_kwargs)
     else:
         raise ValueError(
             f'Method named "{method}" is not implemented. Try one of [MSD].'
         )
 
-    # TODO interpret the rule
+    encodings = binarizer.get_bin_encodings(include_binary_negations=True)
+    feats = binarizer.data_handler.features
+    rule = [(feats.index(encodings[i].feature), encodings[i]) for i in indices]
 
     return val, rule
 
