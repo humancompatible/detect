@@ -47,7 +47,7 @@ class Operation(Enum):
                 result |= vals == r
             return result
         elif op == Operation.NOT_IN:
-            return ~Operation.perform(Operation.NOT_IN, vals, reference)
+            return ~Operation.perform(Operation.IN, vals, reference)
         elif op == Operation.BETWEEN:
             return (vals >= reference[0]) & (vals < reference[1])
         elif op == Operation.OUTSIDE:
