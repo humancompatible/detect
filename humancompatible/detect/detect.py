@@ -162,7 +162,7 @@ def detect_bias(
     """Detects bias in a given dataset using specified methods.
 
     This function prepares the data and then applies a bias detection method,
-    such as Mean Squared Difference (MSD), to identify potential biases
+    such as Maximum Subgroup Discrepancy (MSD), to identify potential biases
     related to protected attributes.
 
     Args:
@@ -184,7 +184,7 @@ def detect_bias(
             dataset. If the dataset size exceeds this, it will be randomly downsampled.
             Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
@@ -268,7 +268,7 @@ def detect_bias_csv(
             dataset. If the dataset size exceeds this, it will be randomly downsampled.
             Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
@@ -343,7 +343,7 @@ def detect_bias_two_samples(
             combined dataset. If the dataset size exceeds this, it will be randomly
             downsampled. Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
