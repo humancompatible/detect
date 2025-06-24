@@ -12,9 +12,10 @@ Or one can compare samples classified positively and negatively, to see if group
 
 In other words, we ask
 
-> Is there *some* combination of protected attributes (race × age × …) for which people are treated noticeably differently?
+> Is there _some_ combination of protected attributes (race × age × …) for which people are treated noticeably differently?
 
 Samples belonging to a given combination of protected attributes is called a subgroup.
+
 <!-- Formally, let
 
 * **X** ∈ ℝ<sup>d</sup> be the feature space,
@@ -27,26 +28,29 @@ We must consider every such intersection – their number is exponential in |�
 
 ## Using HumanCompatible.Detect
 
-1) Install the library:
-    ```bash
-    python -m pip install git+https://github.com/humancompatible/detect.git
-    ```
-2) Compute the bias:
-    ```python
-    from humancompatible.detect.MSD import compute_MSD
+1. Install the library:
+   ```bash
+   python -m pip install git+https://github.com/humancompatible/detect.git
+   ```
+2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
-    # toy example
-    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
-    msd, rule_idx = compute_MSD(
-        csv_path = csv,
-        target = "Target",
-        protected_list = ["Race", "Age"],
-    )
-    ```
+   ```python
+   from humancompatible.detect import detect_bias
+
+   # toy example
+   # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
+   msd, rule_idx = detect_bias(
+       csv_path = csv,
+       target = "Target",
+       protected_list = ["Race", "Age"],
+       method = "MSD",
+   )
+   ```
 
 ### More to explore
+
 - `examples/01_usage.ipynb` – a 5-minute notebook reproducing the call above,
-then translating `rule_idx` back to human-readable conditions.
+  then translating `rule_idx` back to human-readable conditions.
 
 Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
@@ -72,22 +76,23 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 
 ``` -->
 
-* Naturally, two distributions are *fair* iff all sub-groups have similar mass.
-* The **arg max** immediately tells you *which* group is most disadvantaged as an interpretable attribute-value combination.
-* MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
+- Naturally, two distributions are _fair_ iff all sub-groups have similar mass.
+- The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
+- MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
 ---
 
 ## Installation details
 
 ### Requirements
+
 - **Python ≥ 3.10**
 
 - **A MILP solver** (to solve the mixed-integer program)
-  * Gurobi 10.x is auto-detected if present - free academic licences are available.
-
+  - Gurobi 10.x is auto-detected if present - free academic licences are available.
 
 ### (Optional) create a fresh environment
+
 ```bash
 python -m venv .venv
 # ── Activate it ─────────────────────────────────────────────
@@ -117,6 +122,7 @@ python -m pip install -e .
 ```
 
 ### Verify it worked
+
 ```bash
 python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
 ```
@@ -124,21 +130,19 @@ python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD import
 If the import fails you’ll see: <br>
 `ModuleNotFoundError: No module named 'humancompatible'`.
 
-
-<!--
----
+## <!--
 
 ## Why classical distances fail
 
-| Distance | Needs to look at | Worst-case samples | Drawback |
-|----------|-----------------|--------------------|----------|
-| Wasserstein, Total Variation, MMD, … | full *d*-dimensional joint | Ω(2<sup>d</sup>) | exponential sample cost, no group explanation |
-| **MSD (ours)** | only the protected marginal | **O(d)** | exact group, human-readable |
+| Distance                             | Needs to look at            | Worst-case samples | Drawback                                      |
+| ------------------------------------ | --------------------------- | ------------------ | --------------------------------------------- |
+| Wasserstein, Total Variation, MMD, … | full _d_-dimensional joint  | Ω(2<sup>d</sup>)   | exponential sample cost, no group explanation |
+| **MSD (ours)**                       | only the protected marginal | **O(d)**           | exact group, human-readable                   |
 
 MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
- -->
----
+-->
 
+---
 
 ## References
 
