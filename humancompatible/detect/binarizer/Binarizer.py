@@ -85,6 +85,9 @@ class Bin:
         else:
             return Bin(self.feature, Operation.negated(self.operation), self.value)
 
+    def evaluate(self, values: np.ndarray[int | float | str]) -> np.ndarray[bool]:
+        return Operation.perform(self.operation, values, self.value)
+
     def __repr__(self):
         return f"Bin({repr(self.feature)}, {repr(self.operation)}, {repr(self.value)})"
 
