@@ -1,12 +1,12 @@
-hydra-core==1.3.2
 numpy==2.2.5
 pandas==2.2.3
-folktables==0.0.12
-POT==0.9.5
-ipykernel==6.29.5
-matplotlib==3.10.1
-pyomo==6.9.2
-gurobipy==12.0.2
 
-pytest==8.3.5
-notebook==7.4.2
+# MIO solving for MSD
+pyomo==6.9.2
+highspy==1.10.0
+# gurobipy==12.0.2 # tested version of Gurobi
+
+# for demonstrations
+jupyterlab==3.6.8
+# US census data source
+folktables==0.0.12
