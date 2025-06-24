@@ -256,3 +256,7 @@ class Binarizer:
             for bin in binariaztions:
                 flat.append(bin)
         return flat
+
+    @property
+    def data_handler(self):
+        return self.__original_dhandler
