@@ -4,10 +4,6 @@ from typing import List, Tuple
 import numpy as np
 import pyomo.environ as pyo
 
-# ignore assert warnings
-# trunk-ignore-all(bandit/B101)
-
-
 logger = logging.getLogger(__name__)
 
 
