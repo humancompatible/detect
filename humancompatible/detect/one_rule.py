@@ -274,10 +274,22 @@ class OneRule:
 
         is_optimal = True
         if result.solver.termination_condition != pyo.TerminationCondition.optimal:
-            logger.info(
-                f"Solver did not find an optimal solution. Termination condition: {result.solver.termination_condition}"
-            )
             is_optimal = False
+            logger.info("Solver did not prove optimality of the solution.")
+            if (
+                result.solver.termination_condition
+                == pyo.TerminationCondition.maxTimeLimit
+            ):
+                logger.info("Timed out.")
+            elif result.solver.termination_condition in [
+                pyo.TerminationCondition.infeasible,
+                pyo.TerminationCondition.infeasibleOrUnbounded,  # problem is always bounded by 0
+            ]:
+                logger.info("Infeasible formulation, something went wrong.")
+            else:
+                raise ValueError(
+                    f"Unexpected termination condition: {result.solver.termination_condition}."
+                )
 
         try:
             int_model.solutions.load_from(result)
