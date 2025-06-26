@@ -211,7 +211,9 @@ def _utils_folktables():
     You can find all explanation of resources here:
     https://www.icpsr.umich.edu/web/DSDR/studies/25042/datasets/0002/variables/POBP?archive=dsdr
 
-    In "Search Variables" filed, write the code of uknown abbreviation
+    In "Search Variables" filed, write the code of uknown abbreviation.
+    Or you can use: 
+    https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2018.pdf
     """
 
     FEATURE_NAMES = {
