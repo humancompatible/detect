@@ -31,7 +31,7 @@ class OneRule:
         y: np.ndarray[bool],
         weights: np.ndarray[float],
         n_min: int,
-        feat_init: Dict[int, int] = {},
+        feat_init: Dict[int, int] | None = None,
     ) -> pyo.ConcreteModel:
         """
         Creates the Mixed-Integer Optimization (MIO) formulation to find an optimal conjunction.
@@ -74,6 +74,9 @@ class OneRule:
             - `o` and `b` variables, along with `abs_obj_u1` and `abs_obj_u2` constraints,
               linearize the absolute value in the objective function.
         """
+        if feat_init is None:
+            feat_init = {}
+        
         n, d = X.shape
         # Convert boolean X to integer for Pyomo compatibility (0 or 1)
         Xint = np.zeros_like(X, dtype=int)
