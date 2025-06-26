@@ -295,11 +295,26 @@ def _utils_folktables():
         "DEYE": {1: "Yes", 2: "No"},
         "DREM": {1: "Yes", 2: "No", None: "N/A (<5 years)"},
         "FER": {1: "Yes", 2: "No", None: "N/A"},
-        
-        "COW": {
-            # Not implemented yet. Look at docstrings of this function
-        },
+
         "SCHL": {
+            1:	"No school completed",
+            2:	"Nursery school to grade 4",
+            3:	"Grade 5 or grade 6",
+            4:	"Grade 7 or grade 8",
+            5:	"Grade 9",
+            6:	"Grade 10",
+            7:	"Grade 11",
+            8:	"Grade 12 no diploma",
+            9:	"High school graduate",
+            10:	"Some college, but less than 1 year",
+            11:	"One or more years of college, no degree",
+            12:	"Associate's degree",
+            13:	"Bachelor's degree",
+            14:	"Master's degree",
+            15:	"Professional school degree",
+            16:	"Doctorate degree",
+        },
+        "COW": {
             # Not implemented yet. Look at docstrings of this function
         },
         "OCCP": {
