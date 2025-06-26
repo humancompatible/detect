@@ -1,5 +1,5 @@
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import numpy as np
 import pyomo.environ as pyo
@@ -31,7 +31,7 @@ class OneRule:
         y: np.ndarray[bool],
         weights: np.ndarray[float],
         n_min: int,
-        feat_init: dict[int, int] = {},
+        feat_init: Dict[int, int] = {},
     ) -> pyo.ConcreteModel:
         """
         Creates the Mixed-Integer Optimization (MIO) formulation to find an optimal conjunction.
@@ -159,8 +159,8 @@ class OneRule:
         in target outcomes between the subgroup it defines and its complement.
 
         This method prepares the data (by creating unique rows and assigning weights),
-        builds the MIO model using `_make_abs_model`, and then solves it using the
-        Gurobi solver (requires Gurobi to be installed and accessible).
+        builds the MIO model using `_make_abs_model`, and then solves it using whichever 
+        solver you specify in solver_name.
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
@@ -171,13 +171,21 @@ class OneRule:
                                       Defaults to `False`.
             n_min (int, optional): Minimum subgroup support (number of rows)
                                    required for a valid subgroup. Defaults to `0`.
-            time_limit (int, optional): Time budget in seconds for the Gurobi
-                                        solver. Defaults to `300`.
+            time_limit (int, optional): Time budget in seconds for the 
+                                        solver (not all solvers support all time-limit options).
+                                        Defaults to `300`.
             return_opt_flag (bool, optional): If `True`, the function will return
                                               a tuple `(rule, is_optimal)` where
                                               `is_optimal` is a boolean indicating
                                               if the solver found an optimal solution.
                                               Defaults to `False`.
+            solver_name (str, optional): Method for solving MIO problem. Can be chosen among:
+                                         - "appsi_highs" (Default)
+                                         - "gurobi"
+                                         - "cplex"
+                                         - "glpk"
+                                         - "xpress"
+                                         - "highs"
 
         Returns:
             List[int]: A list of integer indices representing the literals (features)
@@ -190,17 +198,17 @@ class OneRule:
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
                             are not of boolean dtype.
-            ValueError: If the Gurobi solver does not find an optimal solution
+            ValueError: If the solver does not find an optimal solution
                         and `return_opt_flag` is `False`. (The current code
                         logs a warning instead of raising if `return_opt_flag` is `False`.)
-            Exception: Any exceptions raised by Pyomo or Gurobi during model
+            Exception: Any exceptions raised by Pyomo or solver during model
                        creation or solving.
 
         Notes:
             - The input `X` and `y` are first processed to get unique rows and
               assign weights based on their original counts and class proportions.
               This helps in handling duplicate rows efficiently.
-            - Requires Gurobi solver to be installed and configured for Pyomo.
+            - Requires a compatible MIP solver; e.g. Gurobi, HiGHS solver to be installed and configured for Pyomo.
             - The `rule` returned contains indices of the *original* features
               (columns of `X`) that define the conjunction.
         """
@@ -292,7 +300,7 @@ class OneRule:
             int_model.solutions.load_from(result)
         except ValueError:
             logger.info("No solution found. Try increasing `time_limit`.")
-            return None, False
+            return ([], False)
 
         self.model = int_model  # Store the solved model instance
 
