@@ -204,3 +204,113 @@ def subgroup_map_from_conjuncts(
         # specified feature column. This filters down the subgroup.
         mapping &= X[:, conj]  # This will raise IndexError if `conj` is out of bounds
     return mapping
+
+
+def _utils_folktables():
+    """
+    You can find all explanation of resources here:
+    https://www.icpsr.umich.edu/web/DSDR/studies/25042/datasets/0002/variables/POBP?archive=dsdr
+
+    In "Search Variables" filed, write the code of uknown abbreviation
+    """
+
+    FEATURE_NAMES = {
+        "SEX": "Sex",
+        "RAC1P": "Race",
+        "AGEP": "Age",
+        "MAR": "Marital status",
+        "POBP": "Place of birth",
+        "DIS": "Disability",
+        "CIT": "Citizenship",
+        "MIL": "Military service",
+        "ANC": "Ancestry",
+        "NATIVITY": "Foreign or US native",
+        "DEAR": "Difficulty hearing",
+        "DEYE": "Difficulty seeing",
+        "DREM": "Cognitive difficulty",
+        "FER": "Gave birth last year",
+        "POVPIP": "Income / Poverty threshold",
+
+        "COW": "Class of worker",
+        "SCHL": "Educational attainment",
+        "OCCP": "Occupation recode",
+        "WKHP": "Usual hours worked per week past 12 months",
+
+    }
+
+    PROTECTED_VALUES_MAP = {
+        "SEX": {1: "Male", 2: "Female"},
+        "RAC1P": {
+            1: "White",
+            2: "Black",
+            3: "American Indian",
+            4: "Alaska Native",
+            5: "Native tribes specified",
+            6: "Asian",
+            7: "Pacific Islander",
+            8: "Some Other Race",
+            9: "Two or More Races",
+        },
+        # "AGEP": {}, Age is not categorical
+        "MAR": {
+            1: "Married",
+            2: "Widowed",
+            3: "Divorced",
+            4: "Separated",
+            5: "Never married",
+        },
+        # "POBP": {}, Too many values, one for each country
+        "_POBP": {
+            0: "US",
+            1: "Europe",
+            2: "Asia",
+            3: "Non-US Americas",
+            4: "Africa",
+            5: "Oceania",
+        },
+        "DIS": {1: "With a disability", 2: "Without a disability"},
+        "CIT": {
+            1: "Born in the US",
+            2: "Born in external US teritories",
+            3: "Born abroad of US parent(s)",
+            4: "Naturalized US citizen",
+            5: "Not a US citizen",
+        },
+        "MIL": {
+            None: "N/A (<17 years)",
+            1: "On active duty",
+            2: "No more active duty",
+            3: "Active duty for training",
+            4: "Never served",
+        },
+        "ANC": {
+            1: "Single",
+            2: "Multiple",
+            3: "Unclassified",
+            4: "Not reported",
+            8: "Hidden",
+        },
+        "NATIVITY": {1: "Native", 2: "Foreign born"},
+        "DEAR": {1: "Yes", 2: "No"},
+        "DEYE": {1: "Yes", 2: "No"},
+        "DREM": {1: "Yes", 2: "No", None: "N/A (<5 years)"},
+        "FER": {1: "Yes", 2: "No", None: "N/A"},
+        
+        "COW": {
+            # Not implemented yet. Look at docstrings of this function
+        },
+        "SCHL": {
+            # Not implemented yet. Look at docstrings of this function
+        },
+        "OCCP": {
+            # Not implemented yet. Look at docstrings of this function
+        },
+        "WKHP": {
+            # Not implemented yet. Look at docstrings of this function
+        },
+
+
+        # "POVPIP": {}, Poverty ratio has numeric values
+    }
+
+    return FEATURE_NAMES, PROTECTED_VALUES_MAP
