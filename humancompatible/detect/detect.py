@@ -44,13 +44,10 @@ def prepare_dataset(
                                              specific features.
 
     Returns:
-        Tuple[object, pd.DataFrame, pd.Series]: A tuple containing:
-            - binarizer_protected (object): An instance of `Binarizer` (or similar
-                                            data handler) specifically configured
-                                            for the protected attributes.
-            - input_data[protected_cols] (pd.DataFrame): A DataFrame containing only
-                                                         the processed protected attributes.
-            - target_data (pd.Series): The processed and sampled target variable.
+        Tuple[Binarizer, pd.DataFrame, pd.Series]: A tuple containing:
+            - binarizer_protected (Binarizer): The protected-attributes binarizer.
+            - input_data[protected_cols] (pd.DataFrame): The processed protected features.
+            - target_data (pd.Series): The sampled target series.
 
     Raises:
         (No explicit raises from within this function beyond potential pandas/numpy errors
@@ -128,10 +125,9 @@ def prepare_dataset(
             bounds[col] = (min(vals), max(vals))
 
     n = input_data.shape[0]
-    if n_max < n:
-        samples = np.random.choice(n, size=n_max, replace=False)
-    else:
-        samples = np.random.permutation(np.arange(n))
+
+    samples = np.random.permutation(n)
+    samples = samples[:n_max]
 
     input_data = input_data.iloc[samples]
     target_data = target_data[target_data.columns[0]].iloc[samples]
@@ -382,7 +378,10 @@ def detect_bias_two_samples(
         raise ValueError("The samples must have the same features")
 
     X_df = pd.concat([X1, X2])
-    y_df = pd.DataFrame(np.stack(np.zeros(X1.shape[0]), np.ones(X2.shape[0]), axis=0))
+    y_df = pd.DataFrame(
+        np.concatenate([np.zeros(X1.shape[0], dtype=bool),
+                        np.ones(X2.shape[0], dtype=bool)])
+    )
 
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
