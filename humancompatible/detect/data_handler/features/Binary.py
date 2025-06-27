@@ -38,6 +38,9 @@ class Binary(Feature):
     def encode(
         self, vals: OneDimData, normalize: bool = True, one_hot: bool = True
     ) -> np.ndarray[np.float64]:
+        """
+        Encode to a single-column 0/1 array for the positive category.
+        """
         positive = vals == self.__positive_val
         if np.any(vals[~positive] != self.__negative_val):
             unknown = vals[~positive] != self.__negative_val
@@ -46,12 +49,6 @@ class Binary(Feature):
                 Values {vals[~positive][unknown]} are not one of [{self.__negative_val},{self.__positive_val}]"""
             )
 
-        # if one_hot:
-        #     return np.concatenate(
-        #         [np.array(~positive).reshape(-1, 1), np.array(positive).reshape(-1, 1)],
-        #         axis=1,
-        #         dtype=np.float64,
-        #     )
         return self._to_numpy(positive).astype(np.float64)
 
     def decode(
@@ -61,6 +58,9 @@ class Binary(Feature):
         return_series: bool = True,
         discretize: bool = False,
     ) -> OneDimData:
+        """
+        Take a flat 0/1 column (or array) and map back to the two original category values.
+        """
         if not np.isin(vals, [0, 1]).all():
             raise ValueError(
                 f"""Incorrect value in an encoded feature {self.name}.
@@ -68,10 +68,6 @@ class Binary(Feature):
             )
         vals = vals.flatten()  # TODO put the shape handlings outside, similar to encode
         res = np.empty(vals.shape, dtype=object)
-        # if len(vals.shape) > 1 and vals.shape[1] > 1:
-        #     res[vals[:, 0].astype(bool)] = self.__negative_val
-        #     res[vals[:, 1].astype(bool)] = self.__positive_val
-        # else:
         res[vals == 0] = self.__negative_val
         res[vals == 1] = self.__positive_val
         if return_series:
@@ -79,7 +75,6 @@ class Binary(Feature):
         return res
 
     def encoding_width(self, one_hot: bool) -> int:
-        # return 2 if one_hot else 1
         return 1
 
     def allowed_change(
