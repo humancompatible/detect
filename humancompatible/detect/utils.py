@@ -366,3 +366,72 @@ def report_subgroup_bias(
         human_val = value_map.get(col, {}).get(val, val)
         pretty.append(f"{human_feat} = {human_val}")
     print("Explained rule: " + " AND ".join(pretty))
+
+
+# ────────── folktables state‐code mapping ──────────
+# ACS "place of birth" recodes for states (POBP)
+# https://www.icpsr.umich.edu/web/DSDR/studies/25042/datasets/0002/variables/POBP?archive=dsdr
+STATE_POBP_CODE: dict[str, int] = {
+    "AL":  1,  # Alabama
+    "AK":  2,  # Alaska
+    "AZ":  4,  # Arizona
+    "AR":  5,  # Arkansas
+    "CA":  6,  # California
+    "CO":  8,  # Colorado
+    "CT":  9,  # Connecticut
+    "DE": 10,  # Delaware
+    "DC": 11,  # District of Columbia
+    "FL": 12,  # Florida
+    "GA": 13,  # Georgia
+    "HI": 15,  # Hawaii
+    "ID": 16,  # Idaho
+    "IL": 17,  # Illinois
+    "IN": 18,  # Indiana
+    "IA": 19,  # Iowa
+    "KS": 20,  # Kansas
+    "KY": 21,  # Kentucky
+    "LA": 22,  # Louisiana
+    "ME": 23,  # Maine
+    "MD": 24,  # Maryland
+    "MA": 25,  # Massachusetts
+    "MI": 26,  # Michigan
+    "MN": 27,  # Minnesota
+    "MS": 28,  # Mississippi
+    "MO": 29,  # Missouri
+    "MT": 30,  # Montana
+    "NE": 31,  # Nebraska
+    "NV": 32,  # Nevada
+    "NH": 33,  # New Hampshire
+    "NJ": 34,  # New Jersey
+    "NM": 35,  # New Mexico
+    "NY": 36,  # New York
+    "NC": 37,  # North Carolina
+    "ND": 38,  # North Dakota
+    "OH": 39,  # Ohio
+    "OK": 40,  # Oklahoma
+    "OR": 41,  # Oregon
+    "PA": 42,  # Pennsylvania
+    "RI": 44,  # Rhode Island
+    "SC": 45,  # South Carolina
+    "SD": 46,  # South Dakota
+    "TN": 47,  # Tennessee
+    "TX": 48,  # Texas
+    "UT": 49,  # Utah
+    "VT": 50,  # Vermont
+    "VA": 51,  # Virginia
+    "WA": 53,  # Washington
+    "WV": 54,  # West Virginia
+    "WI": 55,  # Wisconsin
+}
+
+def state_to_pobp_code(abbrev: str) -> int:
+    """
+    Turn a two-letter state code (e.g. 'CA') into the ACS POBP recode.
+    Raises a KeyError if the state isn't in the map.
+    """
+    st = abbrev.strip().upper()
+    try:
+        return STATE_POBP_CODE[st]
+    except KeyError:
+        valid = ", ".join(sorted(STATE_POBP_CODE.keys()))
+        raise KeyError(f"Unknown state abbreviation '{abbrev}'. Valid codes are: {valid}")
