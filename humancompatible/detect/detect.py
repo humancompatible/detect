@@ -368,11 +368,16 @@ def detect_bias_two_samples(
         - This function relies on `detect_bias` for the core bias detection logic.
     """
 
-    if X1.columns != X2.columns:
+    if X1.columns.tolist() != X2.columns.tolist():
         raise ValueError("The samples must have the same features")
 
     X_df = pd.concat([X1, X2])
-    y_df = pd.DataFrame(np.stack(np.zeros(X1.shape[0]), np.ones(X2.shape[0]), axis=0))
+    y = np.concatenate([
+        np.zeros(X1.shape[0], dtype=int),
+        np.ones (X2.shape[0], dtype=int)
+    ])
+    y_df = pd.DataFrame(y, columns=["target"])
+
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
         protected_list = list(X_df.columns)
