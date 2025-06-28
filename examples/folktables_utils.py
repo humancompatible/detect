@@ -62,6 +62,7 @@ def feature_folktables():
     Or you can use: 
     https://www2.census.gov/programs-surveys/acs/tech_docs/pums/data_dict/PUMS_Data_Dictionary_2018.pdf
     """
+    CONTINUOUS_FEATURES = ["AGEP", "PINCP", "WKHP", "JWMNP", "POVPIP"]
 
     FEATURE_NAMES = {
         "SEX": "Sex",
@@ -79,10 +80,10 @@ def feature_folktables():
         "DREM": "Cognitive difficulty",
         "FER": "Gave birth last year",
         "POVPIP": "Income / Poverty threshold",
-
         "COW": "Class of worker",
         "SCHL": "Educational attainment",
         "OCCP": "Occupation recode",
+        "RELP": "Relationship",
         "WKHP": "Usual hours worked per week past 12 months",
 
     }
@@ -169,6 +170,9 @@ def feature_folktables():
         "OCCP": {
             # Not implemented yet. Look at docstrings of this function
         },
+        "RELP": {
+            # Not implemented yet. Look at docstrings of this function
+        },
         "WKHP": {
             # Not implemented yet. Look at docstrings of this function
         },
@@ -177,7 +181,7 @@ def feature_folktables():
         # "POVPIP": {}, Poverty ratio has numeric values
     }
 
-    return FEATURE_NAMES, PROTECTED_VALUES_MAP
+    return CONTINUOUS_FEATURES, FEATURE_NAMES, PROTECTED_VALUES_MAP
 
 
 # ────────── folktables state‐code mapping ──────────
