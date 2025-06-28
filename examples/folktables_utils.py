@@ -1,3 +1,57 @@
+from typing import Sequence, Tuple
+import pandas as pd
+from folktables import ACSDataSource
+from folktables import ACSIncome
+
+
+def load_state_data(
+    state: str,
+    selected_columns: Sequence[str],
+    problem_cls=ACSIncome,
+    survey_year: str="2018",
+    horizon: str="1-Year",
+    survey="person",
+    data_root: str="../data/folktables",
+    download: bool = True
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Download (if needed), load, and project a single-state folktables dataset.
+
+    Args:
+        state: Two-letter USPS state code (e.g. "CA", "FL").
+        selected_columns: list of column codes to keep (e.g. ["AGEP","SCHL","SEX"...]).
+        problem_cls: A folktables Problem class (ACSIncome, ACSPublicCoverage, ...).
+        survey_year: e.g. "2018".
+        horizon: "1-Year" (default) or "5-Year".
+        survey: "person" (default) or "household".
+        data_root: path under which folktables will write its CSVs.
+        download: if True, attempt `get_data(download=True)`, else only local.
+
+    Returns:
+        X_sel: DataFrame with only `selected_columns`.
+        y:      DataFrame of the target.
+    """
+    ds = ACSDataSource(
+        survey_year=survey_year,
+        horizon=horizon,
+        survey=survey,
+        root_dir=data_root,
+    )
+    try:
+        raw = ds.get_data(states=[state], download=download)
+    except Exception as e:
+        print("\n⚠️  Automatic download failed:")
+        print(f"    {e!r}\n")
+        print("→ Please manually download this file and unzip it under:")
+        print(f"    {data_root}/{survey_year}/{horizon}/csv_p{state.lower()}.zip")
+        print("\nYou can get it from:")
+        print(f"https://www2.census.gov/programs-surveys/acs/data/pums/{survey_year}/{horizon}/\n")
+        raw = ds.get_data(states=[state], download=False)
+
+    X_full, y_full, _ = problem_cls.df_to_pandas(raw)
+    X_sel = X_full.loc[:, selected_columns]
+    return X_sel, y_full
+
 
 def feature_folktables():
     """
