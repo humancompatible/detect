@@ -112,7 +112,7 @@ def prepare_dataset(
     # Preprocess the data
     for col, map_f in feature_processing.items():
         if col in input_data.columns:
-            input_data[col] = input_data[col].map(map_f)
+            input_data[col].loc[:] = input_data[col].map(map_f)
 
     values = {}
     bounds = {}
@@ -372,10 +372,9 @@ def detect_bias_two_samples(
         raise ValueError("The samples must have the same features")
 
     X_df = pd.concat([X1, X2])
-    y = np.concatenate([
-        np.zeros(X1.shape[0], dtype=int),
-        np.ones (X2.shape[0], dtype=int)
-    ])
+    y = np.concatenate(
+        [np.zeros(X1.shape[0], dtype=int), np.ones(X2.shape[0], dtype=int)]
+    )
     y_df = pd.DataFrame(y, columns=["target"])
 
     if protected_list is None:
