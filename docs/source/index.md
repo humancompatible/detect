@@ -66,9 +66,8 @@ api/modules
 contributing
 ```
 
-- **Tutorial** -> Your first audit in 5 minutes  
-- **Examples** -> Notebooks on Adult Income, Folktables, model drift, …  
-- **User Guide** -> Concepts, solver options, tips for large data  
+- [**Tutorial**](https://github.com/humancompatible/detect/blob/main/README.md) -> Your first audit in 5 minutes  
+- [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb) -> Step by step example notebook, also on [Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables.ipynb)
 - **API Reference** -> Full docstrings for every public function & class  
 
 ---
