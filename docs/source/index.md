@@ -3,8 +3,8 @@ _A toolbox for spotting subgroup-level bias in data & models_
 
 <div align="center">
 
-**Maximum Subgroup Discrepancy (MSD)** — linear-time bias metric  
-*…with an exact MILP solver that also tells you **which** group is affected.*
+**Maximum Subgroup Discrepancy (MSD)** - linear-time bias metric  
+*...with an exact MILP solver that also tells you **which** group is affected.*
 
 </div>
 
@@ -31,8 +31,8 @@ print(f"MSD = {msd_val:.3f}", "Rule ->", rule)
 
 The function returns
 
-- **`msd_val`** – the gap (in percentage‐points) for the worst‐off subgroup  
-- **`rule`**     – the subgroup itself, as an interpretable conjunction (e.g.  
+- **`msd_val`** - the gap (in percentage‐points) for the worst‐off subgroup  
+- **`rule`**    - the subgroup itself, as an interpretable conjunction (e.g.  
   `race = Black AND age ∈ [18,25)`)
 
 
