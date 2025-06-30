@@ -35,11 +35,11 @@ We must consider every such intersection â€“ their number is exponential in |ğ’
 2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
    ```python
-   from humancompatible.detect import detect_bias
+   from humancompatible.detect import detect_bias_csv
 
    # toy example
    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
-   msd, rule_idx = detect_bias(
+   msd, rule_idx = detect_bias_csv(
        csv_path = csv,
        target = "Target",
        protected_list = ["Race", "Age"],
