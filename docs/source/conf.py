@@ -25,8 +25,23 @@ extensions = [
     "sphinx.ext.napoleon",  # important for numpy/google style docstrings...
     "sphinx.ext.todo",  # Good for TODO notes (optional)
     "sphinx.ext.viewcode",  # Adds links to source code (optional, highly recommended)
+    # "nbsphinx",   <--- TODO: (Illia) tried to make "Symlink" to the notebooks, 
+                    # and make it also visible within readthedocs.
+                    # I just didn't want user to leave this page to github.
+                    # But it just doesn't want to work for me. 
+                    # And as for now, I just put a link to them.
+                    
+                    # Command for Symlink (from: cd docs/source):
+                    # cmd /c mklink /D examples ..\..\examples
+
     "myst_parser",
 ]
+
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+    ".ipynb": "nbsphinx",
+}
 
 # Configure napoleon to enable both NumPy and Google style docstrings
 napoleon_google_docstring = True
@@ -54,4 +69,4 @@ exclude_patterns = []
 
 html_theme = "sphinx_rtd_theme"
 # html_theme = "alabaster"
-# html_static_path = ["_static"]
+html_static_path = ["_static"]

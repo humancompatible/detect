@@ -1,12 +1,6 @@
 # HumanCompatible · Bias Detection
 _A toolbox for spotting subgroup-level bias in data & models_
 
-<!--
-The README is aimed at GitHub / PyPI visitors.
-This **index** page is the front-door of the documentation, so we keep the same short pitch
-but add navigation & context for docs readers.
--->
-
 <div align="center">
 
 **Maximum Subgroup Discrepancy (MSD)** — linear-time bias metric  
@@ -55,7 +49,8 @@ MSD maximises the absolute mass difference over all protected‐attribute combin
 
 ## Contents
 
-```{toctree}
+<!-- Probably for the future -->
+<!-- ```{toctree}
 :maxdepth: 2
 :hidden:
 
@@ -64,11 +59,18 @@ examples/index
 user_guide/index
 api/modules
 contributing
+``` -->
+
+```{toctree}
+:maxdepth: 1
+
+api/modules
 ```
 
+
+<!-- TODO: I think it would be better to change on the way, as above -->
 - [**Tutorial**](https://github.com/humancompatible/detect/blob/main/README.md) -> Your first audit in 5 minutes  
 - [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb) -> Step by step example notebook, also on [Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables.ipynb)
-- **API Reference** -> Full docstrings for every public function & class  
 
 ---
 
@@ -87,4 +89,4 @@ If you use MSD, please cite:
 ```
 
 Looking for the installation matrix, solver details or developer setup?  
-Head to the **README -> Installation** section.
+Head to the [**README -> Installation**](https://github.com/humancompatible/detect?tab=readme-ov-file#installation-details) section.
