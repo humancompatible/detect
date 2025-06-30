@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Any
 
 import numpy as np
 
@@ -204,3 +204,38 @@ def subgroup_map_from_conjuncts(
         # specified feature column. This filters down the subgroup.
         mapping &= X[:, conj]  # This will raise IndexError if `conj` is out of bounds
     return mapping
+
+
+def report_subgroup_bias(
+    label: str,
+    msd: float,
+    rule: list[tuple[int, Any]],
+    selected_columns: list[str],
+    feature_names: dict[str, str],
+    value_map: dict[str, dict[Any, str]],
+) -> None:
+    """
+    Print a little report of MSD and its human-readable rule.
+
+    Args:
+        label: a name for this sample (e.g. "State FL" or "FL vs NH").
+        msd: the numeric MSD value.
+        rule: the list of (col_idx, binop) pairs that define the subgroup.
+        selected_columns: the list of column-codes in the same order you passed to detect_bias.
+        feature_names: mapping from column-code -> human feature name (eg. from feature_folktables()).
+        value_map: mapping from column-code -> {value_code -> human label} (eg. from feature_folktables()).
+    """
+    print(f"{label}")
+    print(f"MSD = {msd:.3f}")
+    # raw rule
+    raw = " AND ".join(str(r) for _, r in rule)
+    print(f"Rule: {raw}")
+    # pretty rule
+    pretty = []
+    for col_idx, binop in rule:
+        col = selected_columns[col_idx]
+        human_feat = feature_names.get(col, col)
+        val = binop.value
+        human_val = value_map.get(col, {}).get(val, val)
+        pretty.append(f"{human_feat} = {human_val}")
+    print("Explained rule: " + " AND ".join(pretty))
