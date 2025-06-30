@@ -1,5 +1,5 @@
 import logging
-from typing import List, Any
+from typing import Any, List
 
 import numpy as np
 
@@ -210,7 +210,6 @@ def report_subgroup_bias(
     label: str,
     msd: float,
     rule: list[tuple[int, Any]],
-    selected_columns: list[str],
     feature_names: dict[str, str],
     value_map: dict[str, dict[Any, str]],
 ) -> None:
@@ -221,7 +220,6 @@ def report_subgroup_bias(
         label: a name for this sample (e.g. "State FL" or "FL vs NH").
         msd: the numeric MSD value.
         rule: the list of (col_idx, binop) pairs that define the subgroup.
-        selected_columns: the list of column-codes in the same order you passed to detect_bias.
         feature_names: mapping from column-code -> human feature name (eg. from feature_folktables()).
         value_map: mapping from column-code -> {value_code -> human label} (eg. from feature_folktables()).
     """
@@ -232,10 +230,11 @@ def report_subgroup_bias(
     print(f"Rule: {raw}")
     # pretty rule
     pretty = []
-    for col_idx, binop in rule:
-        col = selected_columns[col_idx]
+    for _, binop in rule:
+        col = binop.feature.name
         human_feat = feature_names.get(col, col)
         val = binop.value
         human_val = value_map.get(col, {}).get(val, val)
+        # TODO this "=" is not robust to other bins - e.g. continuous ones.
         pretty.append(f"{human_feat} = {human_val}")
     print("Explained rule: " + " AND ".join(pretty))
