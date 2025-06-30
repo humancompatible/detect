@@ -25,6 +25,7 @@ extensions = [
     "sphinx.ext.napoleon",  # important for numpy/google style docstrings...
     "sphinx.ext.todo",  # Good for TODO notes (optional)
     "sphinx.ext.viewcode",  # Adds links to source code (optional, highly recommended)
+    "myst_parser",
 ]
 
 # Configure napoleon to enable both NumPy and Google style docstrings
