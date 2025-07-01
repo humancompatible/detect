@@ -31,10 +31,20 @@ print(f"MSD = {msd_val:.3f}", "Rule ->", rule)
 
 The function returns
 
-- **`msd_val`** - the gap (in percentage‐points) for the worst‐off subgroup  
-- **`rule`**    - the subgroup itself, as an interpretable conjunction (e.g.  
-  `race = Black AND age ∈ [18,25)`)
+- **`msd_val`** – the maximum gap (in percentage‐points) between any subgroup and its complement  
+- **`rule`** – the raw subgroup encoding as a list of `(feature_index, Bin)` pairs.  
+  To get a human‐readable condition string you can do, for example:
 
+  ```python
+  from humancompatible.detect.utils import report_subgroup_bias
+
+  # either:
+  report_subgroup_bias("My audit", msd_val, rule, feature_names, value_map)
+  # or inline:
+  pretty = " AND ".join(str(cond) for _, cond in rule)
+  print("Subgroup:", pretty)
+  # -> "Race = Blue AND Age = 0-18"
+  ```
 
 ## Why another distance?
 
