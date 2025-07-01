@@ -27,7 +27,7 @@ def compute_MSD(
         X_bin (np.ndarray[bool]): A 2D NumPy array of boolean values representing
             the binarized features (input data). Each row is a sample, and each
             column is a binary feature.
-        y_bin (np.ndarray[bool]): A 1D boolean array of the binary target labels
+        y_bin (np.ndarray[bool]): A 1D NumPy boolean array of the binary target labels
             (True=positive outcome, False=negative outcome).
         time_limit (int, optional): The maximum time in seconds allowed for the
             `OneRule` algorithm to find a rule. Defaults to 600.
