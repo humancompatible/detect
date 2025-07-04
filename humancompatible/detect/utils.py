@@ -100,7 +100,6 @@ def evaluate_subgroup_discrepancy(
         ...     print(e)
         All samples are negative. Cannot calculate metric.
     """
-    # trunk-ignore(bandit/B101)
     assert (
         subgroup.shape == y.shape
     ), f"Vector y and subgroup mapping have different shapes: {y.shape} and {subgroup.shape}, respectively."

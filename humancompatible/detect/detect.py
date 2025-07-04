@@ -12,9 +12,6 @@ from .MSD import compute_MSD
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
-# ignore [] {} as default attribute values
-# trunk-ignore-all(ruff/B006)
-
 
 def prepare_dataset(
     input_data: pd.DataFrame,
@@ -47,13 +44,10 @@ def prepare_dataset(
                                              specific features.
 
     Returns:
-        Tuple[object, pd.DataFrame, pd.Series]: A tuple containing:
-            - binarizer_protected (object): An instance of `Binarizer` (or similar
-                                            data handler) specifically configured
-                                            for the protected attributes.
-            - input_data[protected_cols] (pd.DataFrame): A DataFrame containing only
-                                                         the processed protected attributes.
-            - target_data (pd.Series): The processed and sampled target variable.
+        Tuple[Binarizer, pd.DataFrame, pd.Series]: A tuple containing:
+            - binarizer_protected (Binarizer): The protected-attributes binarizer.
+            - input_data[protected_cols] (pd.DataFrame): The part of the data with protected attributes.
+            - target_data (pd.Series): The corresponding target features.
 
     Raises:
         (No explicit raises from within this function beyond potential pandas/numpy errors
@@ -134,7 +128,7 @@ def prepare_dataset(
     if n_max < n:
         samples = np.random.choice(n, size=n_max, replace=False)
     else:
-        samples = np.random.permutation(np.arange(n))
+        samples = np.random.permutation(n)
 
     input_data = input_data.iloc[samples]
     target_data = target_data[target_data.columns[0]].iloc[samples]
@@ -155,17 +149,17 @@ def detect_bias(
     X: pd.DataFrame,
     y: pd.DataFrame,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias in a given dataset using specified methods.
 
     This function prepares the data and then applies a bias detection method,
-    such as Mean Squared Difference (MSD), to identify potential biases
+    such as Maximum Subgroup Discrepancy (MSD), to identify potential biases
     related to protected attributes.
 
     Args:
@@ -187,7 +181,7 @@ def detect_bias(
             dataset. If the dataset size exceeds this, it will be randomly downsampled.
             Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
@@ -209,6 +203,13 @@ def detect_bias(
     if seed is not None:
         logger.info(f"Seeding the run with seed={seed}")
         np.random.seed(seed)
+    
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -240,12 +241,12 @@ def detect_bias_csv(
     csv_path: Path | str,
     target_col: str,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias in a dataset loaded from a CSV file.
 
@@ -271,7 +272,7 @@ def detect_bias_csv(
             dataset. If the dataset size exceeds this, it will be randomly downsampled.
             Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
@@ -298,6 +299,12 @@ def detect_bias_csv(
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
         protected_list = list(X_df.columns)
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     return detect_bias(
         X_df,
@@ -316,12 +323,12 @@ def detect_bias_two_samples(
     X1: pd.DataFrame,
     X2: pd.DataFrame,
     protected_list: List[str] | None = None,
-    continuous_list: List[str] = [],
-    fp_map: Dict[str, Callable[[Any], int]] = {},
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[Any, int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    method_kwargs: Dict[str, Any] = {},
+    method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
     """Detects bias between two distinct samples (datasets).
 
@@ -346,7 +353,7 @@ def detect_bias_two_samples(
             combined dataset. If the dataset size exceeds this, it will be randomly
             downsampled. Defaults to 1_000_000.
         method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Mean Squared Difference) is implemented. Defaults to "MSD".
+            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
             to pass to the chosen bias detection method. Defaults to {}.
 
@@ -372,14 +379,21 @@ def detect_bias_two_samples(
         raise ValueError("The samples must have the same features")
 
     X_df = pd.concat([X1, X2])
-    y = np.concatenate(
-        [np.zeros(X1.shape[0], dtype=int), np.ones(X2.shape[0], dtype=int)]
-    )
+    y = np.concatenate([
+        np.zeros(X1.shape[0], dtype=int),
+        np.ones (X2.shape[0], dtype=int),
+    ])
     y_df = pd.DataFrame(y, columns=["target"])
 
     if protected_list is None:
         logger.info("Assuming all attributes are protected")
-        protected_list = list(X_df.columns)
+        protected_list = X_df.columns.tolist()
+    if continuous_list is None:
+        continuous_list = []
+    if fp_map is None:
+        fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     return detect_bias(
         X_df,

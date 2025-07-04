@@ -1,12 +1,8 @@
 import logging
-from typing import List, Tuple
+from typing import List, Tuple, Dict
 
 import numpy as np
 import pyomo.environ as pyo
-
-# ignore assert warnings
-# trunk-ignore-all(bandit/B101)
-
 
 logger = logging.getLogger(__name__)
 
@@ -35,8 +31,7 @@ class OneRule:
         y: np.ndarray[bool],
         weights: np.ndarray[float],
         n_min: int,
-        # trunk-ignore(ruff/B006)
-        feat_init: dict[int, int] = {},
+        feat_init: Dict[int, int] | None = None,
     ) -> pyo.ConcreteModel:
         """
         Creates the Mixed-Integer Optimization (MIO) formulation to find an optimal conjunction.
@@ -79,6 +74,9 @@ class OneRule:
             - `o` and `b` variables, along with `abs_obj_u1` and `abs_obj_u2` constraints,
               linearize the absolute value in the objective function.
         """
+        if feat_init is None:
+            feat_init = {}
+        
         n, d = X.shape
         # Convert boolean X to integer for Pyomo compatibility (0 or 1)
         Xint = np.zeros_like(X, dtype=int)
@@ -156,16 +154,15 @@ class OneRule:
         verbose: bool = False,
         n_min: int = 0,
         time_limit: int = 300,
-        return_opt_flag: bool = False,
         solver_name: str = "appsi_highs",
-    ) -> List[int] | Tuple[List[int], bool]:
+    ) -> Tuple[List[int] | None, bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
         in target outcomes between the subgroup it defines and its complement.
 
         This method prepares the data (by creating unique rows and assigning weights),
-        builds the MIO model using `_make_abs_model`, and then solves it using the
-        Gurobi solver (requires Gurobi to be installed and accessible).
+        builds the MIO model using `_make_abs_model`, and then solves it using whichever 
+        solver you specify in `solver_name`.
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
@@ -176,36 +173,39 @@ class OneRule:
                                       Defaults to `False`.
             n_min (int, optional): Minimum subgroup support (number of rows)
                                    required for a valid subgroup. Defaults to `0`.
-            time_limit (int, optional): Time budget in seconds for the Gurobi
-                                        solver. Defaults to `300`.
-            return_opt_flag (bool, optional): If `True`, the function will return
-                                              a tuple `(rule, is_optimal)` where
-                                              `is_optimal` is a boolean indicating
-                                              if the solver found an optimal solution.
-                                              Defaults to `False`.
+            time_limit (int, optional): Time budget for the solver (in seconds).
+                                        Note that only some solvers support this option.
+                                        Defaults to `300`.
+            solver_name (str, optional): Method for solving the MIO formulation. Can be chosen among:
+                                         - "appsi_highs" (Default)
+                                         - "gurobi"
+                                         - "cplex"
+                                         - "glpk"
+                                         - "xpress"
+                                         - Other solvers, see Pyomo documentation 
+                                           (Note that only the 5 solvers above support the graceful `time_limit`)
 
         Returns:
-            List[int]: A list of integer indices representing the literals (features)
-                       that form the optimal conjunction. These indices correspond
-                       to the columns in the input `X` that define the subgroup.
-            OR
-            Tuple[List[int], bool]: If `return_opt_flag` is `True`, returns the
-                                    rule and a boolean flag indicating optimality.
+            Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
+                                    the features (literals) that form the optimal conjunction. 
+                                    These indices correspond to the columns in the input `X` that define the subgroup.
+                                    If the solver fails to find any feasible solution within the time budget,
+                                    `None` is returned instead.
+
+                                    The boolean flag is `True` if the returned solution is globally optimal.
 
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
                             are not of boolean dtype.
-            ValueError: If the Gurobi solver does not find an optimal solution
-                        and `return_opt_flag` is `False`. (The current code
-                        logs a warning instead of raising if `return_opt_flag` is `False`.)
-            Exception: Any exceptions raised by Pyomo or Gurobi during model
+            ValueError: If the solver terminates with condition other than timeout, optimality or infeasibility. 
+            Exception: Any exceptions raised by Pyomo or solver during model
                        creation or solving.
 
         Notes:
             - The input `X` and `y` are first processed to get unique rows and
               assign weights based on their original counts and class proportions.
               This helps in handling duplicate rows efficiently.
-            - Requires Gurobi solver to be installed and configured for Pyomo.
+            - Requires a compatible MIP solver; e.g. Gurobi, HiGHS solver to be installed and configured for Pyomo.
             - The `rule` returned contains indices of the *original* features
               (columns of `X`) that define the conjunction.
         """
@@ -307,6 +307,4 @@ class OneRule:
         # Collect indices of features that are selected (value close to 1)
         rule = [i for i in int_model.feat_i if vals[i] is not None and vals[i] >= 1e-4]
 
-        if return_opt_flag:
-            return rule, is_optimal
-        return rule
+        return rule, is_optimal

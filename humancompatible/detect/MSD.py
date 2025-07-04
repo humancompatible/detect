@@ -27,24 +27,27 @@ def compute_MSD(
         X_bin (np.ndarray[bool]): A 2D NumPy array of boolean values representing
             the binarized features (input data). Each row is a sample, and each
             column is a binary feature.
-        y_bin (np.ndarray[bool]): A 1D NumPy array of boolean values representing
-            the binarized target variable, which in the context of two samples,
-            is assumed to distinguish between the two samples.
+        y_bin (np.ndarray[bool]): A 1D NumPy boolean array of the binary target labels
+            used to distinguish the two data distributions (True=positive outcome, False=negative outcome).
         time_limit (int, optional): The maximum time in seconds allowed for the
             `OneRule` algorithm to find a rule. Defaults to 600.
         n_min (int, optional): The minimum number of samples a subgroup must have
             to be considered. Defaults to 0.
+        solver (str, optional): Which MIP solver to use for the OneRule call. Must be one of
+            "appsi_highs", "gurobi", "cplex", "glpk", "xpress", or other Pyomo-compatible solvers.
+            Note that solvers other than the 5 mentioned earlier will not follow the `time_limit` parameter.
+            Defaults to "appsi_highs".
 
     Returns:
         Tuple[float, List[int]]: A tuple containing:
             - MSD_val (float): The calculated Maximum Subgroup Discrepancy value for the
               identified subgroup, representing the biggest difference in proportions.
-            - rule (List[int]): A list of binary indicies that represent the rule
-              (conjunction of binary values) that defines the subgroup with the highest MSD.
+            - rule (List[int]): A list of feature-column indices whose conjunction
+              defines the subgroup with maximal discrepancy.
     """
 
     mio = OneRule()
-    rule = mio.find_rule(
+    rule, _ = mio.find_rule(
         X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
     )
     subgroup_map = subgroup_map_from_conjuncts(rule, X_bin)

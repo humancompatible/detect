@@ -40,22 +40,14 @@ class DataHandler:
         cls,
         X: DataLike,
         y: OneDimData | None = None,
-        # trunk-ignore(ruff/B006)
         categ_map: dict[FeatureID, list[CategValue]] = {},
-        # trunk-ignore(ruff/B006)
         ordered: list[FeatureID] = [],
-        # trunk-ignore(ruff/B006)
         bounds_map: dict[FeatureID, tuple[int, int]] = {},
-        # trunk-ignore(ruff/B006)
         discrete: list[FeatureID] = [],
-        # trunk-ignore(ruff/B006)
         immutable: list[FeatureID] = [],
-        # trunk-ignore(ruff/B006)
         monotonicity: dict[FeatureID, Monotonicity] = {},
         # TODO more general causality
-        # trunk-ignore(ruff/B006)
         causal_inc: list[tuple[FeatureID, FeatureID]] = [],
-        # trunk-ignore(ruff/B006)
         greater_than: list[tuple[FeatureID, FeatureID]] = [],
         regression: bool = False,
         feature_names: list[str] | None = None,

@@ -35,11 +35,11 @@ We must consider every such intersection – their number is exponential in |�
 2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
    ```python
-   from humancompatible.detect import detect_bias
+   from humancompatible.detect import detect_bias_csv
 
    # toy example
    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
-   msd, rule_idx = detect_bias(
+   msd, rule_idx = detect_bias_csv(
        csv_path = csv,
        target = "Target",
        protected_list = ["Race", "Age"],
@@ -145,7 +145,6 @@ ModuleNotFoundError: No module named 'humancompatible'
 | **MSD (ours)**                       | only the protected marginal | **O(d)**           | exact group, human-readable                   |
 
 MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
--->
 
 ---
 
