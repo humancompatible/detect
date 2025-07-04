@@ -39,7 +39,7 @@ class Binary(Feature):
         self, vals: OneDimData, normalize: bool = True, one_hot: bool = True
     ) -> np.ndarray[np.float64]:
         """
-        Encode to a single-column 0/1 array for the positive category.
+        Encode to a single-column 0/1 array for the negative/positive value, respectively.
         """
         positive = vals == self.__positive_val
         if np.any(vals[~positive] != self.__negative_val):
