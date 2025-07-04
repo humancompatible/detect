@@ -46,8 +46,8 @@ def prepare_dataset(
     Returns:
         Tuple[Binarizer, pd.DataFrame, pd.Series]: A tuple containing:
             - binarizer_protected (Binarizer): The protected-attributes binarizer.
-            - input_data[protected_cols] (pd.DataFrame): The processed protected features.
-            - target_data (pd.Series): The sampled target series.
+            - input_data[protected_cols] (pd.DataFrame): The part of the data with protected attributes.
+            - target_data (pd.Series): The corresponding target features.
 
     Raises:
         (No explicit raises from within this function beyond potential pandas/numpy errors
@@ -125,9 +125,10 @@ def prepare_dataset(
             bounds[col] = (min(vals), max(vals))
 
     n = input_data.shape[0]
-
-    samples = np.random.permutation(n)
-    samples = samples[:n_max]
+    if n_max < n:
+        samples = np.random.choice(n, size=n_max, replace=False)
+    else:
+        samples = np.random.permutation(n)
 
     input_data = input_data.iloc[samples]
     target_data = target_data[target_data.columns[0]].iloc[samples]
