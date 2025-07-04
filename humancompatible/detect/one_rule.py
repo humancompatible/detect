@@ -156,14 +156,14 @@ class OneRule:
         time_limit: int = 300,
         return_opt_flag: bool = False,
         solver_name: str = "appsi_highs",
-    ) -> List[int] | Tuple[List[int], bool]:
+    ) -> List[int] | Tuple[List[int], bool] | None:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
         in target outcomes between the subgroup it defines and its complement.
 
         This method prepares the data (by creating unique rows and assigning weights),
         builds the MIO model using `_make_abs_model`, and then solves it using whichever 
-        solver you specify in solver_name.
+        solver you specify in `solver_name`.
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
@@ -174,21 +174,22 @@ class OneRule:
                                       Defaults to `False`.
             n_min (int, optional): Minimum subgroup support (number of rows)
                                    required for a valid subgroup. Defaults to `0`.
-            time_limit (int, optional): Time budget in seconds for the 
-                                        solver (not all solvers support all time-limit options).
+            time_limit (int, optional): Time budget for the solver (in seconds).
+                                        Note that only some solvers support this option.
                                         Defaults to `300`.
             return_opt_flag (bool, optional): If `True`, the function will return
                                               a tuple `(rule, is_optimal)` where
                                               `is_optimal` is a boolean indicating
                                               if the solver found an optimal solution.
                                               Defaults to `False`.
-            solver_name (str, optional): Method for solving MIO problem. Can be chosen among:
+            solver_name (str, optional): Method for solving the MIO formulation. Can be chosen among:
                                          - "appsi_highs" (Default)
                                          - "gurobi"
                                          - "cplex"
                                          - "glpk"
                                          - "xpress"
-                                         - "highs"
+                                         - Other solvers, see Pyomo documentation 
+                                           (Note that only the 5 solvers above support the graceful `time_limit`)
 
         Returns:
             List[int]: A list of integer indices representing the literals (features)
@@ -197,6 +198,9 @@ class OneRule:
             OR
             Tuple[List[int], bool]: If `return_opt_flag` is `True`, returns the
                                     rule and a boolean flag indicating optimality.
+            OR
+            None: If the solver fails to find any feasible solution within the time budget,
+                  `None` is returned.
 
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
@@ -303,7 +307,7 @@ class OneRule:
             int_model.solutions.load_from(result)
         except ValueError:
             logger.info("No solution found. Try increasing `time_limit`.")
-            return ([], False)
+            return None
 
         self.model = int_model  # Store the solved model instance
 
