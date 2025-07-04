@@ -28,13 +28,14 @@ def compute_MSD(
             the binarized features (input data). Each row is a sample, and each
             column is a binary feature.
         y_bin (np.ndarray[bool]): A 1D NumPy boolean array of the binary target labels
-            (True=positive outcome, False=negative outcome).
+            used to distinguish the two data distributions (True=positive outcome, False=negative outcome).
         time_limit (int, optional): The maximum time in seconds allowed for the
             `OneRule` algorithm to find a rule. Defaults to 600.
         n_min (int, optional): The minimum number of samples a subgroup must have
             to be considered. Defaults to 0.
         solver (str, optional): Which MIP solver to use for the OneRule call. Must be one of
-            "appsi_highs", "gurobi", "cplex", "glpk", "xpress", or "highs".
+            "appsi_highs", "gurobi", "cplex", "glpk", "xpress", or other Pyomo-compatible solvers.
+            Note that solvers other than the 5 mentioned earlier will not follow the `time_limit` parameter.
             Defaults to "appsi_highs".
 
     Returns:
