@@ -154,9 +154,8 @@ class OneRule:
         verbose: bool = False,
         n_min: int = 0,
         time_limit: int = 300,
-        return_opt_flag: bool = False,
         solver_name: str = "appsi_highs",
-    ) -> List[int] | Tuple[List[int], bool] | None:
+    ) -> Tuple[List[int] | None, bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
         in target outcomes between the subgroup it defines and its complement.
@@ -177,11 +176,6 @@ class OneRule:
             time_limit (int, optional): Time budget for the solver (in seconds).
                                         Note that only some solvers support this option.
                                         Defaults to `300`.
-            return_opt_flag (bool, optional): If `True`, the function will return
-                                              a tuple `(rule, is_optimal)` where
-                                              `is_optimal` is a boolean indicating
-                                              if the solver found an optimal solution.
-                                              Defaults to `False`.
             solver_name (str, optional): Method for solving the MIO formulation. Can be chosen among:
                                          - "appsi_highs" (Default)
                                          - "gurobi"
@@ -192,22 +186,18 @@ class OneRule:
                                            (Note that only the 5 solvers above support the graceful `time_limit`)
 
         Returns:
-            List[int]: A list of integer indices representing the literals (features)
-                       that form the optimal conjunction. These indices correspond
-                       to the columns in the input `X` that define the subgroup.
-            OR
-            Tuple[List[int], bool]: If `return_opt_flag` is `True`, returns the
-                                    rule and a boolean flag indicating optimality.
-            OR
-            None: If the solver fails to find any feasible solution within the time budget,
-                  `None` is returned.
+            Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
+                                    the features (literals) that form the optimal conjunction. 
+                                    These indices correspond to the columns in the input `X` that define the subgroup.
+                                    If the solver fails to find any feasible solution within the time budget,
+                                    `None` is returned instead.
+
+                                    The boolean flag is `True` if the returned solution is globally optimal.
 
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
                             are not of boolean dtype.
-            ValueError: If the solver does not find an optimal solution
-                        and `return_opt_flag` is `False`. (The current code
-                        logs a warning instead of raising if `return_opt_flag` is `False`.)
+            ValueError: If the solver terminates with condition other than timeout, optimality or infeasibility. 
             Exception: Any exceptions raised by Pyomo or solver during model
                        creation or solving.
 
@@ -307,7 +297,7 @@ class OneRule:
             int_model.solutions.load_from(result)
         except ValueError:
             logger.info("No solution found. Try increasing `time_limit`.")
-            return None
+            return None, False
 
         self.model = int_model  # Store the solved model instance
 
@@ -317,6 +307,4 @@ class OneRule:
         # Collect indices of features that are selected (value close to 1)
         rule = [i for i in int_model.feat_i if vals[i] is not None and vals[i] >= 1e-4]
 
-        if return_opt_flag:
-            return rule, is_optimal
-        return rule
+        return rule, is_optimal
