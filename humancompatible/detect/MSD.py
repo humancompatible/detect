@@ -47,7 +47,7 @@ def compute_MSD(
     """
 
     mio = OneRule()
-    rule = mio.find_rule(
+    rule, _ = mio.find_rule(
         X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
     )
     subgroup_map = subgroup_map_from_conjuncts(rule, X_bin)
