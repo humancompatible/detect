@@ -9,6 +9,68 @@ logger = logging.getLogger(__name__)
 def signed_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
+    """
+    Signed difference in subgroup representation between *positive and negative outcomes*.
+
+    This metric returns
+
+    .. math::
+
+        \\Delta = \\underbrace{\\operatorname{mean}(\\text{subgroup}[y])}_{\\text{proportion in positives}}
+               \\,\\; - \\;
+               \\underbrace{\\operatorname{mean}(\\text{subgroup}[\\lnot y])}_{\\text{proportion in negatives}}
+
+    * **Δ > 0** - subgroup is **over-represented** among positive outcomes  
+    * **Δ < 0** - subgroup is **under-represented** among positive outcomes  
+    * **|Δ|**   - magnitude used by MSD (see :func:`evaluate_subgroup_discrepancy`)
+
+    Parameters
+    ----------
+    subgroup : np.ndarray[bool]
+        Boolean mask indicating membership in the subgroup
+        (shape must match *y*).  ``True`` for members, ``False`` otherwise.
+    y : np.ndarray[bool]
+        Boolean outcome labels. ``True`` = positive outcome, ``False`` = negative.
+
+    Returns
+    -------
+    float
+        Signed difference ``proportion_in_positives - proportion_in_negatives``.
+
+    Raises
+    ------
+    AssertionError
+        If *subgroup* and *y* have different shapes.
+    ValueError
+        If *y* contains only positives or only negatives - the difference
+        would be undefined.
+
+    Examples
+    --------
+    1. Equal representation => Δ = 0
+
+    >>> subgroup = np.array([True, False, True, False])
+    >>> y        = np.array([True, False, True, False])
+    >>> signed_subgroup_discrepancy(subgroup, y)
+    0.0
+
+    2. Over-representation => positive Δ
+
+    >>> subgroup = np.array([True, True, False, False, True])
+    >>> y        = np.array([True, True,  True,  False, False])
+    >>> round(signed_subgroup_discrepancy(subgroup, y), 3)
+    0.167   # subgroup is ~16.7 pp more common among positives
+
+    3. Under-representation => negative Δ
+
+    >>> subgroup = np.array([False, True, False, True])
+    >>> y        = np.array([True,  True, False, False])
+    >>> round(signed_subgroup_discrepancy(subgroup, y), 2)
+    -0.50    # subgroup is 50 pp less common among positives
+
+    The absolute value of the same quantity is returned by
+    :func:`evaluate_subgroup_discrepancy`.
+    """
     assert (
         subgroup.shape == y.shape
     ), f"Vector y and subgroup mapping have different shapes: {y.shape} and {subgroup.shape}, respectively."
