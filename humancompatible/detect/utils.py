@@ -98,7 +98,7 @@ def signed_subgroup_discrepancy(
     # Calculate the mean of `subgroup` values where `y` is False (negative outcomes)
     proportion_in_neg = np.mean(subgroup[~y])
 
-    return np.abs(proportion_in_pos - proportion_in_neg)
+    return proportion_in_pos - proportion_in_neg
 
 
 def evaluate_subgroup_discrepancy(
