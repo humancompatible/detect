@@ -6,6 +6,39 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 
+def signed_subgroup_discrepancy(
+    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
+) -> float:
+    assert (
+        subgroup.shape == y.shape
+    ), f"Vector y and subgroup mapping have different shapes: {y.shape} and {subgroup.shape}, respectively."
+
+    # Convert to boolean arrays if not already
+    if subgroup.dtype != bool:
+        logger.warning(
+            f"Subgroup mapping has dtype {subgroup.dtype} instead of bool. Assuming value for True is 1."
+        )
+        subgroup = subgroup == 1
+    if y.dtype != bool:
+        logger.warning(
+            f"Vector y has dtype {y.dtype} instead of bool. Assuming value for True is 1."
+        )
+        y = y == 1
+
+    # Raise ValueError if all outcomes are the same, as proportions cannot be compared
+    if np.all(y):
+        raise ValueError("All samples are positive. Cannot calculate metric.")
+    if np.all(~y):
+        raise ValueError("All samples are negative. Cannot calculate metric.")
+
+    # Calculate the mean of `subgroup` values where `y` is True (positive outcomes)
+    proportion_in_pos = np.mean(subgroup[y])
+    # Calculate the mean of `subgroup` values where `y` is False (negative outcomes)
+    proportion_in_neg = np.mean(subgroup[~y])
+
+    return np.abs(proportion_in_pos - proportion_in_neg)
+
+
 def evaluate_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
@@ -100,34 +133,7 @@ def evaluate_subgroup_discrepancy(
         ...     print(e)
         All samples are negative. Cannot calculate metric.
     """
-    assert (
-        subgroup.shape == y.shape
-    ), f"Vector y and subgroup mapping have different shapes: {y.shape} and {subgroup.shape}, respectively."
-
-    # Convert to boolean arrays if not already
-    if subgroup.dtype != bool:
-        logger.warning(
-            f"Subgroup mapping has dtype {subgroup.dtype} instead of bool. Assuming value for True is 1."
-        )
-        subgroup = subgroup == 1
-    if y.dtype != bool:
-        logger.warning(
-            f"Vector y has dtype {y.dtype} instead of bool. Assuming value for True is 1."
-        )
-        y = y == 1
-
-    # Raise ValueError if all outcomes are the same, as proportions cannot be compared
-    if np.all(y):
-        raise ValueError("All samples are positive. Cannot calculate metric.")
-    if np.all(~y):
-        raise ValueError("All samples are negative. Cannot calculate metric.")
-
-    # Calculate the mean of `subgroup` values where `y` is True (positive outcomes)
-    proportion_in_pos = np.mean(subgroup[y])
-    # Calculate the mean of `subgroup` values where `y` is False (negative outcomes)
-    proportion_in_neg = np.mean(subgroup[~y])
-
-    return np.abs(proportion_in_pos - proportion_in_neg)
+    return abs(signed_subgroup_discrepancy(subgroup, y))
 
 
 def subgroup_map_from_conjuncts(
