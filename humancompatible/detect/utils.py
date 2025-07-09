@@ -50,23 +50,23 @@ def signed_subgroup_discrepancy(
     1. Equal representation => Δ = 0
 
     >>> subgroup = np.array([True, False, True, False])
-    >>> y        = np.array([True, False, True, False])
+    >>> y = np.array([True, False, True, False])
     >>> signed_subgroup_discrepancy(subgroup, y)
     0.0
 
     2. Over-representation => positive Δ
 
     >>> subgroup = np.array([True, True, False, False, True])
-    >>> y        = np.array([True, True,  True,  False, False])
+    >>> y = np.array([True, True,  True,  False, False])
     >>> round(signed_subgroup_discrepancy(subgroup, y), 3)
-    0.167   # subgroup is ~16.7 pp more common among positives
+    0.167  # subgroup is ~16.7 pp more common among positives
 
     3. Under-representation => negative Δ
 
     >>> subgroup = np.array([False, True, False, True])
-    >>> y        = np.array([True,  True, False, False])
+    >>> y = np.array([True,  True, False, False])
     >>> round(signed_subgroup_discrepancy(subgroup, y), 2)
-    -0.50    # subgroup is 50 pp less common among positives
+    -0.50  # subgroup is 50 pp less common among positives
 
     The absolute value of the same quantity is returned by
     :func:`evaluate_subgroup_discrepancy`.
@@ -105,95 +105,107 @@ def evaluate_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
     """
-    Calculates a fairness metric based on the difference in subgroup representation
-    between positive and negative outcomes.
+    Absolute difference in subgroup prevalence between *positive and negative outcomes (|Δ|)*.
 
-    This metric quantifies the absolute difference between:
-    1. The proportion of individuals in the `subgroup` among all **positive outcomes**.
-    2. The proportion of individuals in the `subgroup` among all **negative outcomes**.
+    This is simply the magnitude of the signed metric returned by
+    :func:`signed_subgroup_discrepancy`.  Formally,
 
-    It effectively measures how differently the subgroup is represented across the
-    two outcome classes (positive vs. negative `y`).
+    .. math::
 
-    Args:
-        subgroup (np.ndarray[bool]): A boolean NumPy array indicating membership
-            in the subgroup. `True` or `1` for members of the subgroup,
-            `False` or `0` otherwise. Must have the same shape as `y`.
-        y (np.ndarray[bool]): A boolean NumPy array representing the true outcomes.
-            `True` or `1` for positive outcomes, `False` or `0` for negative outcomes.
-            Must have the same shape as `subgroup`.
+        |\\Delta| \\;=\\; \\bigl|\\,
+            \\operatorname{mean}(\\text{subgroup}[y])
+            \\, - \\, 
+            \\operatorname{mean}(\\text{subgroup}[\\lnot y])
+        \\,\\bigr|
 
-    Returns:
-        float: The absolute difference between the proportion of `subgroup` members
-               among positive outcomes and the proportion of `subgroup` members
-               among negative outcomes.
+    Parameters
+    ----------
+    subgroup : np.ndarray[bool]
+        Boolean mask indicating membership in the subgroup
+        (shape must match *y*).
+    y : np.ndarray[bool]
+        Boolean outcome labels.  ``True`` = positive outcome,
+        ``False`` = negative.
 
-    Raises:
-        AssertionError: If `subgroup` and `y` have different shapes.
-        ValueError: If all `y` values are `True` (all samples are positive) or
-                    all `y` values are `False` (all samples are negative),
-                    as the metric requires both positive and negative outcomes
-                    to form proportions.
+    Returns
+    -------
+    float
+        Absolute subgroup discrepancy ``|Δ|`` expressed in **fractional points**
+        (multiply by 100 for percentage points).
 
-    Examples:
-        >>> import numpy as np
-        >>> # Scenario 1: Subgroup equally represented in positive and negative outcomes
-        >>> subgroup_1 = np.array([True, False, True, False]) # Indices 0, 2 are subgroup
-        >>> y_1 = np.array([True, False, True, False])        # Indices 0, 2 are positive
-        >>> # Positive outcomes: [True, True] (indices 0, 2). Subgroup members: 2/2 = 1.0
-        >>> # Negative outcomes: [False, False] (indices 1, 3). Subgroup members: 0/2 = 0.0
-        >>> # Discrepancy: |1.0 - 0.0| = 1.0 (This is the original error in example)
-        >>> # Corrected:
-        >>> # y[subgroup] means y for subgroup members: [True, True]
-        >>> # y[~subgroup] means y for non-subgroup members: [False, False]
-        >>> # Your new formula: mean(subgroup[y]) - mean(subgroup[~y])
-        >>> # subgroup[y] (subgroup status for positive outcomes): [True, True] -> mean = 1.0
-        >>> # subgroup[~y] (subgroup status for negative outcomes): [False, False] -> mean = 0.0
-        >>> evaluate_subgroup_discrepancy(subgroup_1, y_1)
-        1.0
+    Raises
+    ------
+    AssertionError
+        If *subgroup* and *y* have different shapes.
+    ValueError
+        If *y* contains only positives or only negatives - the metric would be
+        undefined.
 
-        >>> # Scenario 2: Subgroup more prevalent in positive outcomes
-        >>> subgroup_2 = np.array([True, True, False, False, True])
-        >>> y_2 = np.array([True, True, True, False, False])
-        >>> # Positive outcomes (y=True): [True, True, True] (indices 0, 1, 2)
-        >>> # Subgroup status for positive outcomes: subgroup[0]=T, subgroup[1]=T, subgroup[2]=F.
-        >>> # mean(subgroup[y]): (1+1+0)/3 = 0.666...
-        >>> #
-        >>> # Negative outcomes (y=False): [False, False] (indices 3, 4)
-        >>> # Subgroup status for negative outcomes: subgroup[3]=F, subgroup[4]=T.
-        >>> # mean(subgroup[~y]): (0+1)/2 = 0.5
-        >>> evaluate_subgroup_discrepancy(subgroup_2, y_2)
-        0.16666666666666663
+    Examples
+    ------
+    1. Subgroup equally represented in positive and negative outcomes
 
-        >>> # Scenario 3: Using integer arrays (will be converted to bool)
-        >>> subgroup_3 = np.array([1, 1, 0, 0])
-        >>> y_3 = np.array([1, 0, 1, 0])
-        >>> # Positive outcomes (y=1): [1, 1] (indices 0, 2)
-        >>> # subgroup status for positive outcomes: subgroup[0]=1, subgroup[2]=0
-        >>> # mean(subgroup[y]): (1+0)/2 = 0.5
-        >>> # Negative outcomes (y=0): [1, 0] (indices 1, 3)
-        >>> # subgroup status for negative outcomes: subgroup[1]=1, subgroup[3]=0
-        >>> # mean(subgroup[~y]): (1+0)/2 = 0.5
-        >>> evaluate_subgroup_discrepancy(subgroup_3, y_3)
-        0.0
+    >>> import numpy as np
+    >>> subgroup_1 = np.array([True, False, True, False]) # Indices 0, 2 are subgroup
+    >>> y_1 = np.array([True, False, True, False])        # Indices 0, 2 are positive
+    >>> # Positive outcomes: [True, True] (indices 0, 2). Subgroup members: 2/2 = 1.0
+    >>> # Negative outcomes: [False, False] (indices 1, 3). Subgroup members: 0/2 = 0.0
+    >>> # Discrepancy: |1.0 - 0.0| = 1.0 (This is the original error in example)
+    >>> # Corrected:
+    >>> # y[subgroup] means y for subgroup members: [True, True]
+    >>> # y[~subgroup] means y for non-subgroup members: [False, False]
+    >>> # Your new formula: mean(subgroup[y]) - mean(subgroup[~y])
+    >>> # subgroup[y] (subgroup status for positive outcomes): [True, True] -> mean = 1.0
+    >>> # subgroup[~y] (subgroup status for negative outcomes): [False, False] -> mean = 0.0
+    >>> evaluate_subgroup_discrepancy(subgroup_1, y_1)
+    1.0
 
-        >>> # Scenario 4: All samples are positive (will raise ValueError)
-        >>> subgroup_all_y_pos = np.array([True, False, True])
-        >>> y_all_pos = np.array([True, True, True])
-        >>> try:
-        ...     evaluate_subgroup_discrepancy(subgroup_all_y_pos, y_all_pos)
-        ... except ValueError as e:
-        ...     print(e)
-        All samples are positive. Cannot calculate metric.
+    2. Subgroup more prevalent in positive outcomes
 
-        >>> # Scenario 5: All samples are negative (will raise ValueError)
-        >>> subgroup_all_y_neg = np.array([True, False, True])
-        >>> y_all_neg = np.array([False, False, False])
-        >>> try:
-        ...     evaluate_subgroup_discrepancy(subgroup_all_y_neg, y_all_neg)
-        ... except ValueError as e:
-        ...     print(e)
-        All samples are negative. Cannot calculate metric.
+    >>> subgroup_2 = np.array([True, True, False, False, True])
+    >>> y_2 = np.array([True, True, True, False, False])
+    >>> # Positive outcomes (y=True): [True, True, True] (indices 0, 1, 2)
+    >>> # Subgroup status for positive outcomes: subgroup[0]=T, subgroup[1]=T, subgroup[2]=F.
+    >>> # mean(subgroup[y]): (1+1+0)/3 = 0.666...
+    >>> #
+    >>> # Negative outcomes (y=False): [False, False] (indices 3, 4)
+    >>> # Subgroup status for negative outcomes: subgroup[3]=F, subgroup[4]=T.
+    >>> # mean(subgroup[~y]): (0+1)/2 = 0.5
+    >>> evaluate_subgroup_discrepancy(subgroup_2, y_2)
+    0.16666666666666663
+
+    3. Using integer arrays (will be converted to bool)
+
+    >>> subgroup_3 = np.array([1, 1, 0, 0])
+    >>> y_3 = np.array([1, 0, 1, 0])
+    >>> # Positive outcomes (y=1): [1, 1] (indices 0, 2)
+    >>> # subgroup status for positive outcomes: subgroup[0]=1, subgroup[2]=0
+    >>> # mean(subgroup[y]): (1+0)/2 = 0.5
+    >>> # Negative outcomes (y=0): [1, 0] (indices 1, 3)
+    >>> # subgroup status for negative outcomes: subgroup[1]=1, subgroup[3]=0
+    >>> # mean(subgroup[~y]): (1+0)/2 = 0.5
+    >>> evaluate_subgroup_discrepancy(subgroup_3, y_3)
+    0.0
+
+    4. All samples are positive (will raise ValueError)
+
+    >>> subgroup_all_y_pos = np.array([True, False, True])
+    >>> y_all_pos = np.array([True, True, True])
+    >>> try:
+    ...     evaluate_subgroup_discrepancy(subgroup_all_y_pos, y_all_pos)
+    ... except ValueError as e:
+    ...     print(e)
+    All samples are positive. Cannot calculate metric.
+
+    5. All samples are negative (will raise ValueError)
+
+    >>> subgroup_all_y_neg = np.array([True, False, True])
+    >>> y_all_neg = np.array([False, False, False])
+    >>> try:
+    ...     evaluate_subgroup_discrepancy(subgroup_all_y_neg, y_all_neg)
+    ... except ValueError as e:
+    ...     print(e)
+    All samples are negative. Cannot calculate metric.
     """
     return abs(signed_subgroup_discrepancy(subgroup, y))
 
