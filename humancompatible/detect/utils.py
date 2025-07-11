@@ -1,7 +1,8 @@
 import logging
-from typing import Any, List
+from typing import Any, List, Tuple
 
 import numpy as np
+import pandas as pd
 
 logger = logging.getLogger(__name__)
 
@@ -210,7 +211,7 @@ def evaluate_subgroup_discrepancy(
     return abs(signed_subgroup_discrepancy(subgroup, y))
 
 
-def subgroup_map_from_conjuncts(
+def subgroup_map_from_conjuncts_binarized(
     conjuncts: List[int], X: np.ndarray[np.bool_]
 ) -> np.ndarray[np.bool_]:
     """
@@ -248,27 +249,27 @@ def subgroup_map_from_conjuncts(
         >>>
         >>> # Subgroup where feature at index 0 AND feature at index 1 are True
         >>> conjuncts_1 = [0, 1]
-        >>> subgroup_map_from_conjuncts(conjuncts_1, X_data)
+        >>> subgroup_map_from_conjuncts_binarized(conjuncts_1, X_data)
         array([ True, False, False,  True])
         >>> # Explanation: Only Row 0 and Row 3 have both X[:,0] and X[:,1] as True.
 
         >>> # Subgroup where feature at index 2 is True
         >>> conjuncts_2 = [2]
-        >>> subgroup_map_from_conjuncts(conjuncts_2, X_data)
+        >>> subgroup_map_from_conjuncts_binarized(conjuncts_2, X_data)
         array([False,  True,  True,  True])
 
         >>> # Subgroup where feature at index 0 AND feature at index 2 are True
         >>> conjuncts_3 = [0, 2]
-        >>> subgroup_map_from_conjuncts(conjuncts_3, X_data)
+        >>> subgroup_map_from_conjuncts_binarized(conjuncts_3, X_data)
         array([False,  True, False,  True])
 
         >>> # Test with an empty list of conjuncts (should return all True)
-        >>> subgroup_map_from_conjuncts([], X_data)
+        >>> subgroup_map_from_conjuncts_binarized([], X_data)
         array([ True,  True,  True,  True])
 
         >>> # Test with an invalid conjunct index (will raise IndexError)
         >>> try:
-        ...     subgroup_map_from_conjuncts([0, 99], X_data)
+        ...     subgroup_map_from_conjuncts_binarized([0, 99], X_data)
         ... except IndexError as e:
         ...     print(e)
         index 99 is out of bounds for axis 1 with size 4
@@ -283,6 +284,40 @@ def subgroup_map_from_conjuncts(
         # specified feature column. This filters down the subgroup.
         mapping &= X[:, conj]  # This will raise IndexError if `conj` is out of bounds
     return mapping
+
+
+def subgroup_map_from_conjuncts_dataframe(
+    rule: List[Tuple[int, Any]], X: pd.DataFrame
+) -> np.ndarray[np.bool_]:
+    """
+    Build a boolean mask for an MSD rule over a pandas DataFrame.
+
+    Each (index, Bin) in *rule* comes from `detect_bias` or
+    `detect_bias_two_samples`.  We ignore the positional index and
+    use the Bin's `.feature.name`, so this is robust to column re-ordering.
+
+    Args:
+        rule (List[Tuple[int, Any]]): The rule identifying the subgroup, 
+                                      as returned by `detect_bias(...)`.
+        X (pd.DataFrame): The original (protected-only) DataFrame passed 
+                          to `detect_bias`. Must contain all columns named 
+                          in the rule's Bins.
+
+    Returns:
+        np.ndarray[np.bool_]: A 1-D boolean array where True marks rows 
+                              belonging to the subgroup.
+
+    Raises:
+        KeyError: If `X` is missing a column required by the rule.
+    """
+    mask = np.ones(len(X), dtype=bool)
+    for _idx, binop in rule:
+        feat = binop.feature.name
+        if feat not in X.columns:
+            raise KeyError(f"Column '{feat}' required by rule is missing.")
+        col_values = X[feat].to_numpy()
+        mask &= binop.evaluate(col_values)
+    return mask
 
 
 def report_subgroup_bias(

@@ -4,7 +4,7 @@ from typing import List, Tuple
 import numpy as np
 
 from .one_rule import OneRule
-from .utils import evaluate_subgroup_discrepancy, subgroup_map_from_conjuncts
+from .utils import evaluate_subgroup_discrepancy, subgroup_map_from_conjuncts_binarized
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
@@ -50,7 +50,7 @@ def compute_MSD(
     rule, _ = mio.find_rule(
         X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
     )
-    subgroup_map = subgroup_map_from_conjuncts(rule, X_bin)
+    subgroup_map = subgroup_map_from_conjuncts_binarized(rule, X_bin)
     MSD_val = evaluate_subgroup_discrepancy(subgroup_map, y_bin)
 
     return MSD_val, rule
