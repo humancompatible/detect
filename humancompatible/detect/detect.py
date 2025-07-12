@@ -106,7 +106,7 @@ def prepare_dataset(
     # Preprocess the data
     for col, map_f in feature_processing.items():
         if col in input_data.columns:
-            input_data[col].loc[:] = input_data[col].map(map_f)
+            input_data.loc[:, col] = input_data[col].map(map_f)
 
     values = {}
     bounds = {}
