@@ -8,6 +8,7 @@ import pandas as pd
 from .binarizer import Bin, Binarizer
 from .data_handler import DataHandler
 from .MSD import compute_MSD
+from .l_inf import compute_l_inf
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
@@ -225,6 +226,24 @@ def detect_bias(
 
     if method == "MSD":
         val, indices = compute_MSD(X_bin, y_bin, **method_kwargs)
+    elif method == "l_inf":
+
+        X_bin = binarizer.data_handler.encode(X_prot, one_hot=False)
+
+        feature_involved = method_kwargs['feature_involved']
+        subgroup_to_check = method_kwargs['subgroup_to_check']
+
+        feat_num = binarizer.data_handler.feature_names.index(feature_involved)
+        subgroup_code = binarizer.data_handler.features[feat_num].value_mapping.get(subgroup_to_check)
+
+        indices = []
+        val = compute_l_inf(X_bin, y_bin, feature=feat_num, subgroup=subgroup_code, **method_kwargs)
+
+        delta_val = method_kwargs['delta']
+        if val == 0:
+            print(f' The most impacted subgroup bias is less than {delta_val} ')
+        elif val == 2:
+            print(f' The most impacted subgroup bias is at least {delta_val} ')
     else:
         raise ValueError(
             f'Method named "{method}" is not implemented. Try one of [MSD].'

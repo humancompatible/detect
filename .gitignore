@@ -138,6 +138,9 @@ venv.bak/
 # Rope project settings
 .ropeproject
 
+# Kate projects
+.kateproject
+
 # mkdocs documentation
 /site
 
