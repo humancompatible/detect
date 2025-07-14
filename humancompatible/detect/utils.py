@@ -51,7 +51,7 @@ def signed_subgroup_discrepancy(
     1. Equal representation => Δ = 0
 
     >>> subgroup = np.array([True, False, True, False])
-    >>> y = np.array([True, False, True, False])
+    >>> y = np.array([True, False, False, True])
     >>> signed_subgroup_discrepancy(subgroup, y)
     0.0
 
@@ -64,8 +64,8 @@ def signed_subgroup_discrepancy(
 
     3. Under-representation => negative Δ
 
-    >>> subgroup = np.array([False, True, False, True])
-    >>> y = np.array([True,  True, False, False])
+    >>> subgroup = np.array([False, False, True, False])
+    >>> y = np.array([True, True, False, False])
     >>> round(signed_subgroup_discrepancy(subgroup, y), 2)
     -0.50  # subgroup is 50 pp less common among positives
 
