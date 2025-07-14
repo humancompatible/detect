@@ -211,6 +211,42 @@ def evaluate_subgroup_discrepancy(
     return abs(signed_subgroup_discrepancy(subgroup, y))
 
 
+def signed_subgroup_prevalence_diff(
+    subgroup_a: np.ndarray[np.bool_],
+    subgroup_b: np.ndarray[np.bool_],
+) -> float:
+    """
+    Signed difference in subgroup prevalence between *dataset A* and *dataset B*.
+
+    .. math::
+
+        \\Delta_{A\\!\!\\rightarrow B}
+            = \\operatorname{mean}(\\text{subgroup}_B)
+            \\, - \\,\\operatorname{mean}(\\text{subgroup}_A)
+
+    * **Δ < 0**  - subgroup is **more common in A** than in B  
+    * **Δ > 0**  - subgroup is **more common in B** than in A  
+    * **|Δ|**     - the magnitude is the cross-sample MSD value you already report
+
+    Parameters
+    ----------
+    subgroup_a, subgroup_b
+        Boolean 1-D arrays (may be different lengths) indicating membership
+        in the same rule-defined subgroup for each dataset.
+
+    Returns
+    -------
+    float
+        Signed prevalence gap.
+
+    Raises
+    ------
+    ValueError
+        If either array is empty; if they are not boolean or 1-D.
+    """
+    return np.mean(subgroup_b) - np.mean(subgroup_a)
+
+
 def subgroup_map_from_conjuncts_binarized(
     conjuncts: List[int], X: np.ndarray[np.bool_]
 ) -> np.ndarray[np.bool_]:
