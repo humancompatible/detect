@@ -172,19 +172,25 @@ def detect_bias(
             if called through them, or should be handled before calling this function directly).
             Defaults to None.
         continuous_list (List[str], optional): A list of column names identified
-            as continuous features. Defaults to [].
+            as continuous features. 
+            Defaults to [].
         fp_map (Dict[str, Callable[[Any], int]], optional): A dictionary for feature
             processing, where keys are column names and values are mapping
-            functions to apply for preprocessing specific features. Defaults to {}.
+            functions to apply for preprocessing specific features. 
+            Defaults to {}.
         seed (int | None, optional): A seed for random number generation to ensure
-            reproducibility. If None, no specific seed is set. Defaults to None.
+            reproducibility. If None, no specific seed is set. 
+            Defaults to None.
         n_samples (int, optional): The maximum number of samples to use from the
             dataset. If the dataset size exceeds this, it will be randomly downsampled.
             Defaults to 1_000_000.
-        method (str, optional): The bias detection method to use. Currently, only
-            "MSD" (Maximum Subgroup Discrepancy) is implemented. Defaults to "MSD".
+        method (str, optional): The bias detection method to use. Choose one of:
+            - "MSD" (Maximum Subgroup Discrepancy): Method for bias detection.
+            - "l_inf": Computes the l-infinity distance between histograms of the full dataset.
+            Defaults to "MSD".
         method_kwargs (Dict[str, Any], optional): Additional keyword arguments
-            to pass to the chosen bias detection method. Defaults to {}.
+            to pass to the chosen bias detection method. 
+            Defaults to {}.
 
     Returns:
         Tuple[float, List[Tuple[int, Bin]]]: A tuple containing:
@@ -230,8 +236,12 @@ def detect_bias(
 
         X_bin = binarizer.data_handler.encode(X_prot, one_hot=False)
 
-        feature_involved = method_kwargs['feature_involved']
-        subgroup_to_check = method_kwargs['subgroup_to_check']
+        try:
+            feature_involved = method_kwargs.pop("feature_involved")
+            subgroup_to_check = method_kwargs.pop("subgroup_to_check")
+            delta_val = method_kwargs.pop("delta")
+        except KeyError as e:
+            raise ValueError(f"Missing keyword for l_inf: {e}") from None
 
         feat_num = binarizer.data_handler.feature_names.index(feature_involved)
         subgroup_code = binarizer.data_handler.features[feat_num].value_mapping.get(subgroup_to_check)
@@ -239,14 +249,13 @@ def detect_bias(
         indices = []
         val = compute_l_inf(X_bin, y_bin, feature=feat_num, subgroup=subgroup_code, **method_kwargs)
 
-        delta_val = method_kwargs['delta']
         if val == 0:
             print(f' The most impacted subgroup bias is less than {delta_val} ')
         elif val == 2:
             print(f' The most impacted subgroup bias is at least {delta_val} ')
     else:
         raise ValueError(
-            f'Method named "{method}" is not implemented. Try one of [MSD].'
+            f'Method named "{method}" is not implemented. Try one of ["MSD", "l_inf"].'
         )
 
     encodings = binarizer.get_bin_encodings(include_binary_negations=True)
