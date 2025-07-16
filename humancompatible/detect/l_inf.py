@@ -3,10 +3,10 @@ from .utils import lin_prog_feas
 
 
 def compute_l_inf(
-    X_bin,
-    y_bin,
-    feature,
-    subgroup,
+    X_bin: np.ndarray,
+    y_bin: np.ndarray,
+    feature: int,
+    subgroup: int,
     **method_kwargs
 ):
     """Computes the l-infinity distance between two multidimensional histograms.
@@ -28,34 +28,34 @@ def compute_l_inf(
     X_bin_pos = X_bin[y_bin == 1]
 
     # Filter instances of the (potentially) discriminated subgroup -> discr
-    discr = X_bin_pos[X_bin_pos[:,feature] == subgroup]
+    discr = X_bin_pos[X_bin_pos[:, feature] == subgroup]
 
     # Create array with the dataset feature values (to create histograms) and
     # get number of encoded subgroups per feature (required for binning)
     bins = []
-    columns_all = np.empty(X_bin_pos.shape[0],) # dummy array
-    columns_discr = np.empty(discr.shape[0],)   # dummy array
+    columns_all = np.empty(X_bin_pos.shape[0], )
+    columns_discr = np.empty(discr.shape[0], )
+
     for i in range(X_bin_pos.shape[1]):
         if i != feature:
-            bins.append(int(X_bin_pos[:,i].max()+1))
-            columns_all = np.vstack((columns_all,X_bin_pos[:,i]))
-            columns_discr = np.vstack((columns_discr,discr[:,i]))
-    columns_all = columns_all[1:,:]
-    columns_discr = columns_discr[1:,:]
+            bins.append(int(X_bin_pos[:, i].max() + 1))
+            columns_all = np.vstack((columns_all, X_bin_pos[:, i]))
+            columns_discr = np.vstack((columns_discr, discr[:, i]))
+
+    columns_all = columns_all[1:, :]
+    columns_discr = columns_discr[1:, :]
 
     # "Histogramisation"
-    all_hist,edges = np.histogramdd(columns_all.T,bins=bins,density=True)
-    discr_hist,edges = np.histogramdd(columns_discr.T,bins=bins,density=True)
+    all_hist, _ = np.histogramdd(columns_all.T, bins=bins, density=True)
+    discr_hist, _ = np.histogramdd(columns_discr.T, bins=bins, density=True)
 
     # Reshaping
     dim = 1
     for e in all_hist.shape:
         dim *= e
 
-    all_rsh = all_hist.reshape(dim,1)
-    discr_rsh = discr_hist.reshape(dim,1)
+    all_rsh = all_hist.reshape(dim, 1)
+    discr_rsh = discr_hist.reshape(dim, 1)
 
-
-    res = lin_prog_feas(all_rsh,discr_rsh,method_kwargs['delta'])
-
+    res = lin_prog_feas(all_rsh, discr_rsh, method_kwargs['delta'])
     return res
