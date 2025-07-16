@@ -10,7 +10,7 @@ def compute_l_inf(
     **method_kwargs
 ):
     """Computes the l-infinity distance between two multidimensional histograms.
-    Tipycally, the first one comes from the whole dataset considered,
+    Typically, the first one comes from the whole dataset considered,
     while the second, from a particular subgroup of a protected attribute.
 
     Args:
