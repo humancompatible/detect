@@ -14,13 +14,15 @@ def compute_l_inf(
     while the second, from a particular subgroup of a protected attribute.
 
     Args:
-        X_bin: Contains all the dataset attributes, but the target attribute
-        y_bin: Dataset target attribute
-        feature: Identifies the protected attribute
-        subgroup: Refers to the particular subgroup of the protected attribute
+        X_bin (np.ndarray): Contains all the dataset attributes, but the target attribute.
+        y_bin (np.ndarray): Dataset target attribute.
+        feature (int): Identifies the protected attribute.
+        subgroup (int): Refers to the particular subgroup of the protected attribute.
+        **method_kwargs: Additional keyword arguments. Must include:
+            - delta (float): Threshold for the L-infinity norm between the two histograms.
 
     Returns:
-        Informs whether the two histograms compared are within the input threshold
+        Informs whether the two histograms compared are within the input threshold.
         Delta in the l-infinity norm.
     """
 
