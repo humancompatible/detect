@@ -1,5 +1,5 @@
 import numpy as np
-from utils import lin_prog_feas
+from .utils import lin_prog_feas
 
 
 def compute_l_inf(
