@@ -233,26 +233,22 @@ def detect_bias(
     if method == "MSD":
         val, indices = compute_MSD(X_bin, y_bin, **method_kwargs)
     elif method == "l_inf":
-
-        X_bin = binarizer.data_handler.encode(X_prot, one_hot=False)
-
-        try:
-            feature_involved = method_kwargs.pop("feature_involved")
-            subgroup_to_check = method_kwargs.pop("subgroup_to_check")
-            delta_val = method_kwargs.pop("delta")
-        except KeyError as e:
-            raise ValueError(f"Missing keyword for l_inf: {e}") from None
-
-        feat_num = binarizer.data_handler.feature_names.index(feature_involved)
-        subgroup_code = binarizer.data_handler.features[feat_num].value_mapping.get(subgroup_to_check)
+        status, checked_delta = compute_l_inf(
+            X_prot,
+            y,
+            binarizer=binarizer,
+            **method_kwargs,
+        )
 
         indices = []
-        val = compute_l_inf(X_bin, y_bin, feature=feat_num, subgroup=subgroup_code, **method_kwargs)
+        val = float(status)
 
-        if val == 0:
-            logger.info(f'The most impacted subgroup bias is less than {delta_val}')
-        elif val == 2:
-            logger.info(f'The most impacted subgroup bias is at least {delta_val}')
+        if status == 0:
+            logger.info(f"The most impacted subgroup bias <= {checked_delta}")
+        elif status == 2:
+            logger.info(f"The most impacted subgroup bias > {checked_delta}")
+        else:
+            logger.warning("l_inf check: solver returned status %s", status)
     else:
         raise ValueError(
             f'Method named "{method}" is not implemented. Try one of ["MSD", "l_inf"].'
