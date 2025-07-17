@@ -250,9 +250,9 @@ def detect_bias(
         val = compute_l_inf(X_bin, y_bin, feature=feat_num, subgroup=subgroup_code, **method_kwargs)
 
         if val == 0:
-            print(f' The most impacted subgroup bias is less than {delta_val} ')
+            logger.info(f'The most impacted subgroup bias is less than {delta_val}')
         elif val == 2:
-            print(f' The most impacted subgroup bias is at least {delta_val} ')
+            logger.info(f'The most impacted subgroup bias is at least {delta_val}')
     else:
         raise ValueError(
             f'Method named "{method}" is not implemented. Try one of ["MSD", "l_inf"].'
