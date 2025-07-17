@@ -1,36 +1,63 @@
 import numpy as np
+from typing import Any
+from .binarizer import Binarizer
 from .utils import lin_prog_feas
 
 
 def compute_l_inf(
-    X_bin: np.ndarray,
-    y_bin: np.ndarray,
-    feature: int,
-    subgroup: int,
-    **method_kwargs
+    X: np.ndarray,
+    y: np.ndarray,
+    binarizer: Binarizer,
+    feature_involved: str,
+    subgroup_to_check: Any,
+    delta: float,
 ):
     """Computes the l-infinity distance between two multidimensional histograms.
     Typically, the first one comes from the whole dataset considered,
     while the second, from a particular subgroup of a protected attribute.
 
     Args:
-        X_bin (np.ndarray): Contains all the dataset attributes, but the target attribute.
-        y_bin (np.ndarray): Dataset target attribute.
-        feature (int): Identifies the protected attribute.
-        subgroup (int): Refers to the particular subgroup of the protected attribute.
-        **method_kwargs: Additional keyword arguments. Must include:
-            - delta (float): Threshold for the L-infinity norm between the two histograms.
+        X (np.ndarray): Protected-attribute slice of the dataset (same rows as `y`).
+        y (np.ndarray): Boolean target vector.
+        binarizer (Binarizer): The very `Binarizer` instance used to encode `X`/`y`.
+        feature_involved (str): Column name of the protected feature whose subgroup
+                                is being checked.
+        subgroup_to_check (Any): Refers to the particular subgroup of the protected attribute.
+        delta (float): Threshold for the L-infinity norm between the two histograms.
 
     Returns:
         Informs whether the two histograms compared are within the input threshold.
         Delta in the l-infinity norm.
+    
+    Raises:
+        ValueError: If `delta` is not positive.
+        KeyError: If `feature_involved` is not in the binarizer's feature names.
+        KeyError: If `subgroup_to_check` is not a valid value for the feature.
     """
+    if delta <= 0:
+        raise ValueError("delta must be positive")
+
+    if feature_involved not in binarizer.data_handler.feature_names:
+        raise KeyError(f"Feature '{feature_involved}' not in protected set")
+    
+    X_bin = binarizer.encode(X, one_hot=False)
+    y_bin = binarizer.encode_y(y)
+
+    feat_idx = binarizer.data_handler.feature_names.index(feature_involved)
+    feature = binarizer.data_handler.features[feat_idx]
+
+    try:
+        subgroup_code = feature.value_mapping[subgroup_to_check]
+    except KeyError as e:
+        allowed = list(feature.value_mapping.keys())
+        raise KeyError(f"{subgroup_to_check!r} not a valid value "
+                       f"for '{feature_involved}'. Allowed: {allowed}") from e
 
     # Retain only the instances with a positive target outcome -> X_bin_pos
     X_bin_pos = X_bin[y_bin == 1]
 
     # Filter instances of the (potentially) discriminated subgroup -> discr
-    discr = X_bin_pos[X_bin_pos[:, feature] == subgroup]
+    discr = X_bin_pos[X_bin_pos[:, feature] == subgroup_code]
 
     # Create array with the dataset feature values (to create histograms) and
     # get number of encoded subgroups per feature (required for binning)
@@ -59,5 +86,5 @@ def compute_l_inf(
     all_rsh = all_hist.reshape(dim, 1)
     discr_rsh = discr_hist.reshape(dim, 1)
 
-    res = lin_prog_feas(all_rsh, discr_rsh, method_kwargs['delta'])
-    return res
+    status = lin_prog_feas(all_rsh, discr_rsh, delta=delta)
+    return status, delta
