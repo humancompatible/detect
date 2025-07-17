@@ -244,24 +244,24 @@ def report_subgroup_bias(
 def lin_prog_feas(
     hist1: np.ndarray,
     hist2: np.ndarray,
-    Delta: float,
+    delta: float,
     num_samples: float = 1.0,
 ) -> int:
     """Specifies a number of samples as a fraction of the total
     histogram bins and checks whether all the sampled bins satisfy
     
-    |hist1 - hist2| <= Delta.
+    |hist1 - hist2| <= delta.
 
     Args:
         hist1 (np.ndarray): 1-D array of histogram bin densities for the full dataset.
         hist2 (np.ndarray): 1-D array of histogram bin densities for the subgroup.
-        Delta (float): Threshold for the absolute difference |hist1 - hist2|.
+        delta (float): Threshold for the absolute difference |hist1 - hist2|.
         num_samples (float): Fraction of total bins to sample.
             The function draws int(num_samples * (len(hist1) - 1)) random samples.
 
     Returns:
         int: Status code from `scipy.optimize.linprog`. A status of 0 indicates
-             the constraints are feasible (i.e., |hist1 - hist2| <= Delta for all
+             the constraints are feasible (i.e., |hist1 - hist2| <= delta for all
              sampled bins); other codes signal infeasibility or solver errors.
     """
     rand_lst1 = []
@@ -283,9 +283,9 @@ def lin_prog_feas(
     x0_bounds = (1, 1)
 
     # Accomodate for the + & - signs of the absolute value in
-    # |r_a1 - r_a2| <= Delta
+    # |r_a1 - r_a2| <= delta
     A_ub = np.vstack((rand_arr1, -rand_arr1))
-    b_ub = np.vstack((Delta + rand_arr2, Delta - rand_arr2))
+    b_ub = np.vstack((delta + rand_arr2, delta - rand_arr2))
 
     res = optimize.linprog(c, A_ub, b_ub, bounds=[x0_bounds])
     return res.status
