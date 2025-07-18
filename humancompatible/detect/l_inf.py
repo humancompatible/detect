@@ -66,7 +66,7 @@ def compute_l_inf(
     columns_discr = np.empty(discr.shape[0], )
 
     for i in range(X_bin_pos.shape[1]):
-        if i != feature:
+        if i != feat_idx:
             bins.append(int(X_bin_pos[:, i].max() + 1))
             columns_all = np.vstack((columns_all, X_bin_pos[:, i]))
             columns_discr = np.vstack((columns_discr, discr[:, i]))
