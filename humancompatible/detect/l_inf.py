@@ -40,7 +40,7 @@ def compute_l_inf(
     if feature_involved not in binarizer.data_handler.feature_names:
         raise KeyError(f"Feature '{feature_involved}' not in protected set")
     
-    X_bin = binarizer.encode(X, one_hot=False)
+    X_bin = binarizer.data_handler.encode(X, one_hot=False)
     y_bin = binarizer.encode_y(y)
 
     feat_idx = binarizer.data_handler.feature_names.index(feature_involved)
@@ -57,7 +57,7 @@ def compute_l_inf(
     X_bin_pos = X_bin[y_bin == 1]
 
     # Filter instances of the (potentially) discriminated subgroup -> discr
-    discr = X_bin_pos[X_bin_pos[:, feature] == subgroup_code]
+    discr = X_bin_pos[X_bin_pos[:, feat_idx] == subgroup_code]
 
     # Create array with the dataset feature values (to create histograms) and
     # get number of encoded subgroups per feature (required for binning)
