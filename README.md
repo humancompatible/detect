@@ -1,8 +1,8 @@
-# HumanCompatible - Detect
+# humancompatible.detect
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
 
-A library of methods for detecting Bias (lack of Fairness) in AI models (or datasets).
+humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
 
 ## AI Fairness
 
