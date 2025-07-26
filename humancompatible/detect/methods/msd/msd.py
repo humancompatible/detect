@@ -13,8 +13,9 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 def get_conjuncts_MSD(
     X_bin: np.ndarray[np.bool_],
     y_bin: np.ndarray[np.bool_],
-    rule
-    
+    time_limit: int = 600,
+    n_min: int = 0,
+    solver: str = "appsi_highs",
 ) -> Tuple[float, List[int]]:
     """Computes the Maximum Subgroup Discrepancy (MSD) to detect bias.
 
@@ -45,8 +46,9 @@ def get_conjuncts_MSD(
               defines the subgroup with maximal discrepancy.
     """
 
-    
-    subgroup_map = subgroup_map_from_conjuncts_binarized(rule, X_bin)
-    MSD_val = evaluate_subgroup_discrepancy(subgroup_map, y_bin)
+    mio = OneRule()
+    indices, _ = mio.find_rule(
+        X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
+    )
 
-    return MSD_val, rule
+    return indices
