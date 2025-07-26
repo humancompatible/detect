@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, List, Tuple
 
 from humancompatible.detect.binarizer.Binarizer import Bin
+from humancompatible.detect.methods.msd import get_conjuncts_MSD
 from humancompatible.detect.methods.one_rule import OneRule
 from humancompatible.detect.prepare import prepare_dataset
 
@@ -53,12 +54,7 @@ def most_biased_subgroup(
             y_bin,
             **method_kwargs
         )
-
-
-        mio = OneRule()
-        indices, _ = mio.find_rule(
-            X_bin, y_bin, **method_kwargs
-        )
+        
     else:
         raise ValueError(f"Method '{method}' is not supported.")
 
