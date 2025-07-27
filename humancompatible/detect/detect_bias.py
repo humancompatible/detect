@@ -24,6 +24,41 @@ def most_biased_subgroup(
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> List[Tuple[int, Bin]]:
+    """
+    Identify the protected subgroup with the largest absolute difference in outcome rates.
+
+    The procedure:
+        1. Cleans, encodes, and optionally downsamples the data via ``prepare_dataset``.
+        2. Runs a subgroup-search routine on the binarised arrays.
+           (Currently, only Maximum Subgroup Discrepancy - ``method == "MSD"`` - is implemented.)
+
+    Args:
+        X (pd.DataFrame): Feature matrix.
+        y (pd.DataFrame): Target column; must have the same number of rows as ``X``.
+        protected_list (list[str] | None, default None): Names of columns regarded
+            as protected attributes. When ``None``, every column in ``X`` is treated
+            as protected.
+        continuous_list (list[str] | None, default None): Columns that should be
+            treated as continuous when building bins.
+        fp_map (dict[str, Callable] | None, default None): Optional per-feature
+            recoding map to apply before binarisation.
+        seed (int | None, default None): Seed for the random generator controlling
+            subsampling and solver randomness.
+        n_samples (int, default 1_000_000): Upper bound on the number of rows kept
+            after random subsampling.
+        method (str, default "MSD"): Subgroup-search routine to invoke. Only
+            ``"MSD"`` is supported at present.
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen ``method`` (for MSD these include
+            ``time_limit``, ``n_min``, ``solver``, etc.).
+
+    Returns:
+        list[tuple[int, Bin]]: Conjunctive rule describing the most biased subgroup.
+        Each element is a pair ``(feature_index, Bin)``.
+
+    Raises:
+        ValueError: If ``method`` is not recognised.
+    """
     
     if seed is not None:
         logger.info(f"Seeding the run with seed={seed}")
@@ -76,6 +111,47 @@ def most_biased_subgroup_csv(
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
+    """
+    Load a CSV file, split it into features and target, and return the subgroup
+    rule with the largest absolute gap in outcome rates.
+
+    The helper:
+        1. Reads the CSV located at `csv_path`.
+        2. Separates the target column (`target_col`) from the remaining
+           feature columns.
+        3. Passes the data to `most_biased_subgroup` along with any optional
+           configuration parameters.
+        4. Returns the conjunctive rule that characterises the most biased
+           protected subgroup.
+
+    Args:
+        csv_path (Path | str): Path to the CSV file.
+        target_col (str): Name of the target column inside the CSV.
+        protected_list (list[str] | None, default None): Columns treated as
+            protected attributes. If `None`, every feature column is treated
+            as protected.
+        continuous_list (list[str] | None, default None): Protected columns
+            handled as continuous when creating bins.
+        fp_map (dict[str, Callable] | None, default None): Optional map for
+            recoding feature values before binarisation.
+        seed (int | None, default None): Seed for random subsampling and any
+            solver randomness.
+        n_samples (int, default 1_000_000): Maximum number of rows retained
+            after random subsampling.
+        method (str, default "MSD"): Subgroup-search routine. Only "MSD"
+            is currently supported.
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen `method`.
+
+    Returns:
+        list[tuple[int, Bin]]: Conjunction describing the most biased subgroup,
+        where each element is a pair `(feature_index, Bin)`.
+
+    Raises:
+        ValueError: If `target_col` is missing from the CSV.
+        ValueError: If `method` is unsupported (propagated from
+            `most_biased_subgroup`).
+    """
 
     csv_path = Path(csv_path)
 
@@ -119,6 +195,43 @@ def most_biased_subgroup_two_samples(
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[float, List[Tuple[int, Bin]]]:
+    """
+    Identify the subgroup whose prevalence differs the most between two datasets.
+
+    The helper:
+        1. Verifies that *X1* and *X2* share the same columns.
+        2. Concatenates the two frames and builds a synthetic target:
+           0 for rows from *X1*, 1 for rows from *X2*.
+        3. Forwards the combined data to ``most_biased_subgroup`` and returns
+           the resulting rule.
+
+    Args:
+        X1 (pd.DataFrame): First sample.
+        X2 (pd.DataFrame): Second sample. Must have identical columns to *X1*.
+        protected_list (list[str] | None, default None): Columns to treat as
+            protected. If None, every column is treated as protected.
+        continuous_list (list[str] | None, default None): Protected columns
+            handled as continuous when binning.
+        fp_map (dict[str, Callable] | None, default None): Optional per-feature
+            recoding map applied before binarisation.
+        seed (int | None, default None): Seed governing subsampling and solver
+            randomness.
+        n_samples (int, default 1_000_000): Maximum number of rows kept after
+            random subsampling.
+        method (str, default "MSD"): Subgroup-search routine; only "MSD"
+            is currently implemented.
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen *method*.
+
+    Returns:
+        list[tuple[int, Bin]]: Conjunctive rule describing the subgroup whose
+        prevalence gap between *X1* and *X2* is largest.
+
+    Raises:
+        ValueError: If *X1* and *X2* do not have identical columns.
+        ValueError: If *method* is unsupported (propagated from
+            ``most_biased_subgroup``).
+    """
     
     if X1.columns.tolist() != X2.columns.tolist():
         raise ValueError("The samples must have the same features")
