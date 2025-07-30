@@ -30,7 +30,7 @@ def get_conjuncts_MSD(
 
     Returns:
         list[int]: A list of feature-column indices whose conjunction
-        defines the subgroup with maximal discrepancy.
+            defines the subgroup with maximal discrepancy.
 
     Raises:
         ValueError: Propagated from ``OneRule.find_rule`` when the solver stops

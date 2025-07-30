@@ -145,7 +145,7 @@ def most_biased_subgroup_csv(
 
     Returns:
         list[tuple[int, Bin]]: Conjunction describing the most biased subgroup,
-        where each element is a pair `(feature_index, Bin)`.
+            where each element is a pair `(feature_index, Bin)`.
 
     Raises:
         ValueError: If `target_col` is missing from the CSV.
