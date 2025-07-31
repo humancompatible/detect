@@ -8,7 +8,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
-def compute_l_inf(
+def check_l_inf_gap(
     X: np.ndarray,
     y: np.ndarray,
     binarizer: Binarizer,
