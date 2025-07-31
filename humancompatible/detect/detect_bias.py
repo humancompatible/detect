@@ -6,8 +6,7 @@ from typing import Any, Callable, Dict, List, Tuple
 
 from humancompatible.detect.binarizer.Binarizer import Bin
 from humancompatible.detect.methods.msd import get_conjuncts_MSD
-from humancompatible.detect.methods.one_rule import OneRule
-from humancompatible.detect.prepare import prepare_dataset
+from humancompatible.detect.helpers.prepare import prepare_dataset
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
