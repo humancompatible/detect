@@ -2,6 +2,10 @@ import logging
 from typing import List, Tuple
 
 import numpy as np
+import pandas as pd
+
+from humancompatible.detect.binarizer.Binarizer import Bin
+from humancompatible.detect.helpers.utils import evaluate_subgroup_discrepancy, signed_subgroup_discrepancy, subgroup_map_from_conjuncts_binarized, subgroup_map_from_conjuncts_dataframe
 
 from .one_rule import OneRule
 
@@ -43,3 +47,24 @@ def get_conjuncts_MSD(
     )
 
     return indices
+
+
+def evaluate_MSD(
+    X: pd.DataFrame,
+    y: pd.Series | np.ndarray,
+    rule: List[Tuple[int, Bin]],
+    signed: bool = False,
+) -> float:
+    """
+    Compute the MSD value (delta  or |delta|) for already calculated rules.
+    Args:
+        X (pd.DataFrame): Feature matrix.
+        y (pd.Series | np.ndarray): Target vector.
+        rule (list[tuple[int, Bin]]): Conjunctive rule describing the subgroup.
+            Each element is a pair ``(feature_index, Bin)``.
+        signed (bool, default False): If True, return the signed subgroup discrepancy;
+            otherwise, return the absolute value.
+    """
+    mask = subgroup_map_from_conjuncts_dataframe(rule, X)
+    fn = signed_subgroup_discrepancy if signed else evaluate_subgroup_discrepancy
+    return float(fn(mask, np.asarray(y).ravel()))
