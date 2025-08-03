@@ -57,13 +57,19 @@ def evaluate_MSD(
 ) -> float:
     """
     Compute the MSD value (delta  or |delta|) for already calculated rules.
+    
     Args:
-        X (pd.DataFrame): Feature matrix.
-        y (pd.Series | np.ndarray): Target vector.
+        X (pd.DataFrame): DataFrame with the protected columns referenced by
+            `rule`.
+        y (pd.Series | np.ndarray): Binary target vector aligned with `X`.
         rule (list[tuple[int, Bin]]): Conjunctive rule describing the subgroup.
-            Each element is a pair ``(feature_index, Bin)``.
+            Each element is a pair `(feature_index, Bin)`. Produced by
+            `most_biased_subgroup`.
         signed (bool, default False): If True, return the signed subgroup discrepancy;
             otherwise, return the absolute value.
+    
+    Returns:
+        float: The subgroup discrepancy value.
     """
     mask = subgroup_map_from_conjuncts_dataframe(rule, X)
     fn = signed_subgroup_discrepancy if signed else evaluate_subgroup_discrepancy
