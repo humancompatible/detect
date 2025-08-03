@@ -1,3 +1,3 @@
-from .l_inf import compute_l_inf
+from .l_inf import check_l_inf_gap
 
-__all__ = ["compute_l_inf"]
+__all__ = ["check_l_inf_gap"]
