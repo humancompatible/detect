@@ -36,8 +36,7 @@ def prepare_dataset(
                                      protected attributes for fairness analysis.
         continuous_feats (List[str]): A list of column names identified as continuous features.
         feature_processing (Dict[str, int]): A dictionary where keys are column names
-                                             and values are mappings (e.g., dictionaries
-                                             or functions) to apply for preprocessing
+                                             and values are mappings to apply for preprocessing
                                              specific features.
 
     Returns:

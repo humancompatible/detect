@@ -2,9 +2,8 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Tuple
+from typing import Any, Callable, Dict, List
 
-from humancompatible.detect.binarizer.Binarizer import Bin
 from humancompatible.detect.methods.l_inf import check_l_inf_gap
 from humancompatible.detect.methods.msd import evaluate_MSD
 from humancompatible.detect.helpers.prepare import prepare_dataset
@@ -24,6 +23,50 @@ def evaluate_biased_subgroup(
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
+    """
+    Evaluate how far a *given* subgroup departs from the reference population.
+
+    Workflow  
+        1. The data are cleaned, encoded and prepared via
+           `prepare_dataset`.  
+        2. One of two evaluation routines is run:
+           * `method == "MSD"` - compute the Maximum Subgroup Discrepancy for
+             the rule supplied in `method_kwargs["rule"]`. 
+
+           * `method == "l_inf"` - call `check_l_inf_gap`, which checks whether
+             the subgroup's positive-class histogram deviates from the whole
+             sample by more than the supplied `delta`.
+    
+    Args:
+        X (pd.DataFrame): Feature matrix.
+        y (pd.DataFrame): Target column, same number of rows as `X`.
+        protected_list (list[str] | None, default None): Columns regarded as
+            protected. If None, every column in `X` is treated as protected.
+        continuous_list (list[str] | None, default None): Columns treated as
+            continuous when creating bins.
+        fp_map (dict[str, Callable] | None, default None): Optional per-feature
+            recoding applied before binarisation.
+        seed (int | None, default None): Seed for subsampling / solver
+            randomness.
+        n_samples (int, default 1_000_000): Maximum number of rows kept after
+            random subsampling.
+        method (str, default "MSD"): Evaluation routine to invoke.
+            Supported values: "MSD", "l_inf".
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen `method`.  
+            For MSD you must provide `rule`; for l_inf you typically supply
+            `feature_involved`, `subgroup_to_check` and `delta`.
+
+    Returns:
+        float:  
+            * MSD - the subgroup discrepancy (signed or absolute, depending on
+              flags inside `method_kwargs`).  
+            * l_inf - 1.0 if the subgroup gap is <= `delta`, otherwise 0.0.
+
+    Raises:
+        ValueError: If the requested `method` is unknown, or required keys are
+            missing from `method_kwargs`.
+    """
     
     if seed is not None:
         logger.info(f"Seeding the run with seed={seed}")
@@ -46,13 +89,15 @@ def evaluate_biased_subgroup(
     )
 
     if method == "MSD":
+        if "rule" not in method_kwargs:
+            raise ValueError("method_kwargs for MSD must include a 'rule'.")
         val = evaluate_MSD(
             X_prot, y, **method_kwargs
         )
     
     elif method == "l_inf":
-        val = float(
-            check_l_inf_gap(X_prot, y, binarizer=binarizer, **method_kwargs)
+        val = check_l_inf_gap(
+            X_prot, y, binarizer=binarizer, **method_kwargs
         )
         
     else:

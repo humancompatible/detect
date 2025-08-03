@@ -27,15 +27,15 @@ def most_biased_subgroup(
     Identify the protected subgroup with the largest absolute difference in outcome rates.
 
     The procedure:
-        1. Cleans, encodes, and optionally downsamples the data via ``prepare_dataset``.
+        1. Cleans, encodes, and optionally downsamples the data via `prepare_dataset`.
         2. Runs a subgroup-search routine on the binarised arrays.
-           (Currently, only Maximum Subgroup Discrepancy - ``method == "MSD"`` - is implemented.)
+           (Currently, only Maximum Subgroup Discrepancy - `method == "MSD"` - is implemented.)
 
     Args:
         X (pd.DataFrame): Feature matrix.
-        y (pd.DataFrame): Target column; must have the same number of rows as ``X``.
+        y (pd.DataFrame): Target column; must have the same number of rows as `X`.
         protected_list (list[str] | None, default None): Names of columns regarded
-            as protected attributes. When ``None``, every column in ``X`` is treated
+            as protected attributes. When `None`, every column in `X` is treated
             as protected.
         continuous_list (list[str] | None, default None): Columns that should be
             treated as continuous when building bins.
@@ -46,17 +46,17 @@ def most_biased_subgroup(
         n_samples (int, default 1_000_000): Upper bound on the number of rows kept
             after random subsampling.
         method (str, default "MSD"): Subgroup-search routine to invoke. Only
-            ``"MSD"`` is supported at present.
+            `"MSD"` is supported at present.
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
-            arguments forwarded to the chosen ``method`` (for MSD these include
-            ``time_limit``, ``n_min``, ``solver``, etc.).
+            arguments forwarded to the chosen `method` (for MSD these include
+            `time_limit`, `n_min`, `solver`, etc.).
 
     Returns:
         list[tuple[int, Bin]]: Conjunctive rule describing the most biased subgroup.
-        Each element is a pair ``(feature_index, Bin)``.
+        Each element is a pair `(feature_index, Bin)`.
 
     Raises:
-        ValueError: If ``method`` is not recognised.
+        ValueError: If `method` is not recognised.
     """
     
     if seed is not None:
@@ -201,7 +201,7 @@ def most_biased_subgroup_two_samples(
         1. Verifies that *X1* and *X2* share the same columns.
         2. Concatenates the two frames and builds a synthetic target:
            0 for rows from *X1*, 1 for rows from *X2*.
-        3. Forwards the combined data to ``most_biased_subgroup`` and returns
+        3. Forwards the combined data to `most_biased_subgroup` and returns
            the resulting rule.
 
     Args:
@@ -229,7 +229,7 @@ def most_biased_subgroup_two_samples(
     Raises:
         ValueError: If *X1* and *X2* do not have identical columns.
         ValueError: If *method* is unsupported (propagated from
-            ``most_biased_subgroup``).
+            `most_biased_subgroup`).
     """
     
     if X1.columns.tolist() != X2.columns.tolist():
