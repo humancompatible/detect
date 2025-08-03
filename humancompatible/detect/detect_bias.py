@@ -109,7 +109,7 @@ def most_biased_subgroup_csv(
     n_samples: int = 1_000_000,
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
-) -> Tuple[float, List[Tuple[int, Bin]]]:
+) -> List[Tuple[int, Bin]]:
     """
     Load a CSV file, split it into features and target, and return the subgroup
     rule with the largest absolute gap in outcome rates.
@@ -193,7 +193,7 @@ def most_biased_subgroup_two_samples(
     n_samples: int = 1_000_000,
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
-) -> Tuple[float, List[Tuple[int, Bin]]]:
+) -> List[Tuple[int, Bin]]:
     """
     Identify the subgroup whose prevalence differs the most between two datasets.
 
