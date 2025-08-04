@@ -1,7 +1,7 @@
 import logging
 import pandas as pd
 import numpy as np
-from typing import Dict, List
+from typing import Any, Callable, Dict, List, Tuple
 
 from humancompatible.detect.binarizer.Binarizer import Binarizer
 from humancompatible.detect.data_handler import DataHandler
@@ -16,9 +16,9 @@ def prepare_dataset(
     n_max: int,
     protected_attrs: List[str],
     continuous_feats: List[str],
-    feature_processing: Dict[str, int],
-):
-    r"""
+    feature_processing: Dict[str, Callable[Any, int]],
+) -> Tuple[Binarizer, pd.DataFrame, pd.Series]:
+    """
     Prepares a dataset by cleaning, preprocessing, sampling, and structuring it for fairness analysis.
 
     This function performs several steps to get the data ready for further processing,
@@ -28,26 +28,21 @@ def prepare_dataset(
 
     Args:
         input_data (pd.DataFrame): The input features DataFrame.
-        target_data (pd.DataFrame): The target variable DataFrame. It's expected
-                                    to have a single column.
+        target_data (pd.DataFrame): Single-column target vector; 
+            same row count as `input_data`.
         n_max (int): The maximum number of samples to retain. If the dataset size
-                     exceeds this, it will be randomly downsampled.
+            exceeds this, it will be randomly downsampled.
         protected_attrs (List[str]): A list of column names that are considered
-                                     protected attributes for fairness analysis.
+            protected attributes for fairness analysis.
         continuous_feats (List[str]): A list of column names identified as continuous features.
-        feature_processing (Dict[str, int]): A dictionary where keys are column names
-                                             and values are mappings to apply for preprocessing
-                                             specific features.
+        feature_processing (Dict[str, Callable[Any, int]]): Mapping from column
+            name to a *callable* that converts each raw value to an integer.
 
     Returns:
         Tuple[Binarizer, pd.DataFrame, pd.Series]: A tuple containing:
             - binarizer_protected (Binarizer): The protected-attributes binarizer.
             - input_data[protected_cols] (pd.DataFrame): The part of the data with protected attributes.
             - target_data (pd.Series): The corresponding target features.
-
-    Raises:
-        (No explicit raises from within this function beyond potential pandas/numpy errors
-         if data types or operations are mismatched before calling this function.)
 
     Notes:
         - Rows with any NaN values in `input_data` will be removed.
@@ -56,43 +51,6 @@ def prepare_dataset(
           converted to a pandas Series for the output.
         - Requires `DataHandler` and `Binarizer` classes to be defined elsewhere
           for `dhandler_protected` and `binarizer_protected` to work correctly.
-
-    Examples:
-        >>> # Assuming 'logger', 'DataHandler', and 'Binarizer' are imported/defined
-        >>> # For demonstration, let's mock them
-        >>> class MockDataHandler:
-        ...     def __init__(self, *args, **kwargs): pass
-        >>> class MockBinarizer:
-        ...     def __init__(self, *args, **kwargs): self.target_positive_vals = kwargs.get('target_positive_vals')
-        >>> global DataHandler, Binarizer, logger
-        >>> DataHandler = MockDataHandler
-        >>> Binarizer = MockBinarizer
-        >>> logger = logging.getLogger('test_logger')
-        >>> logger.setLevel(logging.DEBUG)
-        >>>
-        >>> input_df = pd.DataFrame({
-        ...     'feat_cat': ['A', 'B', 'A', 'C', 'A', None],
-        ...     'feat_cont': [1.0, 2.5, 3.0, 4.5, 5.0, 6.0],
-        ...     'protected_sex': ['M', 'F', 'M', 'F', 'M', 'F'],
-        ...     'protected_race': ['W', 'B', 'W', 'A', 'B', 'W'],
-        ...     'single_val_col': [10, 10, 10, 10, 10, 10]
-        ... })
-        >>> target_df = pd.DataFrame({'outcome': [0, 1, 0, 1, 0, 1]})
-        >>>
-        >>> feature_proc = {'feat_cat': {'A': 0, 'B': 1, 'C': 2}}
-        >>> protected_attrs_list = ['protected_sex', 'protected_race']
-        >>> continuous_features_list = ['feat_cont']
-        >>> max_samples = 4
-        >>>
-        >>> binarizer, protected_df, target_series = prepare_dataset(
-        ...     input_df, target_df, max_samples, protected_attrs_list,
-        ...     continuous_features_list, feature_proc
-        ... )
-        >>>
-        >>> print("Original input_data shape:", input_df.shape)
-        >>> print("Protected features after processing:\\n", protected_df)
-        >>> print("\\nTarget series after processing:\\n", target_series)
-        >>> print("\\nBinarizer target positive values:", binarizer.target_positive_vals)
     """
     mask = ~input_data.isnull().any(axis=1)
     logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
