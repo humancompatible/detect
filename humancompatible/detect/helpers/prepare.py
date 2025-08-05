@@ -16,7 +16,7 @@ def prepare_dataset(
     n_max: int,
     protected_attrs: List[str],
     continuous_feats: List[str],
-    feature_processing: Dict[str, Callable[Any, int]],
+    feature_processing: Dict[str, Callable[[Any], int]],
 ) -> Tuple[Binarizer, pd.DataFrame, pd.Series]:
     """
     Prepares a dataset by cleaning, preprocessing, sampling, and structuring it for fairness analysis.
@@ -35,7 +35,7 @@ def prepare_dataset(
         protected_attrs (List[str]): A list of column names that are considered
             protected attributes for fairness analysis.
         continuous_feats (List[str]): A list of column names identified as continuous features.
-        feature_processing (Dict[str, Callable[Any, int]]): Mapping from column
+        feature_processing (Dict[str, Callable[[Any], int]]): Mapping from column
             name to a *callable* that converts each raw value to an integer.
 
     Returns:

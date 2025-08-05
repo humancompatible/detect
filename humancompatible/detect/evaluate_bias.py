@@ -17,7 +17,7 @@ def evaluate_biased_subgroup(
     y: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -111,12 +111,51 @@ def evaluate_biased_subgroup_csv(
     target_col: str,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
+    """
+    Load a CSV file, split it into features / target and forward everything to
+    `evaluate_biased_subgroup`.
+
+    Workflow  
+        1. The file at `csv_path` is being read.
+        2. `target_col` is removed from the frame and kept separately
+           (`X_df`, `y_df`).  
+        3. The helper `evaluate_biased_subgroup` is called with exactly the same
+           keyword interface.
+
+    Args:
+        csv_path (Path | str): Location of the CSV file.
+        target_col (str): Name of the column that holds the target variable.
+        protected_list (list[str] | None, default None): Columns regarded as
+            protected. If None, every feature column is treated as protected.
+        continuous_list (list[str] | None, default None): Columns that should be
+            treated as continuous when creating bins.
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional
+            mapping *column -> recoding-function* applied before binarisation.
+        seed (int | None, default None): Seed for any randomness downstream
+            (sub-sampling, solver search).
+        n_samples (int, default 1_000_000): Maximum number of rows kept after
+            random subsampling.
+        method (str, default "MSD"): Evaluation routine to invoke.
+            Supported values: "MSD", "l_inf".
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen `method`
+            (see `evaluate_biased_subgroup` for details).
+    
+    Returns:
+        float:  
+            * MSD - subgroup discrepancy value.  
+            * l_inf - 1.0 if the gap is <= `delta`, otherwise 0.0.
+
+    Raises:
+        ValueError: If `target_col` is absent from the CSV or if the delegated
+            call to `evaluate_biased_subgroup` raises a `ValueError`.
+    """
     
     csv_path = Path(csv_path)
 
@@ -154,7 +193,7 @@ def evaluate_biased_subgroup_two_samples(
     X2: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
