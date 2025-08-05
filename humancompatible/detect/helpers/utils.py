@@ -13,66 +13,48 @@ def signed_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
     """
-    Signed difference in subgroup representation between *positive and negative outcomes*.
+    Signed difference in subgroup representation between positive and negative outcomes.
 
-    This metric returns
+    This metric returns:
+        `delta = mean(subgroup | y = 1) - mean(subgroup | y = 0)`
 
-    .. math::
+    A positive delta means the subgroup is **over-represented** among positives;  
+    a negative delta means it is **under-represented**.
 
-        \\Delta = \\underbrace{\\operatorname{mean}(\\text{subgroup}[y])}_{\\text{proportion in positives}}
-               \\,\\; - \\;
-               \\underbrace{\\operatorname{mean}(\\text{subgroup}[\\lnot y])}_{\\text{proportion in negatives}}
+    Args:
+        subgroup (np.ndarray[bool]): Boolean mask of subgroup membership;
+            shape must match `y`.
+        y (np.ndarray[bool]): Boolean outcome labels
+            (True = positive, False = negative).
+    
+    Returns:
+        float: Signed difference ``proportion_in_positives - proportion_in_negatives``.
+    
+    Raises:
+        AssertionError: If `subgroup` and `y` have different shapes.
+        ValueError: If `y` contains only positives or only negatives.
+    
+    Examples:
+        1. Equal representation => Δ = 0
 
-    * **Δ > 0** - subgroup is **over-represented** among positive outcomes  
-    * **Δ < 0** - subgroup is **under-represented** among positive outcomes  
-    * **|Δ|**   - magnitude used by MSD (see :func:`evaluate_subgroup_discrepancy`)
+        >>> subgroup = np.array([True, False, True, False])
+        >>> y = np.array([True, False, False, True])
+        >>> signed_subgroup_discrepancy(subgroup, y)
+        0.0
 
-    Parameters
-    ----------
-    subgroup : np.ndarray[bool]
-        Boolean mask indicating membership in the subgroup
-        (shape must match *y*).  ``True`` for members, ``False`` otherwise.
-    y : np.ndarray[bool]
-        Boolean outcome labels. ``True`` = positive outcome, ``False`` = negative.
+        2. Over-representation => positive Δ
 
-    Returns
-    -------
-    float
-        Signed difference ``proportion_in_positives - proportion_in_negatives``.
+        >>> subgroup = np.array([True, True, False, False, True])
+        >>> y = np.array([True, True,  True,  False, False])
+        >>> round(signed_subgroup_discrepancy(subgroup, y), 3)
+        0.167  # subgroup is ~16.7 pp more common among positives
 
-    Raises
-    ------
-    AssertionError
-        If *subgroup* and *y* have different shapes.
-    ValueError
-        If *y* contains only positives or only negatives - the difference
-        would be undefined.
+        3. Under-representation => negative Δ
 
-    Examples
-    --------
-    1. Equal representation => Δ = 0
-
-    >>> subgroup = np.array([True, False, True, False])
-    >>> y = np.array([True, False, False, True])
-    >>> signed_subgroup_discrepancy(subgroup, y)
-    0.0
-
-    2. Over-representation => positive Δ
-
-    >>> subgroup = np.array([True, True, False, False, True])
-    >>> y = np.array([True, True,  True,  False, False])
-    >>> round(signed_subgroup_discrepancy(subgroup, y), 3)
-    0.167  # subgroup is ~16.7 pp more common among positives
-
-    3. Under-representation => negative Δ
-
-    >>> subgroup = np.array([False, False, True, False])
-    >>> y = np.array([True, True, False, False])
-    >>> round(signed_subgroup_discrepancy(subgroup, y), 2)
-    -0.50  # subgroup is 50 pp less common among positives
-
-    The absolute value of the same quantity is returned by
-    :func:`evaluate_subgroup_discrepancy`.
+        >>> subgroup = np.array([False, False, True, False])
+        >>> y = np.array([True, True, False, False])
+        >>> round(signed_subgroup_discrepancy(subgroup, y), 2)
+        -0.50  # subgroup is 50 pp less common among positives
     """
     assert (
         subgroup.shape == y.shape
@@ -108,107 +90,22 @@ def evaluate_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
 ) -> float:
     """
-    Absolute difference in subgroup prevalence between *positive and negative outcomes (|Δ|)*.
+    Absolute subgroup discrepancy |delta| between positive and negative outcomes.
 
-    This is simply the magnitude of the signed metric returned by
-    :func:`signed_subgroup_discrepancy`.  Formally,
+    Simply returns the magnitude of `signed_subgroup_discrepancy(subgroup, y)`.
+    
+    Args:
+        subgroup (np.ndarray[bool]): Boolean mask indicating subgroup membership;
+            shape must equal that of `y`.
+        y (np.ndarray[bool]): Boolean outcome labels (True = positive).
 
-    .. math::
+    Returns:
+        float: |delta| - the absolute difference in subgroup prevalence between
+            positives and negatives (fractional units).
 
-        |\\Delta| \\;=\\; \\bigl|\\,
-            \\operatorname{mean}(\\text{subgroup}[y])
-            \\, - \\, 
-            \\operatorname{mean}(\\text{subgroup}[\\lnot y])
-        \\,\\bigr|
-
-    Parameters
-    ----------
-    subgroup : np.ndarray[bool]
-        Boolean mask indicating membership in the subgroup
-        (shape must match *y*).
-    y : np.ndarray[bool]
-        Boolean outcome labels.  ``True`` = positive outcome,
-        ``False`` = negative.
-
-    Returns
-    -------
-    float
-        Absolute subgroup discrepancy ``|Δ|`` expressed in **fractional points**
-        (multiply by 100 for percentage points).
-
-    Raises
-    ------
-    AssertionError
-        If *subgroup* and *y* have different shapes.
-    ValueError
-        If *y* contains only positives or only negatives - the metric would be
-        undefined.
-
-    Examples
-    ------
-    1. Subgroup equally represented in positive and negative outcomes
-
-    >>> import numpy as np
-    >>> subgroup_1 = np.array([True, False, True, False]) # Indices 0, 2 are subgroup
-    >>> y_1 = np.array([True, False, True, False])        # Indices 0, 2 are positive
-    >>> # Positive outcomes: [True, True] (indices 0, 2). Subgroup members: 2/2 = 1.0
-    >>> # Negative outcomes: [False, False] (indices 1, 3). Subgroup members: 0/2 = 0.0
-    >>> # Discrepancy: |1.0 - 0.0| = 1.0 (This is the original error in example)
-    >>> # Corrected:
-    >>> # y[subgroup] means y for subgroup members: [True, True]
-    >>> # y[~subgroup] means y for non-subgroup members: [False, False]
-    >>> # Your new formula: mean(subgroup[y]) - mean(subgroup[~y])
-    >>> # subgroup[y] (subgroup status for positive outcomes): [True, True] -> mean = 1.0
-    >>> # subgroup[~y] (subgroup status for negative outcomes): [False, False] -> mean = 0.0
-    >>> evaluate_subgroup_discrepancy(subgroup_1, y_1)
-    1.0
-
-    2. Subgroup more prevalent in positive outcomes
-
-    >>> subgroup_2 = np.array([True, True, False, False, True])
-    >>> y_2 = np.array([True, True, True, False, False])
-    >>> # Positive outcomes (y=True): [True, True, True] (indices 0, 1, 2)
-    >>> # Subgroup status for positive outcomes: subgroup[0]=T, subgroup[1]=T, subgroup[2]=F.
-    >>> # mean(subgroup[y]): (1+1+0)/3 = 0.666...
-    >>> #
-    >>> # Negative outcomes (y=False): [False, False] (indices 3, 4)
-    >>> # Subgroup status for negative outcomes: subgroup[3]=F, subgroup[4]=T.
-    >>> # mean(subgroup[~y]): (0+1)/2 = 0.5
-    >>> evaluate_subgroup_discrepancy(subgroup_2, y_2)
-    0.16666666666666663
-
-    3. Using integer arrays (will be converted to bool)
-
-    >>> subgroup_3 = np.array([1, 1, 0, 0])
-    >>> y_3 = np.array([1, 0, 1, 0])
-    >>> # Positive outcomes (y=1): [1, 1] (indices 0, 2)
-    >>> # subgroup status for positive outcomes: subgroup[0]=1, subgroup[2]=0
-    >>> # mean(subgroup[y]): (1+0)/2 = 0.5
-    >>> # Negative outcomes (y=0): [1, 0] (indices 1, 3)
-    >>> # subgroup status for negative outcomes: subgroup[1]=1, subgroup[3]=0
-    >>> # mean(subgroup[~y]): (1+0)/2 = 0.5
-    >>> evaluate_subgroup_discrepancy(subgroup_3, y_3)
-    0.0
-
-    4. All samples are positive (will raise ValueError)
-
-    >>> subgroup_all_y_pos = np.array([True, False, True])
-    >>> y_all_pos = np.array([True, True, True])
-    >>> try:
-    ...     evaluate_subgroup_discrepancy(subgroup_all_y_pos, y_all_pos)
-    ... except ValueError as e:
-    ...     print(e)
-    All samples are positive. Cannot calculate metric.
-
-    5. All samples are negative (will raise ValueError)
-
-    >>> subgroup_all_y_neg = np.array([True, False, True])
-    >>> y_all_neg = np.array([False, False, False])
-    >>> try:
-    ...     evaluate_subgroup_discrepancy(subgroup_all_y_neg, y_all_neg)
-    ... except ValueError as e:
-    ...     print(e)
-    All samples are negative. Cannot calculate metric.
+    Raises:
+        AssertionError: If `subgroup` and `y` have different shapes.
+        ValueError: If `y` contains only positives or only negatives.
     """
     return abs(signed_subgroup_discrepancy(subgroup, y))
 
@@ -218,33 +115,22 @@ def signed_subgroup_prevalence_diff(
     subgroup_b: np.ndarray[np.bool_],
 ) -> float:
     """
-    Signed difference in subgroup prevalence between *dataset A* and *dataset B*.
+    Signed difference in subgroup prevalence between two datasets.
 
-    .. math::
+    Computes:
+        delta = mean(subgroup_b) - mean(subgroup_a)
 
-        \\Delta_{A\\!\!\\rightarrow B}
-            = \\operatorname{mean}(\\text{subgroup}_B)
-            \\, - \\,\\operatorname{mean}(\\text{subgroup}_A)
+    A positive delta means the subgroup is more common in *dataset B* than in
+    *dataset A*; a negative delta means the opposite.
 
-    * **Δ < 0**  - subgroup is **more common in A** than in B  
-    * **Δ > 0**  - subgroup is **more common in B** than in A  
-    * **|Δ|**     - the magnitude is the cross-sample MSD value you already report
+    Args:
+        subgroup_a (np.ndarray[bool]): Boolean mask for dataset A.
+        subgroup_b (np.ndarray[bool]): Boolean mask for dataset B.
+            The two arrays not necessarily need to be the same length, 
+            but each must be one-dimensional and boolean.
 
-    Parameters
-    ----------
-    subgroup_a, subgroup_b
-        Boolean 1-D arrays (may be different lengths) indicating membership
-        in the same rule-defined subgroup for each dataset.
-
-    Returns
-    -------
-    float
-        Signed prevalence gap.
-
-    Raises
-    ------
-    ValueError
-        If either array is empty; if they are not boolean or 1-D.
+    Returns:
+        float: Signed prevalence difference delta.
     """
     return np.mean(subgroup_b) - np.mean(subgroup_a)
 
@@ -263,8 +149,10 @@ def report_subgroup_bias(
         label: a name for this sample (e.g. "State FL" or "FL vs NH").
         msd: the numeric MSD value.
         rule: the list of (col_idx, binop) pairs that define the subgroup.
-        feature_names: mapping from column-code -> human feature name (eg. from feature_folktables()).
-        value_map: mapping from column-code -> {value_code -> human label} (eg. from feature_folktables()).
+        feature_names: mapping from column-code -> human feature name 
+            (eg. from feature_folktables()).
+        value_map: mapping from column-code -> {value_code -> human label} 
+            (eg. from feature_folktables()).
     """
     print(f"{label}")
     print(f"MSD = {msd:.3f}")
