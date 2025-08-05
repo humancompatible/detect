@@ -8,8 +8,6 @@ import pandas as pd
 import scipy.optimize as optimize
 
 from humancompatible.detect.binarizer import Bin
-from humancompatible.detect import most_biased_subgroup
-from humancompatible.detect import evaluate_biased_subgroup
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
@@ -61,6 +59,8 @@ def detect_and_score(
     Raises:
         ValueError: if *method* is unknown or mandatory keys are missing.
     """
+    from ..detect_bias import most_biased_subgroup
+    from ..evaluate_bias import evaluate_biased_subgroup
 
     m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
     
