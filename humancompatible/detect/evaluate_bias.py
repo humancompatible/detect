@@ -199,6 +199,46 @@ def evaluate_biased_subgroup_two_samples(
     method: str = "MSD",
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
+    """
+    Quantify the subgroup discrepancy between **two** datasets.
+
+    Procedure  
+        1. The two feature tables are concatenated.  
+        2. A synthetic target is created (0 for rows from `X1`, 1 for rows from `X2`).
+        3. The combined data are passed to `evaluate_biased_subgroup`, so the
+           result measures how strongly the subgroup rule separates the samples.
+    
+    Args:
+        X1 (pd.DataFrame): First sample.
+        X2 (pd.DataFrame): Second sample. Must have identical columns to `X1`.
+        protected_list (list[str] | None, default None): Columns treated as
+            protected. When None, all columns are protected.
+        continuous_list (list[str] | None, default None): Columns handled as
+            continuous when binning.
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional
+            per-feature recoding map applied before binarisation.
+        seed (int | None, default None): Seed controlling subsampling / solver
+            randomness.
+        n_samples (int, default 1_000_000): Maximum number of rows retained after
+            random subsampling.
+        method (str, default "MSD"): Evaluation routine. Same options as in
+            `evaluate_biased_subgroup` ("MSD", "l_inf").
+        method_kwargs (dict[str, Any] | None, default None): Extra arguments
+            forwarded to the chosen `method` (e.g., `rule` for MSD or
+            `delta`, `feature_involved`, `subgroup_to_check` for l_inf).
+
+    Returns:
+        float:  
+            * MSD - discrepancy value for the supplied subgroup rule between the
+              two samples.  
+            * l_inf - 1.0 if the subgroup's positive-class histogram differs by
+              at most `delta`; otherwise 0.0.
+
+    Raises:
+        ValueError: If `X1` and `X2` have different columns, or if the chosen
+            `method` is unsupported, or if required keys are missing from
+            `method_kwargs`.
+    """
     
     if X1.columns.tolist() != X2.columns.tolist():
         raise ValueError("The samples must have the same features")
@@ -206,7 +246,7 @@ def evaluate_biased_subgroup_two_samples(
     X_df = pd.concat([X1, X2])
     y = np.concatenate([
         np.zeros(X1.shape[0], dtype=int),
-        np.ones (X2.shape[0], dtype=int),
+        np.ones(X2.shape[0], dtype=int),
     ])
     y_df = pd.DataFrame(y, columns=["target"])
 
