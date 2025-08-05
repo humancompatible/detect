@@ -15,17 +15,17 @@ def subgroup_map_from_conjuncts_binarized(
 
     Args:
         conjuncts (List[int]): A list of integer indices (column indices) from the
-                               input array `X`. Each index represents a feature
-                               that must be `True` for an individual to be included
-                               in the subgroup.
+            input array `X`. Each index represents a feature
+            that must be `True` for an individual to be included
+            in the subgroup.
         X (np.ndarray[np.bool_]): A 2D NumPy array of boolean values, where rows
-                                  represent individuals and columns represent features.
+            represent individuals and columns represent features.
 
     Returns:
         np.ndarray[np.bool_]: A 1D boolean NumPy array (`mapping`) of the same
-                              length as the number of rows in `X`. An element
-                              `mapping[i]` is `True` if `X[i, conj]` is `True` for
-                              all `conj` in `conjuncts`, and `False` otherwise.
+            length as the number of rows in `X`. An element
+            `mapping[i]` is `True` if `X[i, conj]` is `True` for
+            all `conj` in `conjuncts`, and `False` otherwise.
 
     Raises:
         IndexError: If any index in `conjuncts` is out of bounds for the columns of `X`.
@@ -90,14 +90,14 @@ def subgroup_map_from_conjuncts_dataframe(
 
     Args:
         rule (List[Tuple[int, Any]]): The rule identifying the subgroup, 
-                                      as returned by `detect_bias(...)`.
+            as returned by `detect_bias(...)`.
         X (pd.DataFrame): The original (protected-only) DataFrame passed 
-                          to `detect_bias`. Must contain all columns named 
-                          in the rule's Bins.
+            to `detect_bias`. Must contain all columns named 
+            in the rule's Bins.
 
     Returns:
         np.ndarray[np.bool_]: A 1-D boolean array where True marks rows 
-                              belonging to the subgroup.
+            belonging to the subgroup.
 
     Raises:
         KeyError: If `X` is missing a column required by the rule.
