@@ -17,7 +17,7 @@ def most_biased_subgroup(
     y: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -39,7 +39,7 @@ def most_biased_subgroup(
             as protected.
         continuous_list (list[str] | None, default None): Columns that should be
             treated as continuous when building bins.
-        fp_map (dict[str, Callable] | None, default None): Optional per-feature
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional per-feature
             recoding map to apply before binarisation.
         seed (int | None, default None): Seed for the random generator controlling
             subsampling and solver randomness.
@@ -104,7 +104,7 @@ def most_biased_subgroup_csv(
     target_col: str,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -131,7 +131,7 @@ def most_biased_subgroup_csv(
             as protected.
         continuous_list (list[str] | None, default None): Protected columns
             handled as continuous when creating bins.
-        fp_map (dict[str, Callable] | None, default None): Optional map for
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional map for
             recoding feature values before binarisation.
         seed (int | None, default None): Seed for random subsampling and any
             solver randomness.
@@ -188,7 +188,7 @@ def most_biased_subgroup_two_samples(
     X2: pd.DataFrame,
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
-    fp_map: Dict[str, Callable[Any, int]] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
@@ -211,7 +211,7 @@ def most_biased_subgroup_two_samples(
             protected. If None, every column is treated as protected.
         continuous_list (list[str] | None, default None): Protected columns
             handled as continuous when binning.
-        fp_map (dict[str, Callable] | None, default None): Optional per-feature
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional per-feature
             recoding map applied before binarisation.
         seed (int | None, default None): Seed governing subsampling and solver
             randomness.

@@ -1,12 +1,100 @@
 import logging
-from typing import Any, List, Sequence, Tuple
+from typing import Any, List, Dict, Callable, Tuple
 from random import randrange
+from copy import deepcopy
 
 import numpy as np
 import pandas as pd
 import scipy.optimize as optimize
 
+from humancompatible.detect.binarizer import Bin
+from humancompatible.detect import most_biased_subgroup
+from humancompatible.detect import evaluate_biased_subgroup
+
 logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
+
+
+def detect_and_score(
+    X: pd.DataFrame,
+    y: pd.DataFrame,
+    protected_list: List[str] | None = None,
+    continuous_list: List[str] | None = None,
+    fp_map: Dict[str, Callable[[Any], int]] | None = None,
+    seed: int | None = None,
+    n_samples: int = 1_000_000,
+    method: str = "MSD",
+    method_kwargs: Dict[str, Any] | None = None,
+) -> Tuple[List[Tuple[int, Bin]], float]:
+    """
+    One-shot helper: find the most biased subgroup and return its score.
+
+    It first calls `most_biased_subgroup()` to obtain the rule, then
+    evaluates that rule through `evaluate_biased_subgroup()`.
+
+    Args:
+        X (pd.DataFrame): Feature matrix.
+        y (pd.DataFrame): Target column; must have the same number of rows as `X`.
+        protected_list (list[str] | None, default None): Names of columns regarded
+            as protected attributes. When `None`, every column in `X` is treated
+            as protected.
+        continuous_list (list[str] | None, default None): Columns that should be
+            treated as continuous when building bins.
+        fp_map (dict[str, Callable[[Any], int]] | None, default None): Optional per-feature
+            recoding map to apply before binarisation.
+        seed (int | None, default None): Seed for the random generator controlling
+            subsampling and solver randomness.
+        n_samples (int, default 1_000_000): Upper bound on the number of rows kept
+            after random subsampling.
+        method (str, default "MSD"): Subgroup-search routine to invoke.
+            `"MSD"` or `"l_inf"` is supported at present.
+        method_kwargs (dict[str, Any] | None, default None): Extra keyword
+            arguments forwarded to the chosen `method` (for MSD these include
+            `time_limit`, `n_min`, `solver`, etc.).
+
+    Returns:
+        tuple[list[tuple[int, Bin]], float]: A pair containing
+        (rule, value):
+            * **rule** - list of ``(feature_index, Bin)`` pairs.
+            * **value** - MSD or l_inf score, depending on *method*.
+
+    Raises:
+        ValueError: if *method* is unknown or mandatory keys are missing.
+    """
+
+    m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
+    
+    if method == "l_inf":
+        rule = None
+    else:
+        rule = most_biased_subgroup(
+            X,
+            y,
+            protected_list=protected_list,
+            continuous_list=continuous_list,
+            fp_map=fp_map,
+            seed=seed,
+            n_samples=n_samples,
+            method=method,
+            method_kwargs=m_kwargs,
+        )
+
+    if method == "MSD":
+        m_kwargs = {**m_kwargs, "rule": rule}
+
+    value = evaluate_biased_subgroup(
+        X,
+        y,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        method_kwargs=m_kwargs,
+    )
+
+    return rule, value
 
 
 def signed_subgroup_discrepancy(
