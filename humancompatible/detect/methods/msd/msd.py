@@ -5,7 +5,8 @@ import numpy as np
 import pandas as pd
 
 from humancompatible.detect.binarizer.Binarizer import Bin
-from humancompatible.detect.helpers.utils import evaluate_subgroup_discrepancy, signed_subgroup_discrepancy, subgroup_map_from_conjuncts_binarized, subgroup_map_from_conjuncts_dataframe
+from humancompatible.detect.helpers.utils import evaluate_subgroup_discrepancy, signed_subgroup_discrepancy
+from .mapping_msd import subgroup_map_from_conjuncts_dataframe
 
 from .one_rule import OneRule
 

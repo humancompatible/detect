@@ -3,7 +3,7 @@ import pandas as pd
 from typing import Sequence, Tuple
 from typing import Any, Sequence, Tuple
 
-from mapping_msd import subgroup_map_from_conjuncts_dataframe
+from .mapping_msd import subgroup_map_from_conjuncts_dataframe
 from humancompatible.detect.helpers.utils import signed_subgroup_discrepancy, evaluate_subgroup_discrepancy
 
 
