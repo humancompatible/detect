@@ -1,29 +1,10 @@
-detect package
-==============
-
-Subpackages
------------
+Detect API
+==========
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
 
    detect.binarizer
    detect.data_handler
-
-Submodules
-----------
-
-.. toctree::
-   :maxdepth: 4
-
-   detect.MSD
-   detect.one_rule
-   detect.utils
-
-Module contents
----------------
-
-.. automodule:: detect
-   :members:
-   :show-inheritance:
-   :undoc-members:
+   detect.helpers
+   detect.methods

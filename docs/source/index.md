@@ -58,7 +58,7 @@ contributing
 ```{toctree}
 :maxdepth: 1
 
-api/modules
+api/detect
 ```
 
 
