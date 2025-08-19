@@ -1,34 +1,38 @@
+import logging
 import numpy as np
 from typing import Any
-from .binarizer import Binarizer
-from .utils import lin_prog_feas
+from .lp_tools import lin_prog_feas
+
+from humancompatible.detect.binarizer import Binarizer
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
-def compute_l_inf(
+def check_l_inf_gap(
     X: np.ndarray,
     y: np.ndarray,
     binarizer: Binarizer,
     feature_involved: str,
     subgroup_to_check: Any,
     delta: float,
-):
-    """Computes the l-infinity distance between two multidimensional histograms.
-    Typically, the first one comes from the whole dataset considered,
-    while the second, from a particular subgroup of a protected attribute.
+) -> float:
+    """
+    Test whether a protected subgroup's outcome distribution differs from the
+    overall population by **at most** `delta` in the l_inf-norm.
 
     Args:
         X (np.ndarray): Protected-attribute slice of the dataset (same rows as `y`).
         y (np.ndarray): Boolean target vector.
-        binarizer (Binarizer): The very `Binarizer` instance used to encode `X`/`y`.
-        feature_involved (str): Column name of the protected feature whose subgroup
-                                is being checked.
-        subgroup_to_check (Any): Refers to the particular subgroup of the protected attribute.
-        delta (float): Threshold for the L-infinity norm between the two histograms.
+        binarizer (Binarizer): The binarizer used to encode `X` and `y`.
+        feature_involved (str): Name of the protected column whose subgroup is tested.
+        subgroup_to_check (Any): Raw value of the subgroup to isolate.
+        delta (float): Threshold for the L-infinity norm.
 
     Returns:
-        Informs whether the two histograms compared are within the input threshold.
-        Delta in the l-infinity norm.
-    
+        float: 1.0 (which means True) if the subgroup histogram is within `delta`; 
+            0.0 (which means False) otherwise.
+
     Raises:
         ValueError: If `delta` is not positive.
         KeyError: If `feature_involved` is not in the binarizer's feature names.
@@ -87,4 +91,10 @@ def compute_l_inf(
     discr_rsh = discr_hist.reshape(dim, 1)
 
     status = lin_prog_feas(all_rsh, discr_rsh, delta=delta)
-    return status, delta
+    is_within = float(status == 0)  # 0 = feasible
+    if is_within:
+        logger.info(f"The most impacted subgroup bias <= {delta}")
+    else:
+        logger.info(f"The most impacted subgroup bias > {delta}")
+
+    return is_within
