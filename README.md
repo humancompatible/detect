@@ -154,10 +154,18 @@ If you use the MSD in your work, please cite the following work:
 
 ```bibtex
 @inproceedings{MSD,
-  author = {Jiří Němeček and Mark Kozdoba and Illia Kryvoviaz and Tomáš Pevný and Jakub Mareček},
+  author = {N\v{e}me\v{c}ek, Ji\v{r}\'{\i} and Kozdoba, Mark and Kryvoviaz, Illia and Pevn\'{y}, Tom\'{a}\v{s} and Mare\v{c}ek, Jakub},
   title = {Bias Detection via Maximum Subgroup Discrepancy},
   year = {2025},
-  booktitle = {Proceedings of the 31st ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
+  isbn = {9798400714542},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3711896.3736857},
+  doi = {10.1145/3711896.3736857},
+  booktitle = {Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2},
+  pages = {2174–2185},
+  numpages = {12},
+  location = {Toronto ON, Canada},
   series = {KDD '25}
 }
 ```
