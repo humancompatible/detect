@@ -8,3 +8,4 @@ pandas
 pyomo
 myst-parser
 scipy
+matplotlib
