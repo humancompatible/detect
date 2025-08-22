@@ -80,6 +80,10 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
+### Subsampled l<inf>∞</inf> norm
+
+This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
+
 ---
 
 ## Installation details
@@ -167,5 +171,19 @@ If you use the MSD in your work, please cite the following work:
   numpages = {12},
   location = {Toronto ON, Canada},
   series = {KDD '25}
+}
+```
+
+If you liked the l<inf>∞</inf> method, please cite:
+
+```bibtex
+@misc{matilla2025samplecomplexitybiasdetection,
+      title={Sample Complexity of Bias Detection with Subsampled Point-to-Subspace Distances},
+      author={M. Matilla, Germán and Mareček, Jakub},
+      year={2025},
+      eprint={2502.02623},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.02623v1},
 }
 ```
