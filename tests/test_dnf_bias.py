@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
 
-from src.detect.dnf_bias.dnf_bias import prepare_dataset
+from humancompatible.detect.helpers.prepare import prepare_dataset
+
 
 def _synthetic_dataframe(n=100):
     rng = np.random.default_rng(0)
@@ -39,4 +40,3 @@ def test_prepare_dataset_basic():
 
     enc = bin_all.encode(X_proc.values)
     assert enc.dtype == bool
-    

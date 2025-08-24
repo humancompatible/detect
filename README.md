@@ -1,8 +1,8 @@
-# HumanCompatible - Detect
+# humancompatible.detect
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
 
-A library of methods for detecting Bias (lack of Fairness) in AI models (or datasets).
+humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
 
 ## AI Fairness
 
@@ -80,6 +80,10 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
+### Subsampled l<inf>∞</inf> norm
+
+This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
+
 ---
 
 ## Installation details
@@ -154,10 +158,32 @@ If you use the MSD in your work, please cite the following work:
 
 ```bibtex
 @inproceedings{MSD,
-  author = {Jiří Němeček and Mark Kozdoba and Illia Kryvoviaz and Tomáš Pevný and Jakub Mareček},
+  author = {N\v{e}me\v{c}ek, Ji\v{r}\'{\i} and Kozdoba, Mark and Kryvoviaz, Illia and Pevn\'{y}, Tom\'{a}\v{s} and Mare\v{c}ek, Jakub},
   title = {Bias Detection via Maximum Subgroup Discrepancy},
   year = {2025},
-  booktitle = {Proceedings of the 31st ACM SIGKDD International Conference on Knowledge Discovery \& Data Mining},
+  isbn = {9798400714542},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/3711896.3736857},
+  doi = {10.1145/3711896.3736857},
+  booktitle = {Proceedings of the 31st ACM SIGKDD Conference on Knowledge Discovery and Data Mining V.2},
+  pages = {2174–2185},
+  numpages = {12},
+  location = {Toronto ON, Canada},
   series = {KDD '25}
+}
+```
+
+If you liked the l<inf>∞</inf> method, please cite:
+
+```bibtex
+@misc{matilla2025samplecomplexitybiasdetection,
+      title={Sample Complexity of Bias Detection with Subsampled Point-to-Subspace Distances},
+      author={M. Matilla, Germán and Mareček, Jakub},
+      year={2025},
+      eprint={2502.02623},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.02623v1},
 }
 ```
