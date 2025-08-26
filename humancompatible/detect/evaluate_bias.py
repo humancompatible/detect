@@ -77,9 +77,6 @@ def evaluate_biased_subgroup(
         continuous_list = []
     if fp_map is None:
         fp_map = {}
-    
-    m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
-    m_kwargs.pop('solver', None)  # solver is not used here, remove it
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -91,15 +88,15 @@ def evaluate_biased_subgroup(
     )
 
     if method == "MSD":
-        if "rule" not in m_kwargs:
+        if "rule" not in method_kwargs:
             raise ValueError("method_kwargs for MSD must include a 'rule'.")
         val = evaluate_MSD(
-            X_prot, y, **m_kwargs
+            X_prot, y, **method_kwargs
         )
     
     elif method == "l_inf":
         val = check_l_inf_gap(
-            X_prot, y, binarizer=binarizer, **m_kwargs
+            X_prot, y, binarizer=binarizer, **method_kwargs
         )
         
     else:
