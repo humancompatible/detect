@@ -1,11 +1,10 @@
 import logging
-from typing import Any, List, Dict, Callable, Tuple
-from random import randrange
+from pathlib import Path
+from typing import Any, List, Dict, Callable, Optional, Tuple
 from copy import deepcopy
 
 import numpy as np
 import pandas as pd
-import scipy.optimize as optimize
 
 from humancompatible.detect.binarizer import Bin
 
@@ -14,8 +13,16 @@ logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def detect_and_score(
-    X: pd.DataFrame,
-    y: pd.DataFrame,
+    X: Optional[pd.DataFrame] = None,
+    y: Optional[pd.DataFrame] = None,
+    *,
+    # CSV mode
+    csv_path: Optional[Path | str] = None,
+    target_col: Optional[str] = None,
+    # Two-sample mode
+    X1: Optional[pd.DataFrame] = None,
+    X2: Optional[pd.DataFrame] = None,
+    # Common options
     protected_list: List[str] | None = None,
     continuous_list: List[str] | None = None,
     fp_map: Dict[str, Callable[[Any], int]] | None = None,
@@ -26,13 +33,21 @@ def detect_and_score(
 ) -> Tuple[List[Tuple[int, Bin]], float]:
     """
     One-shot helper: find the most biased subgroup and return its score.
+    Works with three input modes:
+      - DataFrame mode: pass X, y
+      - CSV mode: pass csv_path, target_col
+      - Two-sample mode: pass X1, X2
 
-    It first calls `most_biased_subgroup()` to obtain the rule, then
-    evaluates that rule through `evaluate_biased_subgroup()`.
+    It first calls `most_biased_subgroup()` (or similar, depending on the mode) to obtain the rule, then
+    evaluates that rule through `evaluate_biased_subgroup()` (depending on the mode).
 
     Args:
-        X (pd.DataFrame): Feature matrix.
-        y (pd.DataFrame): Target column; must have the same number of rows as `X`.
+        X (pd.DataFrame | None): Feature matrix.
+        y (pd.DataFrame | None): Single-column target aligned with X.
+        csv_path (Path | str | None): Path to a CSV file.
+        target_col (str | None): Name of the target column in the CSV.
+        X1 (pd.DataFrame | None): First dataset (Two-sample mode).
+        X2 (pd.DataFrame | None): Second dataset (Two-sample mode).
         protected_list (list[str] | None, default None): Names of columns regarded
             as protected attributes. When `None`, every column in `X` is treated
             as protected.
@@ -57,19 +72,86 @@ def detect_and_score(
             * **value** - MSD or l_inf score, depending on *method*.
 
     Raises:
-        ValueError: if *method* is unknown or mandatory keys are missing.
+        ValueError: If modes are mixed, required arguments for a mode are missing,
+            or `method`/`method_kwargs` are invalid.
     """
-    from ..detect_bias import most_biased_subgroup
-    from ..evaluate_bias import evaluate_biased_subgroup
+    from humancompatible.detect.detect_bias import (
+        most_biased_subgroup,
+        most_biased_subgroup_csv,
+        most_biased_subgroup_two_samples,
+    )
+    from humancompatible.detect.evaluate_bias import (
+        evaluate_biased_subgroup,
+        evaluate_biased_subgroup_csv,
+        evaluate_biased_subgroup_two_samples,
+    )
+
+    mode_csv = (csv_path is not None) or (target_col is not None)
+    mode_two = (X1 is not None) or (X2 is not None)
+    mode_df = (X is not None) or (y is not None)
+
+    modes_set = sum([bool(mode_csv), bool(mode_two), bool(mode_df)])
+    if modes_set != 1:
+        raise ValueError(
+            "Provide exactly one mode:\n"
+            "  - DataFrame mode: X and y\n"
+            "  - CSV mode: csv_path and target_col\n"
+            "  - Two-sample mode: X1 and X2"
+        )
+
 
     m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
     
     if method == "l_inf":
         rule = None
     else:
-        rule = most_biased_subgroup(
-            X,
-            y,
+        if mode_csv:
+            if not (csv_path and target_col):
+                raise ValueError("CSV mode requires csv_path and target_col.")
+            rule = most_biased_subgroup_csv(
+                csv_path=csv_path,
+                target_col=target_col,
+                protected_list=protected_list,
+                continuous_list=continuous_list,
+                fp_map=fp_map,
+                seed=seed,
+                n_samples=n_samples,
+                method="MSD",
+                method_kwargs=m_kwargs,
+            )
+        elif mode_two:
+            if X1 is None or X2 is None:
+                raise ValueError("Two-sample mode requires X1 and X2.")
+            rule = most_biased_subgroup_two_samples(
+                X1, X2,
+                protected_list=protected_list,
+                continuous_list=continuous_list,
+                fp_map=fp_map,
+                seed=seed,
+                n_samples=n_samples,
+                method="MSD",
+                method_kwargs=m_kwargs,
+            )
+        else:
+            if X is None or y is None:
+                raise ValueError("DataFrame mode requires X and y.")
+            rule = most_biased_subgroup(
+                X, y,
+                protected_list=protected_list,
+                continuous_list=continuous_list,
+                fp_map=fp_map,
+                seed=seed,
+                n_samples=n_samples,
+                method=method,
+                method_kwargs=m_kwargs,
+            )
+        
+        m_kwargs = {**m_kwargs, "rule": rule}
+
+    if mode_csv:
+        value = evaluate_biased_subgroup_csv(
+            csv_path=csv_path,
+            target_col=target_col,
             protected_list=protected_list,
             continuous_list=continuous_list,
             fp_map=fp_map,
@@ -78,21 +160,28 @@ def detect_and_score(
             method=method,
             method_kwargs=m_kwargs,
         )
-
-    if method == "MSD":
-        m_kwargs = {**m_kwargs, "rule": rule}
-
-    value = evaluate_biased_subgroup(
-        X,
-        y,
-        protected_list=protected_list,
-        continuous_list=continuous_list,
-        fp_map=fp_map,
-        seed=seed,
-        n_samples=n_samples,
-        method=method,
-        method_kwargs=m_kwargs,
-    )
+    elif mode_two:
+        value = evaluate_biased_subgroup_two_samples(
+            X1, X2,
+            protected_list=protected_list,
+            continuous_list=continuous_list,
+            fp_map=fp_map,
+            seed=seed,
+            n_samples=n_samples,
+            method=method,
+            method_kwargs=m_kwargs,
+        )
+    else:
+        value = evaluate_biased_subgroup(
+            X, y,
+            protected_list=protected_list,
+            continuous_list=continuous_list,
+            fp_map=fp_map,
+            seed=seed,
+            n_samples=n_samples,
+            method=method,
+            method_kwargs=m_kwargs,
+        )
 
     return rule, value
 
