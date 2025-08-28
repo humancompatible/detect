@@ -18,16 +18,18 @@ python -m pip install git+https://github.com/humancompatible/detect.git
 ```
 
 ```python
-from humancompatible.detect import detect_bias_csv
+from humancompatible.detect import detect_and_score
 
-msd_val, rule = detect_bias_csv(
-    csv_path="census.csv",                  # any CSV file
-    target_col="income_50k",                # binary target
-    protected_list=["race", "age"],         # columns to audit
-    method="MSD",                           # chosen method
+rule, msd_val = detect_and_score(
+    csv_path="./data/01_data.csv",
+    target_col="Target",
+    protected_list=["Race", "Age"],
+    method="MSD",
 )
 
-print(f"MSD = {msd_val:.3f}", "Rule ->", rule)
+print(f"MSD = {msd_val:.3f}\n", f"Rule = {rule}", sep="")
+# MSD = 0.111
+# Rule = [(0, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C330467A10>, <Operation.EQ: '='>, 'Blue')), (1, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C33051EAD0>, <Operation.EQ: '='>, '0-18'))]
 ```
 
 The function returns
@@ -39,7 +41,7 @@ The function returns
   ```python
   pretty = " AND ".join(str(cond) for _, cond in rule)
   print("Subgroup:", pretty)
-  # -> "Subgroup: Race = Blue AND Age = 0-18"
+  # Subgroup: Race = Blue AND Age = 0-18
   ```
 
 ## Contents
