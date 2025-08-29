@@ -60,7 +60,7 @@ def most_biased_subgroup(
     """
     
     if seed is not None:
-        logger.info(f"Seeding the run with seed={seed}")
+        logger.info(f"Seeding the run with seed={seed} for searching the `rule`.")
         np.random.seed(seed)
     
     if continuous_list is None:
