@@ -79,8 +79,16 @@ def check_l_inf_gap(
     columns_discr = columns_discr[1:, :]
 
     # "Histogramisation"
-    all_hist, _ = np.histogramdd(columns_all.T, bins=bins, density=True)
-    discr_hist, _ = np.histogramdd(columns_discr.T, bins=bins, density=True)
+    all_counts, _ = np.histogramdd(columns_all.T, bins=bins, density=False)
+    discr_counts, _ = np.histogramdd(columns_discr.T, bins=bins, density=False)
+
+    all_tot = all_counts.sum()
+    discr_tot = discr_counts.sum()
+    if all_tot == 0 or discr_tot == 0:
+        raise ValueError("Zero total counts after filtering; cannot compute L∞.")
+
+    all_hist = all_counts / all_tot
+    discr_hist = discr_counts / discr_tot
 
     # Reshaping
     dim = 1
