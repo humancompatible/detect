@@ -187,7 +187,8 @@ def detect_and_score(
 
 
 def signed_subgroup_discrepancy(
-    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
+    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_],
+    verbose: int = 2,
 ) -> float:
     """
     Signed difference in subgroup representation between positive and negative outcomes.
@@ -203,6 +204,8 @@ def signed_subgroup_discrepancy(
             shape must match `y`.
         y (np.ndarray[bool]): Boolean outcome labels
             (True = positive, False = negative).
+        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
     
     Returns:
         float: Signed difference ``proportion_in_positives - proportion_in_negatives``.
@@ -239,12 +242,12 @@ def signed_subgroup_discrepancy(
 
     # Convert to boolean arrays if not already
     if subgroup.dtype != bool:
-        logger.warning(
+        if verbose >= 1: logger.warning(
             f"Subgroup mapping has dtype {subgroup.dtype} instead of bool. Assuming value for True is 1."
         )
         subgroup = subgroup == 1
     if y.dtype != bool:
-        logger.warning(
+        if verbose >= 1: logger.warning(
             f"Vector y has dtype {y.dtype} instead of bool. Assuming value for True is 1."
         )
         y = y == 1
@@ -264,7 +267,8 @@ def signed_subgroup_discrepancy(
 
 
 def evaluate_subgroup_discrepancy(
-    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_]
+    subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_],
+    verbose: int = 2,
 ) -> float:
     """
     Absolute subgroup discrepancy |delta| between positive and negative outcomes.
@@ -275,6 +279,8 @@ def evaluate_subgroup_discrepancy(
         subgroup (np.ndarray[bool]): Boolean mask indicating subgroup membership;
             shape must equal that of `y`.
         y (np.ndarray[bool]): Boolean outcome labels (True = positive).
+        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
 
     Returns:
         float: |delta| - the absolute difference in subgroup prevalence between
@@ -284,7 +290,7 @@ def evaluate_subgroup_discrepancy(
         AssertionError: If `subgroup` and `y` have different shapes.
         ValueError: If `y` contains only positives or only negatives.
     """
-    return abs(signed_subgroup_discrepancy(subgroup, y))
+    return abs(signed_subgroup_discrepancy(subgroup, y, verbose=verbose))
 
 
 def signed_subgroup_prevalence_diff(
