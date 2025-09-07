@@ -37,8 +37,8 @@ def get_conjuncts_MSD(
             Pyomo (e.g. "gurobi", "cplex", "glpk", "xpress", "appsi_highs").
         check_optimality (bool, default False): If True, returns the optimal solution
             if found, or raises a `ValueError`. Otherwise, returns the best-known solution.
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = algorithm output only, 
-            2 = detailed logs.
+        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
 
     Returns:
         list[int]: A list of feature-column indices whose conjunction

@@ -181,8 +181,8 @@ class OneRule:
                                          - "xpress"
                                          - Other solvers, see Pyomo documentation 
                                            (Note that only the 5 solvers above support the graceful `time_limit`)
-            verbose (int, optional): Verbosity level. 0 = silent, 1 = algorithm output only, 
-                                     2 = detailed logs. Defaults to `2`.
+            verbose (int, optional): Verbosity level. 0 = silent, 1 = logger output only,
+                                     2 = all detailed logs (including solver output). Defaults to `2`.
 
         Returns:
             Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
