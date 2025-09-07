@@ -68,6 +68,7 @@ def evaluate_MSD(
     y: pd.Series | np.ndarray,
     rule: List[Tuple[int, Bin]],
     signed: bool = False,
+    verbose: int = 2,
     **kwargs
 ) -> float:
     """
@@ -82,10 +83,12 @@ def evaluate_MSD(
             `most_biased_subgroup`.
         signed (bool, default False): If True, return the signed subgroup discrepancy;
             otherwise, return the absolute value.
+        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
     
     Returns:
         float: The subgroup discrepancy value.
     """
     mask = subgroup_map_from_conjuncts_dataframe(rule, X)
     fn = signed_subgroup_discrepancy if signed else evaluate_subgroup_discrepancy
-    return float(fn(mask, np.asarray(y).ravel()))
+    return float(fn(mask, np.asarray(y).ravel(), verbose=verbose))
