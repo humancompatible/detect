@@ -151,10 +151,10 @@ class OneRule:
         self,
         X: np.ndarray[bool],
         y: np.ndarray[bool],
-        verbose: bool = False,
         n_min: int = 0,
         time_limit: int = 300,
         solver_name: str = "appsi_highs",
+        verbose: int = 2,
     ) -> Tuple[List[int] | None, bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
@@ -168,9 +168,6 @@ class OneRule:
             X (np.ndarray[bool]): Input data matrix of boolean features,
                                   shape (n_instances, n_features).
             y (np.ndarray[bool]): Target labels (binary), shape (n_instances,).
-            verbose (bool, optional): If `True`, the solver's output will be
-                                      printed to stdout during optimization.
-                                      Defaults to `False`.
             n_min (int, optional): Minimum subgroup support (number of rows)
                                    required for a valid subgroup. Defaults to `0`.
             time_limit (int, optional): Time budget for the solver (in seconds).
@@ -184,6 +181,8 @@ class OneRule:
                                          - "xpress"
                                          - Other solvers, see Pyomo documentation 
                                            (Note that only the 5 solvers above support the graceful `time_limit`)
+            verbose (int, optional): Verbosity level. 0 = silent, 1 = algorithm output only, 
+                                     2 = detailed logs. Defaults to `2`.
 
         Returns:
             Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
@@ -216,12 +215,12 @@ class OneRule:
         # Handle edge cases where target is all positive or all negative
         size1 = np.sum(y)
         if size1 == 0:
-            logger.info(
+            if verbose >= 1: logger.info(
                 "Target 'y' contains no positive outcomes. Returning all features as rule."
             )
             return list(range(X.shape[1]))
         if size1 == y.shape[0]:
-            logger.info(
+            if verbose >= 1: logger.info(
                 "Target 'y' contains only positive outcomes. Returning empty rule."
             )
             return []
@@ -267,27 +266,27 @@ class OneRule:
         elif "gurobi" in solver_name:
             solver.options["TimeLimit"] = time_limit
         else:
-            logger.warning(
+            if verbose >= 1: logger.warning(
                 f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
             )
 
         # Solve the model
-        result = solver.solve(int_model, load_solutions=False, tee=verbose)
+        result = solver.solve(int_model, load_solutions=False, tee=(verbose == 2))
 
         is_optimal = True
         if result.solver.termination_condition != pyo.TerminationCondition.optimal:
             is_optimal = False
-            logger.info("Solver did not prove optimality of the solution.")
+            if verbose >= 1: logger.info("Solver did not prove optimality of the solution.")
             if (
                 result.solver.termination_condition
                 == pyo.TerminationCondition.maxTimeLimit
             ):
-                logger.info("Timed out.")
+                if verbose >= 1: logger.info("Timed out.")
             elif result.solver.termination_condition in [
                 pyo.TerminationCondition.infeasible,
                 pyo.TerminationCondition.infeasibleOrUnbounded,  # problem is always bounded by 0
             ]:
-                logger.info("Infeasible formulation, something went wrong.")
+                if verbose >= 1: logger.info("Infeasible formulation, something went wrong.")
             else:
                 raise ValueError(
                     f"Unexpected termination condition: {result.solver.termination_condition}."
@@ -296,7 +295,7 @@ class OneRule:
         try:
             int_model.solutions.load_from(result)
         except ValueError:
-            logger.info("No solution found. Try increasing `time_limit`.")
+            if verbose >= 1: logger.info("No solution found. Try increasing `time_limit`.")
             return None, False
 
         self.model = int_model  # Store the solved model instance

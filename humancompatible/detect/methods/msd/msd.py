@@ -21,6 +21,7 @@ def get_conjuncts_MSD(
     n_min: int = 0,
     solver: str = "appsi_highs",
     check_optimality: bool = True,
+    verbose: int = 2,
     **kwargs
 ) -> Tuple[float, List[int]]:
     """
@@ -36,6 +37,8 @@ def get_conjuncts_MSD(
             Pyomo (e.g. "gurobi", "cplex", "glpk", "xpress", "appsi_highs").
         check_optimality (bool, default False): If True, returns the optimal solution
             if found, or raises a `ValueError`. Otherwise, returns the best-known solution.
+        verbose (int, default 2): Verbosity level. 0 = silent, 1 = algorithm output only, 
+            2 = detailed logs.
 
     Returns:
         list[int]: A list of feature-column indices whose conjunction
@@ -51,7 +54,7 @@ def get_conjuncts_MSD(
 
     mio = OneRule()
     indices, is_optimal = mio.find_rule(
-        X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver
+        X_bin, y_bin, n_min=n_min, time_limit=time_limit, solver_name=solver, verbose=verbose
     )
 
     if check_optimality and not is_optimal:
