@@ -44,17 +44,17 @@ class OneRule:
 
         Args:
             X (np.ndarray[bool]): The input feature matrix, where each row is an
-                                  instance and each column is a boolean feature.
-                                  Shape (n_instances, n_features).
+                instance and each column is a boolean feature.
+                Shape (n_instances, n_features).
             y (np.ndarray[bool]): The binary target labels for each instance.
-                                  `True` for positive outcomes, `False` for negative.
-                                  Shape (n_instances,).
+                `True` for positive outcomes, `False` for negative.
+                Shape (n_instances,).
             weights (np.ndarray[float]): Weights for each instance, used in the
-                                         objective function to calculate weighted means.
-                                         Typically, these are normalized counts.
-                                         Shape (n_instances,).
+                objective function to calculate weighted means.
+                Typically, these are normalized counts.
+                Shape (n_instances,).
             n_min (int): Minimum subgroup support (number of instances) required
-                         for a valid subgroup.
+                for a valid subgroup.
             feat_init (Dict[int, int], optional): Initialization for the `use_feat`
                 binary variables. A dictionary where keys are feature indices and
                 values are `0` (feature not used) or `1` (feature used) in the
@@ -166,39 +166,39 @@ class OneRule:
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
-                                  shape (n_instances, n_features).
+                shape (n_instances, n_features).
             y (np.ndarray[bool]): Target labels (binary), shape (n_instances,).
             n_min (int, optional): Minimum subgroup support (number of rows)
-                                   required for a valid subgroup. Defaults to `0`.
+                required for a valid subgroup. Defaults to `0`.
             time_limit (int, optional): Time budget for the solver (in seconds).
-                                        Note that only some solvers support this option.
-                                        Defaults to `300`.
-            solver_name (str, optional): Method for solving the MIO formulation. Can be chosen among:
-                                         - "appsi_highs" (Default)
-                                         - "gurobi"
-                                         - "cplex"
-                                         - "glpk"
-                                         - "xpress"
-                                         - Other solvers, see Pyomo documentation 
-                                           (Note that only the 5 solvers above support the graceful `time_limit`)
+                Note that only some solvers support this option.
+                Defaults to `300`.
+            solver_name (str, optional): Method for solving the MIO formulation. 
+                Can be chosen among:
+                    - "appsi_highs" (Default)
+                    - "gurobi"
+                    - "cplex"
+                    - "glpk"
+                    - "xpress"
+                    - Other solvers, see Pyomo documentation 
+                (Note that only the 5 solvers above support the graceful `time_limit`)
             verbose (int, optional): Verbosity level. 0 = silent, 1 = logger output only,
-                                     2 = all detailed logs (including solver output). Defaults to `2`.
+                2 = all detailed logs (including solver output). Defaults to `2`.
 
         Returns:
             Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
-                                    the features (literals) that form the optimal conjunction. 
-                                    These indices correspond to the columns in the input `X` that define the subgroup.
-                                    If the solver fails to find any feasible solution within the time budget,
-                                    `None` is returned instead.
-
-                                    The boolean flag is `True` if the returned solution is globally optimal.
+                the features (literals) that form the optimal conjunction. 
+                These indices correspond to the columns in the input `X` that define the subgroup.
+                If the solver fails to find any feasible solution within the time budget,
+                `None` is returned instead.
+                The boolean flag is `True` if the returned solution is globally optimal.
 
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
-                            are not of boolean dtype.
+                are not of boolean dtype.
             ValueError: If the solver terminates with condition other than timeout, optimality or infeasibility. 
             Exception: Any exceptions raised by Pyomo or solver during model
-                       creation or solving.
+                creation or solving.
 
         Notes:
             - The input `X` and `y` are first processed to get unique rows and
