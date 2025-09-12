@@ -45,17 +45,17 @@ class OneRule:
         Args:
             X (np.ndarray[bool]): The input feature matrix, where each row is an
                 instance and each column is a boolean feature.
-                Shape (n_instances, n_features).
+                Shape `(n_instances, n_features)`.
             y (np.ndarray[bool]): The binary target labels for each instance.
                 `True` for positive outcomes, `False` for negative.
-                Shape (n_instances,).
+                Shape `(n_instances,)`.
             weights (np.ndarray[float]): Weights for each instance, used in the
                 objective function to calculate weighted means.
                 Typically, these are normalized counts.
-                Shape (n_instances,).
+                Shape `(n_instances,)`.
             n_min (int): Minimum subgroup support (number of instances) required
                 for a valid subgroup.
-            feat_init (Dict[int, int], optional): Initialization for the `use_feat`
+            feat_init (Dict[int, int] | None, default None): Initialization for the `use_feat`
                 binary variables. A dictionary where keys are feature indices and
                 values are `0` (feature not used) or `1` (feature used) in the
                 conjunction. Defaults to an empty dictionary, allowing the solver
@@ -166,24 +166,23 @@ class OneRule:
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
-                shape (n_instances, n_features).
-            y (np.ndarray[bool]): Target labels (binary), shape (n_instances,).
-            n_min (int, optional): Minimum subgroup support (number of rows)
-                required for a valid subgroup. Defaults to `0`.
-            time_limit (int, optional): Time budget for the solver (in seconds).
+                shape `(n_instances, n_features)`.
+            y (np.ndarray[bool]): Target labels (binary), shape `(n_instances,)`.
+            n_min (int, default 0): Minimum subgroup support (number of rows)
+                required for a valid subgroup.
+            time_limit (int, default 300): Time budget for the solver (in seconds).
                 Note that only some solvers support this option.
-                Defaults to `300`.
-            solver_name (str, optional): Method for solving the MIO formulation. 
+            solver_name (str, default "appsi_highs"): Method for solving the MIO formulation. 
                 Can be chosen among:
-                    - "appsi_highs" (Default)
+                    - "appsi_highs"
                     - "gurobi"
                     - "cplex"
                     - "glpk"
                     - "xpress"
                     - Other solvers, see Pyomo documentation 
                 (Note that only the 5 solvers above support the graceful `time_limit`)
-            verbose (int, optional): Verbosity level. 0 = silent, 1 = logger output only,
-                2 = all detailed logs (including solver output). Defaults to `2`.
+            verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+                2 = all detailed logs (including solver output).
 
         Returns:
             Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
