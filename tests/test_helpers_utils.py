@@ -1,8 +1,84 @@
 import logging
 import numpy as np
+import pandas as pd
+from copy import deepcopy
 import pytest
 
 import humancompatible.detect.helpers.utils as utils
+
+
+# Helpers for stubbing Bin-like objects
+class _Feat:
+    def __init__(self, name: str):
+        self.name = name
+
+class _Bin:
+    def __init__(self, feature, value):
+        self.feature = feature
+        self.value = value
+    def __eq__(self, other):
+        return isinstance(other, _Bin) and (self.feature, self.value) == (other.feature, other.value)
+    def __repr__(self):
+        return f"_Bin({self.feature!r}, {self.value!r})"
+    def __str__(self) -> str:
+        feat_name = self.feature if isinstance(self.feature, str) else self.feature.name
+        return f"{feat_name} = {self.value}"
+
+
+# =====
+# detect_and_score tests 
+# =====
+def test_detect_and_score_msd(monkeypatch):
+    """
+    Ensure detect_and_score:
+      - calls most_biased_subgroup and passes the rule into evaluate via method_kwargs['rule']
+      - returns (rule, value)
+      - does not mutate the caller's method_kwargs
+    """
+    # Create tiny data
+    X = pd.DataFrame({"A": [0, 1, 1, 0], "B": [1, 1, 0, 0]})
+    y = pd.DataFrame({"target": [1, 0, 1, 0]})
+
+    fake_rule = [(0, _Bin("A", 1))]
+
+    captured = {}
+
+    def _fake_most_biased_subgroup(X_, y_, **kwargs):
+        # Basic sanity on pass-through args
+        assert kwargs["method"] == "MSD"
+        return fake_rule
+
+    def _fake_evaluate_biased_subgroup(X_, y_, **kwargs):
+        # Verify the rule is forwarded for MSD
+        captured["method_kwargs"] = deepcopy(kwargs.get("method_kwargs", {}))
+        assert "rule" in captured["method_kwargs"]
+        assert captured["method_kwargs"]["rule"] == fake_rule
+        return 0.42
+
+    # Monkeypatch into the real modules that utils imports inside the function
+    import humancompatible.detect.detect_bias as detect_bias_mod
+    import humancompatible.detect.evaluate_bias as evaluate_bias_mod
+    monkeypatch.setattr(detect_bias_mod, "most_biased_subgroup", _fake_most_biased_subgroup, raising=True)
+    monkeypatch.setattr(evaluate_bias_mod, "evaluate_biased_subgroup", _fake_evaluate_biased_subgroup, raising=True)
+
+    # Original kwargs to check immutability
+    method_kwargs_in = {"time_limit": 1}
+    rule, val = utils.detect_and_score(
+        X=X, y=y,
+        protected_list=["A", "B"],
+        continuous_list=None,
+        fp_map=None,
+        seed=7,
+        n_samples=1000,
+        method="MSD",
+        method_kwargs=method_kwargs_in,
+    )
+
+    assert rule == fake_rule
+    assert val == pytest.approx(0.42)
+    # Caller's dict was not mutated
+    assert "rule" not in method_kwargs_in
+    assert method_kwargs_in == {"time_limit": 1}
 
 
 # =====
@@ -65,4 +141,3 @@ def test_signed_subgroup_prevalence_diff_basic():
     a = np.array([True, False, False, True])   # mean = 0.5
     b = np.array([False, False, True, False])  # mean = 0.25
     assert utils.signed_subgroup_prevalence_diff(a, b) == pytest.approx(0.25 - 0.5)
-
