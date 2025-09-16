@@ -26,7 +26,7 @@ class _Bin:
 
 
 # =====
-# detect_and_score tests 
+# Tests for detect_and_score
 # =====
 def test_detect_and_score_msd(monkeypatch):
     """
@@ -79,6 +79,44 @@ def test_detect_and_score_msd(monkeypatch):
     # Caller's dict was not mutated
     assert "rule" not in method_kwargs_in
     assert method_kwargs_in == {"time_limit": 1}
+
+def test_detect_and_score_linf(monkeypatch):
+    """
+    Ensure detect_and_score:
+      - does not compute a rule for l_inf (rule is None)
+      - does NOT inject 'rule' into method_kwargs
+    """
+    X = pd.DataFrame({"A": [0, 1]})
+    y = pd.DataFrame({"target": [1, 0]})
+
+    # If MSD branch were called, we'd fail; here we make sure it's not used.
+    import humancompatible.detect.detect_bias as detect_bias_mod
+    def _boom(*a, **k):  # would indicate wrong branch
+        raise AssertionError("MSD path should not be called for method='l_inf'")
+    monkeypatch.setattr(detect_bias_mod, "most_biased_subgroup", _boom, raising=True)
+
+    seen_kwargs = {}
+
+    import humancompatible.detect.evaluate_bias as evaluate_bias_mod
+    def _fake_eval(X_, y_, **kwargs):
+        seen_kwargs.update(kwargs)
+        # ensure 'rule' not auto-injected on l_inf
+        assert "method_kwargs" in seen_kwargs
+        assert "rule" not in (seen_kwargs["method_kwargs"] or {})
+        return 0.123
+    monkeypatch.setattr(evaluate_bias_mod, "evaluate_biased_subgroup", _fake_eval, raising=True)
+
+    method_kwargs = {"feature_involved": "A", "subgroup_to_check": 1, "delta": 0.05}
+    rule, val = utils.detect_and_score(
+        X=X, y=y,
+        protected_list=["A"],
+        method="l_inf",
+        method_kwargs=method_kwargs,
+    )
+    assert rule is None
+    assert val == pytest.approx(0.123)
+    # Original dict not mutated
+    assert method_kwargs == {"feature_involved": "A", "subgroup_to_check": 1, "delta": 0.05}
 
 
 # =====
