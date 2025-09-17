@@ -20,7 +20,7 @@ def get_conjuncts_MSD(
     time_limit: int = 600,
     n_min: int = 0,
     solver: str = "appsi_highs",
-) -> Tuple[float, List[int]]:
+) -> List[int]:
     """
     Run the One-Rule MILP and return the indices of literals that form the
     Maximum-Subgroup-Discrepancy (MSD) rule.
@@ -34,7 +34,7 @@ def get_conjuncts_MSD(
             Pyomo (e.g. "gurobi", "cplex", "glpk", "xpress", "appsi_highs").
 
     Returns:
-        list[int]: A list of feature-column indices whose conjunction
+        List[int]: A list of feature-column indices whose conjunction
             defines the subgroup with maximal discrepancy.
 
     Raises:
