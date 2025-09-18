@@ -35,7 +35,6 @@ def test_detect_and_score_msd(monkeypatch):
       - returns (rule, value)
       - does not mutate the caller's method_kwargs
     """
-    # Create tiny data
     X = pd.DataFrame({"A": [0, 1, 1, 0], "B": [1, 1, 0, 0]})
     y = pd.DataFrame({"target": [1, 0, 1, 0]})
 
@@ -44,7 +43,6 @@ def test_detect_and_score_msd(monkeypatch):
     captured = {}
 
     def _fake_most_biased_subgroup(X_, y_, **kwargs):
-        # Basic sanity on pass-through args
         assert kwargs["method"] == "MSD"
         return fake_rule
 
@@ -61,7 +59,6 @@ def test_detect_and_score_msd(monkeypatch):
     monkeypatch.setattr(detect_bias_mod, "most_biased_subgroup", _fake_most_biased_subgroup, raising=True)
     monkeypatch.setattr(evaluate_bias_mod, "evaluate_biased_subgroup", _fake_evaluate_biased_subgroup, raising=True)
 
-    # Original kwargs to check immutability
     method_kwargs_in = {"time_limit": 1}
     rule, val = utils.detect_and_score(
         X=X, y=y,
@@ -76,7 +73,6 @@ def test_detect_and_score_msd(monkeypatch):
 
     assert rule == fake_rule
     assert val == pytest.approx(0.42)
-    # Caller's dict was not mutated
     assert "rule" not in method_kwargs_in
     assert method_kwargs_in == {"time_limit": 1}
 
@@ -89,7 +85,6 @@ def test_detect_and_score_linf(monkeypatch):
     X = pd.DataFrame({"A": [0, 1]})
     y = pd.DataFrame({"target": [1, 0]})
 
-    # If MSD branch were called, we'd fail; here we make sure it's not used.
     import humancompatible.detect.detect_bias as detect_bias_mod
     def _boom(*a, **k):  # would indicate wrong branch
         raise AssertionError("MSD path should not be called for method='l_inf'")
@@ -100,7 +95,6 @@ def test_detect_and_score_linf(monkeypatch):
     import humancompatible.detect.evaluate_bias as evaluate_bias_mod
     def _fake_eval(X_, y_, **kwargs):
         seen_kwargs.update(kwargs)
-        # ensure 'rule' not auto-injected on l_inf
         assert "method_kwargs" in seen_kwargs
         assert "rule" not in (seen_kwargs["method_kwargs"] or {})
         return 0.123
@@ -115,7 +109,6 @@ def test_detect_and_score_linf(monkeypatch):
     )
     assert rule is None
     assert val == pytest.approx(0.123)
-    # Original dict not mutated
     assert method_kwargs == {"feature_involved": "A", "subgroup_to_check": 1, "delta": 0.05}
 
 
@@ -124,7 +117,7 @@ def test_detect_and_score_linf(monkeypatch):
 # =====
 def test_signed_subgroup_discrepancy_basic_positive():
     subgroup = np.array([1, 1, 0, 0], dtype=int)  # int -> should auto-convert
-    y = np.array([1, 0, 1, 0], dtype=int)         # int -> should auto-convert
+    y = np.array([1, 0, 1, 0], dtype=int)
     val = utils.signed_subgroup_discrepancy(subgroup, y)
     # subgroup among positives: mean([1,0]) = 0.5 ; among negatives: mean([1,0]) = 0.5 => 0.0
     assert val == pytest.approx(0.0)
@@ -151,7 +144,7 @@ def test_signed_subgroup_discrepancy_all_zero_raises():
     with pytest.raises(ValueError):
         utils.signed_subgroup_discrepancy(subgroup, y_all_zero)
 
-def test_signed_subgroup_discrepancy_logs_type_coercion(caplog):
+def test_signed_subgroup_discrepancy_logs(caplog):
     caplog.set_level(logging.WARNING)
     subgroup = np.array([0, 1, 0, 1], dtype=int)  # not bool
     y = np.array([0, 1, 1, 0], dtype=int)         # not bool
