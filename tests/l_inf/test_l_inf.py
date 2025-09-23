@@ -11,7 +11,7 @@ class _Feature:
 
 class _DataHandler:
     def __init__(self, cols, value_maps):
-        self.feature_names = list(cols)                # e.g., ["SEX", "SCHL", "RACE"]
+        self.feature_names = list(cols)
         self.features = [_Feature(value_maps[c]) for c in self.feature_names]
 
     def encode(self, X: pd.DataFrame, one_hot: bool = False) -> np.ndarray:
