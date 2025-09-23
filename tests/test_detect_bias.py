@@ -9,13 +9,19 @@ import pytest
 import humancompatible.detect.detect_bias as db
 
 
-class _Feat:
+class _Feature:
     def __init__(self, name: str):
         self.name = name
+    def __repr__(self):
+        return f"_Feature({self.name!r})"
+    def __str__(self):
+        return self.name
+    def __eq__(self, other):
+        return isinstance(other, _Feature) and self.name == other.name
 
 class _Bin:
     def __init__(self, feature, value):
-        self.feature = feature
+        self.feature = _Feature(feature)
         self.value = value
     def __eq__(self, other):
         return isinstance(other, _Bin) and (self.feature, self.value) == (other.feature, other.value)
@@ -24,6 +30,8 @@ class _Bin:
     def __str__(self) -> str:
         feat_name = self.feature if isinstance(self.feature, str) else self.feature.name
         return f"{feat_name} = {self.value}"
+    def evaluate(self, values: np.ndarray) -> np.ndarray:
+        return values == self.value
 
 class _DataHandler:
     def __init__(self, features: List[Any]):
@@ -31,8 +39,8 @@ class _DataHandler:
 
 class _Binarizer:
     def __init__(self):
-        self._encs = [_Bin("A", 1), _Bin("B", 0)]
-        self.data_handler = _DataHandler(features=["A", "B"])
+        self._encs = [_Bin("A", 0), _Bin("B", 1)]
+        self.data_handler = _DataHandler(features=[_Feature("A"), _Feature("B")])
 
     def encode(self, X, include_binary_negations=True):
         # Shape doesn't matter for our tests; return a plausible bool matrix.
