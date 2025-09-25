@@ -27,7 +27,7 @@ rule, msd_val = detect_and_score(
     method="MSD",
 )
 
-print(f"MSD = {msd_val:.3f}\n", f"Rule = {rule}", sep="")
+print(f"MSD = {msd_val:.3f}\nRule = {rule}")
 # MSD = 0.111
 # Rule = [(0, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C330467A10>, <Operation.EQ: '='>, 'Blue')), (1, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C33051EAD0>, <Operation.EQ: '='>, '0-18'))]
 ```
