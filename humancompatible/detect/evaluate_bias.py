@@ -22,7 +22,7 @@ def evaluate_biased_subgroup(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    verbose: int = 2,
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -54,7 +54,7 @@ def evaluate_biased_subgroup(
             random subsampling.
         method (str, default "MSD"): Evaluation routine to invoke.
             Supported values: "MSD", "l_inf".
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method`.  
@@ -118,7 +118,7 @@ def evaluate_biased_subgroup_csv(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    verbose: int = 2,
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -147,7 +147,7 @@ def evaluate_biased_subgroup_csv(
             random subsampling.
         method (str, default "MSD"): Evaluation routine to invoke.
             Supported values: "MSD", "l_inf".
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method`
@@ -204,7 +204,7 @@ def evaluate_biased_subgroup_two_samples(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
-    verbose: int = 2,
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -231,7 +231,7 @@ def evaluate_biased_subgroup_two_samples(
             random subsampling.
         method (str, default "MSD"): Evaluation routine. Same options as in
             `evaluate_biased_subgroup` ("MSD", "l_inf").
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra arguments
             forwarded to the chosen `method` (e.g., `rule` for MSD or
