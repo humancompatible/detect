@@ -188,7 +188,7 @@ def detect_and_score(
 
 def signed_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_],
-    verbose: int = 2,
+    verbose: int = 1,
 ) -> float:
     """
     Signed difference in subgroup representation between positive and negative outcomes.
@@ -204,7 +204,7 @@ def signed_subgroup_discrepancy(
             shape must match `y`.
         y (np.ndarray[bool]): Boolean outcome labels
             (True = positive, False = negative).
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
     
     Returns:
@@ -268,7 +268,7 @@ def signed_subgroup_discrepancy(
 
 def evaluate_subgroup_discrepancy(
     subgroup: np.ndarray[np.bool_], y: np.ndarray[np.bool_],
-    verbose: int = 2,
+    verbose: int = 1,
 ) -> float:
     """
     Absolute subgroup discrepancy |delta| between positive and negative outcomes.
@@ -279,7 +279,7 @@ def evaluate_subgroup_discrepancy(
         subgroup (np.ndarray[bool]): Boolean mask indicating subgroup membership;
             shape must equal that of `y`.
         y (np.ndarray[bool]): Boolean outcome labels (True = positive).
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
 
     Returns:

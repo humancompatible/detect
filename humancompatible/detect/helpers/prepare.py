@@ -17,7 +17,7 @@ def prepare_dataset(
     protected_attrs: List[str],
     continuous_feats: List[str],
     feature_processing: Dict[str, Callable[[Any], int]],
-    verbose: int = 2,
+    verbose: int = 1,
 ) -> Tuple[Binarizer, pd.DataFrame, pd.Series]:
     """
     Prepares a dataset by cleaning, preprocessing, sampling, and structuring it for fairness analysis.
@@ -38,7 +38,7 @@ def prepare_dataset(
         continuous_feats (List[str]): A list of column names identified as continuous features.
         feature_processing (Dict[str, Callable[[Any], int]]): Mapping from column
             name to a *callable* that converts each raw value to an integer.
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
 
     Returns:
