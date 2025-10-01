@@ -21,7 +21,7 @@ def get_conjuncts_MSD(
     n_min: int = 0,
     solver: str = "appsi_highs",
     check_optimality: bool = True,
-    verbose: int = 2,
+    verbose: int = 1,
     **kwargs
 ) -> Tuple[float, List[int]]:
     """
@@ -37,7 +37,7 @@ def get_conjuncts_MSD(
             Pyomo (e.g. "gurobi", "cplex", "glpk", "xpress", "appsi_highs").
         check_optimality (bool, default False): If True, returns the optimal solution
             if found, or raises a `ValueError`. Otherwise, returns the best-known solution.
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
 
     Returns:
@@ -68,7 +68,7 @@ def evaluate_MSD(
     y: pd.Series | np.ndarray,
     rule: List[Tuple[int, Bin]],
     signed: bool = False,
-    verbose: int = 2,
+    verbose: int = 1,
     **kwargs
 ) -> float:
     """
@@ -83,7 +83,7 @@ def evaluate_MSD(
             `most_biased_subgroup`.
         signed (bool, default False): If True, return the signed subgroup discrepancy;
             otherwise, return the absolute value.
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
     
     Returns:

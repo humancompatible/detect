@@ -154,7 +154,7 @@ class OneRule:
         n_min: int = 0,
         time_limit: int = 300,
         solver_name: str = "appsi_highs",
-        verbose: int = 2,
+        verbose: int = 1,
     ) -> Tuple[List[int] | None, bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
@@ -181,7 +181,7 @@ class OneRule:
                     - "xpress"
                     - Other solvers, see Pyomo documentation 
                 (Note that only the 5 solvers above support the graceful `time_limit`)
-            verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+            verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
                 2 = all detailed logs (including solver output).
 
         Returns:
