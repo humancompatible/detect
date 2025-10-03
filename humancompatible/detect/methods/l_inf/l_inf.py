@@ -16,7 +16,7 @@ def check_l_inf_gap(
     feature_involved: str,
     subgroup_to_check: Any,
     delta: float,
-    verbose: int = 2,
+    verbose: int = 1,
 ) -> float:
     """
     Test whether a protected subgroup's outcome distribution differs from the
@@ -29,7 +29,7 @@ def check_l_inf_gap(
         feature_involved (str): Name of the protected column whose subgroup is tested.
         subgroup_to_check (Any): Raw value of the subgroup to isolate.
         delta (float): Threshold for the L-infinity norm.
-        verbose (int, default 2): Verbosity level. 0 = silent, 1 = logger output only,
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
             2 = all detailed logs (including solver output).
 
     Returns:
