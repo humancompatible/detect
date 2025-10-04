@@ -270,6 +270,7 @@ class OneRule:
             )
 
         # Solve the model
+        solver.options["output_flag"] = False
         result = solver.solve(int_model, load_solutions=False, tee=(verbose == 2))
 
         is_optimal = True
