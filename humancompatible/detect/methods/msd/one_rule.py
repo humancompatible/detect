@@ -147,6 +147,43 @@ class OneRule:
 
         return model
 
+    def _make_solver(self, solver_name: str, verbose: int = 2, time_limit: int = 300):
+        # Solver setup
+        if solver_name == "gurobi":
+            solver = pyo.SolverFactory(solver_name, solver_io="python")
+        else:
+            solver = pyo.SolverFactory(solver_name)
+
+        opts = {}
+
+        # Set time limit and log outputs parameter for the solver
+        if "cplex" in solver_name:
+            opts["mip display"] = 4 if verbose == 2 else 0
+            opts["simplex display"] = 2 if verbose == 2 else 0
+            opts["bar display"] = 1 if verbose == 2 else 0
+            opts["timelimit"] = time_limit
+        elif "glpk" in solver_name:
+            opts["msg_lev"] = "GLP_MSG_ALL" if verbose == 2 else "GLP_MSG_OFF"
+            opts["tmlim"] = time_limit
+        elif "xpress" in solver_name:
+            opts["outputlog"] = 1 if verbose == 2 else 0
+            opts["maxtime"] = time_limit
+            opts["soltimelimit"] = time_limit
+        elif "highs" in solver_name:
+            opts["log_to_console"] = True if verbose == 2 else False
+            opts["output_flag"] = 1 if verbose == 2 else 0
+            opts["time_limit"] = time_limit
+        elif "gurobi" in solver_name:
+            opts["OutputFlag"] = 1 if verbose == 2 else 0
+            opts["TimeLimit"] = time_limit
+        else:
+            if verbose >= 1: logger.warning(
+                f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
+            )
+
+        solver.options.update({k: v for k, v in opts.items() if v is not None})
+        return solver
+
     def find_rule(
         self,
         X: np.ndarray[bool],
@@ -245,32 +282,8 @@ class OneRule:
             X_unique, y_unique, weights=weights_unique, n_min=n_min
         )
 
-        # Solver setup
-        if solver_name == "gurobi":
-            solver = pyo.SolverFactory(solver_name, solver_io="python")
-        else:
-            solver = pyo.SolverFactory(solver_name)
-
-        # Set time limit for the solver
-        if "cplex" in solver_name:
-            solver.options["timelimit"] = time_limit
-        elif "glpk" in solver_name:
-            solver.options["tmlim"] = time_limit
-        elif "xpress" in solver_name:
-            solver.options["soltimelimit"] = time_limit
-            # Use the below instead for XPRESS versions before 9.0
-            # self.solver.options['maxtime'] = TIME_LIMIT
-        elif "highs" in solver_name:
-            solver.options["time_limit"] = time_limit
-        elif "gurobi" in solver_name:
-            solver.options["TimeLimit"] = time_limit
-        else:
-            if verbose >= 1: logger.warning(
-                f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
-            )
-
         # Solve the model
-        solver.options["output_flag"] = False
+        solver = self._make_solver(solver_name, verbose=verbose, time_limit=time_limit)
         result = solver.solve(int_model, load_solutions=False, tee=(verbose == 2))
 
         is_optimal = True
