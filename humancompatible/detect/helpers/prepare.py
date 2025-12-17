@@ -17,6 +17,7 @@ def prepare_dataset(
     protected_attrs: List[str],
     continuous_feats: List[str],
     feature_processing: Dict[str, Callable[[Any], int]],
+    verbose: int = 1,
 ) -> Tuple[Binarizer, pd.DataFrame, pd.Series]:
     """
     Prepares a dataset by cleaning, preprocessing, sampling, and structuring it for fairness analysis.
@@ -37,6 +38,8 @@ def prepare_dataset(
         continuous_feats (List[str]): A list of column names identified as continuous features.
         feature_processing (Dict[str, Callable[[Any], int]]): Mapping from column
             name to a *callable* that converts each raw value to an integer.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
 
     Returns:
         Tuple[Binarizer, pd.DataFrame, pd.Series]: A tuple containing:
@@ -53,7 +56,7 @@ def prepare_dataset(
           for `dhandler_protected` and `binarizer_protected` to work correctly.
     """
     mask = ~input_data.isnull().any(axis=1)
-    logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
+    if verbose >= 1: logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
     input_data = input_data[mask.values]
     target_data = target_data[mask.values]
 
@@ -66,10 +69,10 @@ def prepare_dataset(
     bounds = {}
     for col in input_data.columns:
         vals = input_data[col].unique()
-        logger.debug(f"Feature {col} has {vals.shape[0]} values")
+        if verbose >= 1: logger.debug(f"Feature {col} has {vals.shape[0]} values")
         if vals.shape[0] <= 1:
             input_data.drop(columns=[col], inplace=True)
-            logger.info(
+            if verbose >= 1: logger.info(
                 f"Feature {col} was removed due to having a single unique value"
             )
             continue
