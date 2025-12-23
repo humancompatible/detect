@@ -56,9 +56,10 @@ def prepare_dataset(
           for `dhandler_protected` and `binarizer_protected` to work correctly.
     """
     mask = ~input_data.isnull().any(axis=1)
+    
     if verbose >= 1: logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
-    input_data = input_data[mask.values]
-    target_data = target_data[mask.values]
+    input_data = input_data.loc[mask.values].copy()
+    target_data = target_data.loc[mask.values].copy()
 
     # Preprocess the data
     for col, map_f in feature_processing.items():
