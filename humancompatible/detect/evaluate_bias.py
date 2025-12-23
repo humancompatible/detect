@@ -73,7 +73,7 @@ def evaluate_biased_subgroup(
     """
     
     if seed is not None:
-        if verbose >= 1: logger.info(f"Seeding the run with seed={seed}")
+        if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `value`.")
         np.random.seed(seed)
     
     if continuous_list is None:
