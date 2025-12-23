@@ -21,6 +21,7 @@ def most_biased_subgroup(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> List[Tuple[int, Bin]]:
     """
@@ -47,6 +48,8 @@ def most_biased_subgroup(
             after random subsampling.
         method (str, default "MSD"): Subgroup-search routine to invoke. Only
             `"MSD"` is supported at present.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method` (for MSD these include
             `time_limit`, `n_min`, `solver`, etc.).
@@ -60,7 +63,7 @@ def most_biased_subgroup(
     """
     
     if seed is not None:
-        logger.info(f"Seeding the run with seed={seed} for searching the `rule`.")
+        if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `rule`.")
         np.random.seed(seed)
     
     if continuous_list is None:
@@ -77,6 +80,7 @@ def most_biased_subgroup(
         protected_attrs=protected_list,
         continuous_feats=continuous_list,
         feature_processing=fp_map,
+        verbose=verbose,
     )
 
     X_bin = binarizer.encode(X_prot, include_binary_negations=True)
@@ -86,6 +90,7 @@ def most_biased_subgroup(
         indices = get_conjuncts_MSD(
             X_bin,
             y_bin,
+            verbose=verbose,
             **method_kwargs
         )
         
@@ -108,6 +113,7 @@ def most_biased_subgroup_csv(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> List[Tuple[int, Bin]]:
     """
@@ -139,6 +145,8 @@ def most_biased_subgroup_csv(
             after random subsampling.
         method (str, default "MSD"): Subgroup-search routine. Only "MSD"
             is currently supported.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method`.
 
@@ -161,7 +169,7 @@ def most_biased_subgroup_csv(
     y_df = pd.DataFrame(df[target_col])
 
     if protected_list is None:
-        logger.info("Assuming all attributes are protected")
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
         protected_list = list(X_df.columns)
     if continuous_list is None:
         continuous_list = []
@@ -179,6 +187,7 @@ def most_biased_subgroup_csv(
         seed,
         n_samples,
         method,
+        verbose,
         method_kwargs,
     )
 
@@ -192,6 +201,7 @@ def most_biased_subgroup_two_samples(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> List[Tuple[int, Bin]]:
     """
@@ -219,6 +229,8 @@ def most_biased_subgroup_two_samples(
             random subsampling.
         method (str, default "MSD"): Subgroup-search routine; only "MSD"
             is currently implemented.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen *method*.
 
@@ -243,7 +255,7 @@ def most_biased_subgroup_two_samples(
     y_df = pd.DataFrame(y, columns=["target"])
 
     if protected_list is None:
-        logger.info("Assuming all attributes are protected")
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
         protected_list = X_df.columns.tolist()
     if continuous_list is None:
         continuous_list = []
@@ -261,5 +273,6 @@ def most_biased_subgroup_two_samples(
         seed,
         n_samples,
         method,
+        verbose,
         method_kwargs,
     )

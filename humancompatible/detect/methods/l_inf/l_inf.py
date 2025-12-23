@@ -16,6 +16,7 @@ def check_l_inf_gap(
     feature_involved: str,
     subgroup_to_check: Any,
     delta: float,
+    verbose: int = 1,
 ) -> float:
     """
     Test whether a protected subgroup's outcome distribution differs from the
@@ -28,6 +29,8 @@ def check_l_inf_gap(
         feature_involved (str): Name of the protected column whose subgroup is tested.
         subgroup_to_check (Any): Raw value of the subgroup to isolate.
         delta (float): Threshold for the L-infinity norm.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
 
     Returns:
         float: 1.0 (which means True) if the subgroup histogram is within `delta`; 
@@ -101,8 +104,8 @@ def check_l_inf_gap(
     status = lin_prog_feas(all_rsh, discr_rsh, delta=delta)
     is_within = float(status == 0)  # 0 = feasible
     if is_within:
-        logger.info(f"The most impacted subgroup bias <= {delta}")
+        if verbose >= 1: logger.info(f"The most impacted subgroup bias <= {delta}")
     else:
-        logger.info(f"The most impacted subgroup bias > {delta}")
+        if verbose >= 1: logger.info(f"The most impacted subgroup bias > {delta}")
 
     return is_within

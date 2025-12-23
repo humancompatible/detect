@@ -44,18 +44,18 @@ class OneRule:
 
         Args:
             X (np.ndarray[bool]): The input feature matrix, where each row is an
-                                  instance and each column is a boolean feature.
-                                  Shape (n_instances, n_features).
+                instance and each column is a boolean feature.
+                Shape `(n_instances, n_features)`.
             y (np.ndarray[bool]): The binary target labels for each instance.
-                                  `True` for positive outcomes, `False` for negative.
-                                  Shape (n_instances,).
+                `True` for positive outcomes, `False` for negative.
+                Shape `(n_instances,)`.
             weights (np.ndarray[float]): Weights for each instance, used in the
-                                         objective function to calculate weighted means.
-                                         Typically, these are normalized counts.
-                                         Shape (n_instances,).
+                objective function to calculate weighted means.
+                Typically, these are normalized counts.
+                Shape `(n_instances,)`.
             n_min (int): Minimum subgroup support (number of instances) required
-                         for a valid subgroup.
-            feat_init (Dict[int, int], optional): Initialization for the `use_feat`
+                for a valid subgroup.
+            feat_init (Dict[int, int] | None, default None): Initialization for the `use_feat`
                 binary variables. A dictionary where keys are feature indices and
                 values are `0` (feature not used) or `1` (feature used) in the
                 conjunction. Defaults to an empty dictionary, allowing the solver
@@ -147,14 +147,51 @@ class OneRule:
 
         return model
 
+    def _make_solver(self, solver_name: str, verbose: int = 2, time_limit: int = 300):
+        # Solver setup
+        if solver_name == "gurobi":
+            solver = pyo.SolverFactory(solver_name, solver_io="python")
+        else:
+            solver = pyo.SolverFactory(solver_name)
+
+        opts = {}
+
+        # Set time limit and log outputs parameter for the solver
+        if "cplex" in solver_name:
+            opts["mip display"] = 4 if verbose == 2 else 0
+            opts["simplex display"] = 2 if verbose == 2 else 0
+            opts["bar display"] = 1 if verbose == 2 else 0
+            opts["timelimit"] = time_limit
+        elif "glpk" in solver_name:
+            opts["msg_lev"] = "GLP_MSG_ALL" if verbose == 2 else "GLP_MSG_OFF"
+            opts["tmlim"] = time_limit
+        elif "xpress" in solver_name:
+            opts["outputlog"] = 1 if verbose == 2 else 0
+            opts["maxtime"] = time_limit
+            opts["soltimelimit"] = time_limit
+        elif "highs" in solver_name:
+            opts["log_to_console"] = True if verbose == 2 else False
+            opts["output_flag"] = 1 if verbose == 2 else 0
+            opts["time_limit"] = time_limit
+        elif "gurobi" in solver_name:
+            opts["OutputFlag"] = 1 if verbose == 2 else 0
+            opts["TimeLimit"] = time_limit
+        else:
+            if verbose >= 1: logger.warning(
+                f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
+            )
+
+        solver.options.update({k: v for k, v in opts.items() if v is not None})
+        return solver
+
     def find_rule(
         self,
         X: np.ndarray[bool],
         y: np.ndarray[bool],
-        verbose: bool = False,
         n_min: int = 0,
         time_limit: int = 300,
         solver_name: str = "appsi_highs",
+        verbose: int = 1,
     ) -> Tuple[List[int] | None, bool]:
         """
         Finds a single conjunction (rule) that maximizes the absolute difference
@@ -166,40 +203,38 @@ class OneRule:
 
         Args:
             X (np.ndarray[bool]): Input data matrix of boolean features,
-                                  shape (n_instances, n_features).
-            y (np.ndarray[bool]): Target labels (binary), shape (n_instances,).
-            verbose (bool, optional): If `True`, the solver's output will be
-                                      printed to stdout during optimization.
-                                      Defaults to `False`.
-            n_min (int, optional): Minimum subgroup support (number of rows)
-                                   required for a valid subgroup. Defaults to `0`.
-            time_limit (int, optional): Time budget for the solver (in seconds).
-                                        Note that only some solvers support this option.
-                                        Defaults to `300`.
-            solver_name (str, optional): Method for solving the MIO formulation. Can be chosen among:
-                                         - "appsi_highs" (Default)
-                                         - "gurobi"
-                                         - "cplex"
-                                         - "glpk"
-                                         - "xpress"
-                                         - Other solvers, see Pyomo documentation 
-                                           (Note that only the 5 solvers above support the graceful `time_limit`)
+                shape `(n_instances, n_features)`.
+            y (np.ndarray[bool]): Target labels (binary), shape `(n_instances,)`.
+            n_min (int, default 0): Minimum subgroup support (number of rows)
+                required for a valid subgroup.
+            time_limit (int, default 300): Time budget for the solver (in seconds).
+                Note that only some solvers support this option.
+            solver_name (str, default "appsi_highs"): Method for solving the MIO formulation. 
+                Can be chosen among:
+                    - "appsi_highs"
+                    - "gurobi"
+                    - "cplex"
+                    - "glpk"
+                    - "xpress"
+                    - Other solvers, see Pyomo documentation 
+                (Note that only the 5 solvers above support the graceful `time_limit`)
+            verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+                2 = all detailed logs (including solver output).
 
         Returns:
             Tuple[List[int] | None, bool]: A tuple of a list of integer indices representing 
-                                    the features (literals) that form the optimal conjunction. 
-                                    These indices correspond to the columns in the input `X` that define the subgroup.
-                                    If the solver fails to find any feasible solution within the time budget,
-                                    `None` is returned instead.
-
-                                    The boolean flag is `True` if the returned solution is globally optimal.
+                the features (literals) that form the optimal conjunction. 
+                These indices correspond to the columns in the input `X` that define the subgroup.
+                If the solver fails to find any feasible solution within the time budget,
+                `None` is returned instead.
+                The boolean flag is `True` if the returned solution is globally optimal.
 
         Raises:
             AssertionError: If `y`'s shape is not (X.shape[0],) or if `X` or `y`
-                            are not of boolean dtype.
+                are not of boolean dtype.
             ValueError: If the solver terminates with condition other than timeout, optimality or infeasibility. 
             Exception: Any exceptions raised by Pyomo or solver during model
-                       creation or solving.
+                creation or solving.
 
         Notes:
             - The input `X` and `y` are first processed to get unique rows and
@@ -216,12 +251,12 @@ class OneRule:
         # Handle edge cases where target is all positive or all negative
         size1 = np.sum(y)
         if size1 == 0:
-            logger.info(
+            if verbose >= 1: logger.info(
                 "Target 'y' contains no positive outcomes. Returning all features as rule."
             )
             return list(range(X.shape[1]))
         if size1 == y.shape[0]:
-            logger.info(
+            if verbose >= 1: logger.info(
                 "Target 'y' contains only positive outcomes. Returning empty rule."
             )
             return []
@@ -247,47 +282,24 @@ class OneRule:
             X_unique, y_unique, weights=weights_unique, n_min=n_min
         )
 
-        # Solver setup
-        if solver_name == "gurobi":
-            solver = pyo.SolverFactory(solver_name, solver_io="python")
-        else:
-            solver = pyo.SolverFactory(solver_name)
-
-        # Set time limit for the solver
-        if "cplex" in solver_name:
-            solver.options["timelimit"] = time_limit
-        elif "glpk" in solver_name:
-            solver.options["tmlim"] = time_limit
-        elif "xpress" in solver_name:
-            solver.options["soltimelimit"] = time_limit
-            # Use the below instead for XPRESS versions before 9.0
-            # self.solver.options['maxtime'] = TIME_LIMIT
-        elif "highs" in solver_name:
-            solver.options["time_limit"] = time_limit
-        elif "gurobi" in solver_name:
-            solver.options["TimeLimit"] = time_limit
-        else:
-            logger.warning(
-                f'Time limit not set! Not implemented for the selected solver "{solver_name}".'
-            )
-
         # Solve the model
-        result = solver.solve(int_model, load_solutions=False, tee=verbose)
+        solver = self._make_solver(solver_name, verbose=verbose, time_limit=time_limit)
+        result = solver.solve(int_model, load_solutions=False, tee=(verbose == 2))
 
         is_optimal = True
         if result.solver.termination_condition != pyo.TerminationCondition.optimal:
             is_optimal = False
-            logger.info("Solver did not prove optimality of the solution.")
+            if verbose >= 1: logger.info("Solver did not prove optimality of the solution.")
             if (
                 result.solver.termination_condition
                 == pyo.TerminationCondition.maxTimeLimit
             ):
-                logger.info("Timed out.")
+                if verbose >= 1: logger.info("Timed out.")
             elif result.solver.termination_condition in [
                 pyo.TerminationCondition.infeasible,
                 pyo.TerminationCondition.infeasibleOrUnbounded,  # problem is always bounded by 0
             ]:
-                logger.info("Infeasible formulation, something went wrong.")
+                if verbose >= 1: logger.info("Infeasible formulation, something went wrong.")
             else:
                 raise ValueError(
                     f"Unexpected termination condition: {result.solver.termination_condition}."
@@ -296,7 +308,7 @@ class OneRule:
         try:
             int_model.solutions.load_from(result)
         except ValueError:
-            logger.info("No solution found. Try increasing `time_limit`.")
+            if verbose >= 1: logger.info("No solution found. Try increasing `time_limit`.")
             return None, False
 
         self.model = int_model  # Store the solved model instance

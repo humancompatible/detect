@@ -22,6 +22,7 @@ def evaluate_biased_subgroup(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -53,6 +54,8 @@ def evaluate_biased_subgroup(
             random subsampling.
         method (str, default "MSD"): Evaluation routine to invoke.
             Supported values: "MSD", "l_inf".
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method`.  
             For MSD you must provide `rule`; for l_inf you typically supply
@@ -70,16 +73,13 @@ def evaluate_biased_subgroup(
     """
     
     if seed is not None:
-        logger.info(f"Seeding the run with seed={seed} for searching the `value`.")
+        if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `value`.")
         np.random.seed(seed)
     
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
         fp_map = {}
-    
-    m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
-    m_kwargs.pop('solver', None)  # solver is not used here, remove it
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -88,18 +88,19 @@ def evaluate_biased_subgroup(
         protected_attrs=protected_list,
         continuous_feats=continuous_list,
         feature_processing=fp_map,
+        verbose=verbose,
     )
 
     if method == "MSD":
-        if "rule" not in m_kwargs:
+        if "rule" not in method_kwargs:
             raise ValueError("method_kwargs for MSD must include a 'rule'.")
         val = evaluate_MSD(
-            X_prot, y, **m_kwargs
+            X_prot, y, verbose=verbose, **method_kwargs
         )
     
     elif method == "l_inf":
         val = check_l_inf_gap(
-            X_prot, y, binarizer=binarizer, **m_kwargs
+            X_prot, y, binarizer=binarizer, verbose=verbose, **method_kwargs
         )
         
     else:
@@ -117,6 +118,7 @@ def evaluate_biased_subgroup_csv(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -145,6 +147,8 @@ def evaluate_biased_subgroup_csv(
             random subsampling.
         method (str, default "MSD"): Evaluation routine to invoke.
             Supported values: "MSD", "l_inf".
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method`
             (see `evaluate_biased_subgroup` for details).
@@ -168,7 +172,7 @@ def evaluate_biased_subgroup_csv(
     y_df = pd.DataFrame(df[target_col])
 
     if protected_list is None:
-        logger.info("Assuming all attributes are protected")
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
         protected_list = list(X_df.columns)
     if continuous_list is None:
         continuous_list = []
@@ -186,6 +190,7 @@ def evaluate_biased_subgroup_csv(
         seed,
         n_samples,
         method,
+        verbose,
         method_kwargs,
     )
 
@@ -199,6 +204,7 @@ def evaluate_biased_subgroup_two_samples(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> float:
     """
@@ -225,6 +231,8 @@ def evaluate_biased_subgroup_two_samples(
             random subsampling.
         method (str, default "MSD"): Evaluation routine. Same options as in
             `evaluate_biased_subgroup` ("MSD", "l_inf").
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra arguments
             forwarded to the chosen `method` (e.g., `rule` for MSD or
             `delta`, `feature_involved`, `subgroup_to_check` for l_inf).
@@ -253,7 +261,7 @@ def evaluate_biased_subgroup_two_samples(
     y_df = pd.DataFrame(y, columns=["target"])
 
     if protected_list is None:
-        logger.info("Assuming all attributes are protected")
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
         protected_list = X_df.columns.tolist()
     if continuous_list is None:
         continuous_list = []
@@ -271,5 +279,6 @@ def evaluate_biased_subgroup_two_samples(
         seed,
         n_samples,
         method,
+        verbose,
         method_kwargs,
     )
