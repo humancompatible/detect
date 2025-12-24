@@ -1,4 +1,4 @@
-Detect API
+API humancompatible.detect
 ==========
 
 .. toctree::

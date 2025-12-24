@@ -27,4 +27,5 @@ via code, tests, or documentation:
 
 * Germán Martínez Matilla
 * Illia Kryvoviaz
+* Jakub Mareček
 * Jiří Němeček

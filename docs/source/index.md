@@ -67,10 +67,12 @@ api/detect
 
 self
 api/detect
-Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
-Examples <https://github.com/humancompatible/detect/blob/main/examples/>
-Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb>
-Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
+api/detect.methods.msd
+api/detect.methods.l_inf
+-> github: Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
+-> github: Examples <https://github.com/humancompatible/detect/blob/main/examples/>
+-> github: Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb>
+-> github: Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
 ```
 
 ---
