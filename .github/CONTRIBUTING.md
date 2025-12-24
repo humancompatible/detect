@@ -25,5 +25,6 @@ sphinx-build -M html docs/source/ docs/build/
 Below is an (incomplete) list of people (in alphabetical order) who contributed to this project
 via code, tests, or documentation:
 
+* Germán Martínez Matilla
 * Illia Kryvoviaz
 * Jiří Němeček

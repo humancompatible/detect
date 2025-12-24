@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "humancompatible-detect"
+version = "0.1.1"
+description = "A Python Toolkit for Detecting Bias in AI Models"
+readme = { file = "README.md", content-type = "text/markdown" }
+requires-python = ">=3.10"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Germán Martínez Matilla" },
+  { name = "Illia Kryvoviaz" },
+  { name = "Jiří Němeček" },
+]
+maintainers = [
+  { name = "Illia Kryvoviaz", email = "illiakryvoviaz@gmail.com" },
+  { name = "Jiří Němeček", email = "nemecj38@fel.cvut.cz" },
+]
+keywords = ["fairness", "bias", "ai", "ml", "optimization", "pyomo", "MILP", "subgroup", "MSD", "l_inf"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: Apache Software License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Information Analysis",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+  "numpy>=2.2,<3.0",
+  "pandas>=2.2,<3.0",
+  "pyomo>=6.9,<7.0",
+  "highspy>=1.10,<2.0",
+  "scipy>=1.16,<2.0",
+  "tqdm>=4.6,<5.0",
+]
+
+[project.optional-dependencies]
+# only if user has license
+gurobi = ["gurobipy>=12.0,<13.0"]
+
+examples = [
+  "jupyterlab>=4.2,<5.0",
+  "matplotlib>=3.10,<4.0",
+  "folktables>=0.0.12,<0.1",
+]
+
+docs = [
+  "sphinx>=7.0,<8.0",
+  "myst-parser>=3.0,<4.0",
+  "sphinx-rtd-theme>=2.0,<3.0",
+]
+
+dev = [
+  "pytest>=8.0,<9.0",
+  "ruff>=0.6,<0.7",
+  "black>=24.8,<25.0",
+  "build>=1.2,<2.0",
+  "twine>=5.0,<6.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/humancompatible/detect"
+Documentation = "https://humancompatible-detect.readthedocs.io/en/latest"
+Issues = "https://github.com/humancompatible/detect/issues"
+
+[tool.setuptools]
+include-package-data = true
+license-files = ["LICENSE"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["humancompatible*"]
+exclude = ["tests*", "docs*", "examples*"]

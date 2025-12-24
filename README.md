@@ -23,7 +23,7 @@ Samples belonging to a given combination of protected attributes is called a sub
 * **𝒫** ⊂ {1,…,d} the indices of *protected* features (age, sex, race, …).
 
 A **sub-group** *S* is all samples whose protected attributes take one fixed value each.
-We must consider every such intersection – their number is exponential in |𝒫|.
+We must consider every such intersection -- their number is exponential in |𝒫|.
  -->
 
 ## Using HumanCompatible.Detect
@@ -35,11 +35,11 @@ We must consider every such intersection – their number is exponential in |�
 2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
    ```python
-   from humancompatible.detect import detect_bias_csv
+   from humancompatible.detect import detect_and_score
 
    # toy example
    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
-   msd, rule_idx = detect_bias_csv(
+   rule_idx, msd = detect_and_score(
        csv_path = csv,
        target = "Target",
        protected_list = ["Race", "Age"],
@@ -49,12 +49,13 @@ We must consider every such intersection – their number is exponential in |�
 
 ### More to explore
 
-- `examples/01_usage.ipynb` – a 5-minute notebook reproducing the call above,
-  then translating `rule_idx` back to human-readable conditions.
+- `examples/01_usage.ipynb` -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
+- `examples/02_folktables_within-state.ipynb` -- a realistic Folktables/ACS Income example that runs MSD within a single state, reports the most affected subgroup, and interprets the signed gap.
+- More notebooks live in [`examples/`](examples/), new ones being added over time.
 
 Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
-We also provide [documentation](https://humancompatible-detect.readthedocs.io/en/latest/detect.MSD.html). For more details on installation, see [Installation details](#installation-details).
+We also provide [documentation](https://humancompatible-detect.readthedocs.io/en/latest). For more details on installation, see [Installation details](#installation-details).
 
 ---
 
@@ -80,7 +81,7 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
-### Subsampled l<inf>∞</inf> norm
+### Subsampled l∞ norm
 
 This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
@@ -103,13 +104,10 @@ Requirements are included in the `requirements.txt` file. They include:
 
 ```bash
 python -m venv .venv
-# ── Activate it ─────────────────────────────────────────────
-# Linux / macOS
-source .venv/bin/activate
-# Windows – cmd.exe
-.venv\Scripts\activate.bat
-# Windows – PowerShell
-.venv\Scripts\Activate.ps1
+# Activate it
+source .venv/bin/activate     # Linux / macOS
+.venv\Scripts\activate.bat    # Windows -- cmd.exe
+.venv\Scripts\Activate.ps1    # Windows -- PowerShell
 ```
 
 ### Install the package
@@ -132,10 +130,10 @@ python -m pip install -e .
 ### Verify it worked
 
 ```bash
-python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
+python -c "from humancompatible.detect import detect_and_score; print('detect imported OK')"
 ```
 
-If the import fails you’ll see:
+If the import fails you'll see:
 
 ```bash
 ModuleNotFoundError: No module named 'humancompatible'
@@ -143,12 +141,46 @@ ModuleNotFoundError: No module named 'humancompatible'
 
 ## Why classical distances fail
 
-| Distance                             | Needs to look at            | Worst-case samples | Drawback                                      |
-| ------------------------------------ | --------------------------- | ------------------ | --------------------------------------------- |
-| Wasserstein, Total Variation, MMD, … | full _d_-dimensional joint  | Ω(2<sup>d</sup>)   | exponential sample cost, no group explanation |
-| **MSD (ours)**                       | only the protected marginal | **O(d)**           | exact group, human-readable                   |
+<table class="metrics">
+<tr>
+  <th>Classical metric</th>
+  <th>Needs to look at</th>
+  <th>Sample cost</th>
+  <th>Drawback</th>
+</tr>
+<tr>
+  <td>Wasserstein, TV, MMD, ...</td>
+  <td>full d-dimensional joint</td>
+  <td>Ω(2<sup>d</sup>)</td>
+  <td>exponential sample cost, no group explanation</td>
+</tr>
+<tr>
+  <td>MSD (ours)</td>
+  <td>only protected attrs</td>
+  <td>O(d)</td>
+  <td>returns exact subgroup & gap</td>
+</tr>
+</table>
 
-MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
+<style>
+table.metrics {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1.5rem;
+}
+table.metrics th, table.metrics td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.metrics thead th {
+  background: #f7f7f7;
+  font-weight: 600;
+}
+</style>
+
+MSD's linear sample complexity is proven in the paper and achieved in practice via an exact Mixed-Integer Optimisation that scans the doubly-exponential search space implicitly, returning both the metric value and the rule that realises it.
 
 ---
 
@@ -174,7 +206,7 @@ If you use the MSD in your work, please cite the following work:
 }
 ```
 
-If you liked the l<inf>∞</inf> method, please cite:
+If you liked the l∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,
