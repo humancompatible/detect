@@ -1,20 +1,21 @@
 # humancompatible.detect
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
 
 humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
 
 ## AI Fairness
 
 In a fairness auditing, one would generally like to know if two distributions are identical.
-These distributions could be a distribution of internal private training data and publicly accessible data from a nation-wide census, i.e., a good baseline.
+These distributions could be a distribution of internal private training data and publicly accessible data from a nationwide census, i.e., a good baseline.
 Or one can compare samples classified positively and negatively, to see if groups are represented equally in each class.
 
 In other words, we ask
 
 > Is there _some_ combination of protected attributes (race × age × …) for which people are treated noticeably differently?
 
-Samples belonging to a given combination of protected attributes is called a subgroup.
+Samples belonging to a given combination of protected attributes are called a subgroup.
 
 <!-- Formally, let
 
@@ -40,8 +41,8 @@ We must consider every such intersection -- their number is exponential in |𝒫
    # toy example
    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
    rule_idx, msd = detect_and_score(
-       csv_path = csv,
-       target = "Target",
+       csv_path = "./data/01_data.csv",
+       target_col = "Target",
        protected_list = ["Race", "Age"],
        method = "MSD",
    )
@@ -77,7 +78,7 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 
 ``` -->
 
-- Naturally, two distributions are _fair_ iff all sub-groups have similar mass.
+- Naturally, two distributions are _fair_ iff all subgroups have similar mass.
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
@@ -162,25 +163,7 @@ ModuleNotFoundError: No module named 'humancompatible'
 </tr>
 </table>
 
-<style>
-table.metrics {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0.75rem 0 1.5rem;
-}
-table.metrics th, table.metrics td {
-  border: 1px solid #ddd;
-  padding: 8px 10px;
-  text-align: center;
-  vertical-align: middle;
-}
-table.metrics thead th {
-  background: #f7f7f7;
-  font-weight: 600;
-}
-</style>
-
-MSD's linear sample complexity is proven in the paper and achieved in practice via an exact Mixed-Integer Optimisation that scans the doubly-exponential search space implicitly, returning both the metric value and the rule that realises it.
+MSD's linear sample complexity is proven in the paper and achieved in practice via an exact Mixed-Integer Optimization that scans the doubly-exponential search space implicitly, returning both the metric value and the rule that realises it.
 
 ---
 
