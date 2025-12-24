@@ -29,6 +29,7 @@ def detect_and_score(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
 ) -> Tuple[List[Tuple[int, Bin]], float]:
     """
@@ -61,6 +62,8 @@ def detect_and_score(
             after random subsampling.
         method (str, default "MSD"): Subgroup-search routine to invoke.
             `"MSD"` or `"l_inf"` is supported at present.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method` (for MSD these include
             `time_limit`, `n_min`, `solver`, etc.).
@@ -117,6 +120,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method="MSD",
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         elif mode_two:
@@ -130,6 +134,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method="MSD",
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         else:
@@ -143,6 +148,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method=method,
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         
@@ -158,6 +164,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
     elif mode_two:
@@ -169,6 +176,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
     else:
@@ -180,6 +188,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
 
