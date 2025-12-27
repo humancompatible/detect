@@ -1,4 +1,4 @@
-detect.binarizer package
+humancompatible.detect.binarizer package
 ========================
 
 Submodules
@@ -7,12 +7,12 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   detect.binarizer.Binarizer
+   humancompatible.detect.binarizer.Binarizer
 
 Module contents
 ---------------
 
-.. automodule:: detect.binarizer
+.. automodule:: humancompatible.detect.binarizer
    :members:
    :show-inheritance:
    :undoc-members:
