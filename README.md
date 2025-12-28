@@ -29,9 +29,9 @@ We must consider every such intersection -- their number is exponential in |𝒫
 
 ## Using HumanCompatible.Detect
 
-1. Install the library:
+1. Install the library (in virtual environment if desired):
    ```bash
-   python -m pip install git+https://github.com/humancompatible/detect.git
+   pip install humancompatible-detect
    ```
 2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
@@ -66,10 +66,6 @@ We also provide [documentation](https://humancompatible-detect.readthedocs.io/en
 
 MSD is the subgroup maximal difference in probability mass of a given subgroup, comparing the mass given by each distribution.
 
-<div align="center">
-  <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
-</div>
-
 <!-- ```math
 
 \text{MSD}(P,Q;\,𝒫)=
@@ -82,7 +78,7 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
-### Subsampled l∞ norm
+### Subsampled ℓ∞ norm
 
 This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
@@ -113,17 +109,16 @@ source .venv/bin/activate     # Linux / macOS
 
 ### Install the package
 
-> Before we complete the PyPI release you can install the latest snapshot straight from GitHub in one line:
-
 ```bash
-python -m pip install git+https://github.com/humancompatible/detect.git
+python -m pip install humancompatible-detect
 ```
 
-If you prefer an editable (developer) install:
+Developer install (editable):
 
 ```bash
 git clone https://github.com/humancompatible/detect.git
 cd detect
+python -m pip install -U pip
 python -m pip install -e ".[dev,docs,examples]"
 ```
 
@@ -188,7 +183,7 @@ If you use the MSD in your work, please cite the following work:
 }
 ```
 
-If you liked the l∞ method, please cite:
+If you liked the ℓ∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,

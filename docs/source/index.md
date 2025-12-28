@@ -8,7 +8,7 @@ A toolbox for measuring bias in data & models
 _...with a MILP formulation that also tells you which subgroup is most affected._
 \[[arxiv](https://arxiv.org/abs/2502.02221)\]
 
-**L∞** -- fast pass/fail bias test for a chosen subgroup
+**ℓ∞** -- fast pass/fail bias test for a chosen subgroup
 _...compares subgroup vs overall against a tolerance δ._
 \[[arxiv](https://arxiv.org/abs/2502.02623)\]
 
@@ -19,7 +19,7 @@ _...compares subgroup vs overall against a tolerance δ._
 ## Quick install & demo
 
 ```bash
-python -m pip install git+https://github.com/humancompatible/detect.git
+python -m pip install humancompatible-detect
 ```
 
 ```python
@@ -31,45 +31,35 @@ rule, msd_val = detect_and_score(
     protected_list=["Race", "Age"],
     method="MSD",
 )
-
-print(f"MSD = {msd_val:.3f}\nRule = {rule}")
 ```
 
 The function returns
 
 - **`msd_val`** -- the maximum gap (in percentage-points) between any subgroup and its complement
 - **`rule`** -- the raw subgroup encoding as a list of `(feature_index, Bin)` pairs.
-  To get a human-readable description, do the following:
 
-  ```python
-  pretty = " AND ".join(str(cond) for _, cond in rule)
-  print("Subgroup:", pretty)
-  ```
+To get a human-readable description, do the following:
+
+```python
+pretty = " AND ".join(str(cond) for _, cond in rule)
+
+print(f"MSD = {msd_val:.3f}")
+print("Subgroup:", pretty)
+```
 
 ## Contents
 
-<!-- ```{toctree}
-:maxdepth: 1
-
-api/detect
-``` -->
-
-<!-- - [**Tutorial**](https://github.com/humancompatible/detect/blob/main/README.md) -> Your first audit in 5 minutes
-- [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/) -> Start with a simple [example notebook](https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb), or go directly to a [realistic example using Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb) -->
-
-
 ```{toctree}
 :maxdepth: 1
-<!-- :titlesonly: -->
 
 self
 api/humancompatible.detect
 api/humancompatible.detect.methods.msd
 api/humancompatible.detect.methods.l_inf
--> github: Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
--> github: Examples <https://github.com/humancompatible/detect/blob/main/examples/>
--> github: Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
--> github: Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
+Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
+Examples <https://github.com/humancompatible/detect/blob/main/examples/>
+Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
+Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
 ```
 
 ---
@@ -122,7 +112,7 @@ table.metrics thead th {
 
 MSD maximises the absolute difference in probability over all protected-attribute combinations (subgroups), yet is solvable in practice through an exact Mixed-Integer optimization that scans the doubly-exponential space effectively.
 
-## Subsampled l∞ norm
+## Subsampled ℓ∞ norm
 
 This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
@@ -150,7 +140,7 @@ If you use MSD, please cite:
 }
 ```
 
-If you liked the l∞ method, please cite:
+If you liked the ℓ∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,
