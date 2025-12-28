@@ -9,7 +9,6 @@ import pandas as pd
 from humancompatible.detect.binarizer import Bin
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def detect_and_score(
@@ -106,7 +105,7 @@ def detect_and_score(
     m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
     
     if method == "l_inf":
-        rule = None
+        rule = []
     else:
         if mode_csv:
             if not (csv_path and target_col):
@@ -280,7 +279,7 @@ def evaluate_subgroup_discrepancy(
     verbose: int = 1,
 ) -> float:
     """
-    Absolute subgroup discrepancy |delta| between positive and negative outcomes.
+    Absolute subgroup discrepancy abs(delta) between positive and negative outcomes.
 
     Simply returns the magnitude of `signed_subgroup_discrepancy(subgroup, y)`.
     
@@ -292,7 +291,7 @@ def evaluate_subgroup_discrepancy(
             2 = all detailed logs (including solver output).
 
     Returns:
-        float: |delta| - the absolute difference in subgroup prevalence between
+        float: abs(delta) - the absolute difference in subgroup prevalence between
             positives and negatives (fractional units).
 
     Raises:

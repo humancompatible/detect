@@ -1,4 +1,3 @@
-from copy import deepcopy
 import logging
 import pandas as pd
 import numpy as np
@@ -10,7 +9,6 @@ from humancompatible.detect.methods.msd import evaluate_MSD
 from humancompatible.detect.helpers.prepare import prepare_dataset
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def evaluate_biased_subgroup(
@@ -76,10 +74,15 @@ def evaluate_biased_subgroup(
         if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `value`.")
         np.random.seed(seed)
     
+    if protected_list is None:
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
+        protected_list = list(X.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
         fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -262,7 +265,7 @@ def evaluate_biased_subgroup_two_samples(
 
     if protected_list is None:
         if verbose >= 1: logger.info("Assuming all attributes are protected")
-        protected_list = X_df.columns.tolist()
+        protected_list = list(X_df.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:

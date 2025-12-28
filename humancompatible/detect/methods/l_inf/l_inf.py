@@ -6,7 +6,6 @@ from .lp_tools import lin_prog_feas
 from humancompatible.detect.binarizer import Binarizer
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def check_l_inf_gap(
