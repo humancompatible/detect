@@ -33,8 +33,6 @@ rule, msd_val = detect_and_score(
 )
 
 print(f"MSD = {msd_val:.3f}\nRule = {rule}")
-# MSD = 0.111
-# Rule = [(0, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C330467A10>, <Operation.EQ: '='>, 'Blue')), (1, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C33051EAD0>, <Operation.EQ: '='>, '0-18'))]
 ```
 
 The function returns
@@ -46,7 +44,6 @@ The function returns
   ```python
   pretty = " AND ".join(str(cond) for _, cond in rule)
   print("Subgroup:", pretty)
-  # -> "Subgroup: Race = Blue AND Age = 0-18"
   ```
 
 ## Contents
@@ -58,7 +55,7 @@ api/detect
 ``` -->
 
 <!-- - [**Tutorial**](https://github.com/humancompatible/detect/blob/main/README.md) -> Your first audit in 5 minutes
-- [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/) -> Start with a simple [example notebook](https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb), or go directly to a [realistic example using Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb) -->
+- [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/) -> Start with a simple [example notebook](https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb), or go directly to a [realistic example using Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb) -->
 
 
 ```{toctree}
@@ -66,12 +63,12 @@ api/detect
 <!-- :titlesonly: -->
 
 self
-api/detect
-api/detect.methods.msd
-api/detect.methods.l_inf
+api/humancompatible.detect
+api/humancompatible.detect.methods.msd
+api/humancompatible.detect.methods.l_inf
 -> github: Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
 -> github: Examples <https://github.com/humancompatible/detect/blob/main/examples/>
--> github: Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb>
+-> github: Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
 -> github: Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
 ```
 

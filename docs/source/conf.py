@@ -1,9 +1,6 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath("../../"))
-sys.path.insert(0, os.path.abspath("../../humancompatible"))
-
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -15,7 +12,7 @@ sys.path.insert(0, os.path.abspath("../../humancompatible"))
 project = "HumanCompatible.Detect"
 copyright = "2025, AutoFair Project"
 author = "AutoFair Project"
-release = "0.0.1"
+release = "0.1.1"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -41,7 +38,7 @@ extensions = [
 source_suffix = {
     ".rst": "restructuredtext",
     ".md": "markdown",
-    ".ipynb": "nbsphinx",
+    # ".ipynb": "nbsphinx",
 }
 
 # Configure napoleon to enable both NumPy and Google style docstrings
