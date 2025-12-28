@@ -12,6 +12,7 @@ license = { file = "LICENSE" }
 authors = [
   { name = "Germán Martínez Matilla" },
   { name = "Illia Kryvoviaz" },
+  { name = "Jakub Mareček" },
   { name = "Jiří Němeček" },
 ]
 maintainers = [

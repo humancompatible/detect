@@ -50,7 +50,7 @@ We must consider every such intersection -- their number is exponential in |𝒫
 
 ### More to explore
 
-- `examples/01_usage.ipynb` -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
+- `examples/01_basic_usage.ipynb` -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
 - `examples/02_folktables_within-state.ipynb` -- a realistic Folktables/ACS Income example that runs MSD within a single state, reports the most affected subgroup, and interprets the signed gap.
 - More notebooks live in [`examples/`](examples/), new ones being added over time.
 
@@ -124,8 +124,7 @@ If you prefer an editable (developer) install:
 ```bash
 git clone https://github.com/humancompatible/detect.git
 cd detect
-python -m pip install -r requirements.txt
-python -m pip install -e .
+python -m pip install -e ".[dev,docs,examples]"
 ```
 
 ### Verify it worked
