@@ -87,7 +87,7 @@ def check_l_inf_gap(
     all_tot = all_counts.sum()
     discr_tot = discr_counts.sum()
     if all_tot == 0 or discr_tot == 0:
-        raise ValueError("Zero total counts after filtering; cannot compute L∞.")
+        raise ValueError("Zero total counts after filtering; cannot compute ℓ∞.")
 
     all_hist = all_counts / all_tot
     discr_hist = discr_counts / discr_tot

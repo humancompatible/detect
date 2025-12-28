@@ -1,4 +1,0 @@
-prune data
-prune docs
-prune examples
-prune tests
