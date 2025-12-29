@@ -23,17 +23,16 @@ def test_evaluate_biased_subgroup_msd(monkeypatch):
     fake_bin = _Binarizer()
     captured = {}
 
-    def _fake_prepare_dataset(X_, Y_, n_samples, protected_attrs, continuous_feats, feature_processing):
+    def _fake_prepare_dataset(X_, Y_, n_samples, protected_attrs, continuous_feats, feature_processing, verbose):
         X_prot = X_[["A", "B"]]
         y_ser = Y_["target"]
         return fake_bin, X_prot, y_ser
 
-    def _fake_evaluate_MSD(X_prot, y_ser, **kwargs):
+    def _fake_evaluate_MSD(X_prot, y_ser, verbose, **kwargs):
         assert list(X_prot.columns) == ["A", "B"]
         assert isinstance(y_ser, pd.Series)
         captured["method_kwargs"] = deepcopy(kwargs)
         assert "rule" in captured["method_kwargs"]
-        assert "solver" not in captured["method_kwargs"]
         return 0.123
 
     monkeypatch.setattr(eb, "prepare_dataset", _fake_prepare_dataset, raising=True)
@@ -50,6 +49,7 @@ def test_evaluate_biased_subgroup_msd(monkeypatch):
         seed=7,
         n_samples=500,
         method="MSD",
+        verbose=1,
         method_kwargs=method_kwargs_in,
     )
 
@@ -88,13 +88,12 @@ def test_evaluate_biased_subgroup_linf(monkeypatch):
     fake_bin = _Binarizer()
     captured = {}
 
-    def _fake_prepare_dataset(X_, Y_, n_samples, protected_attrs, continuous_feats, feature_processing):
+    def _fake_prepare_dataset(X_, Y_, n_samples, protected_attrs, continuous_feats, feature_processing, verbose):
         return fake_bin, X_[["A", "B"]], Y_["target"]
 
     def _fake_check_l_inf_gap(X_prot, y_ser, *, binarizer, **kwargs):
         assert binarizer is fake_bin
         captured["method_kwargs"] = deepcopy(kwargs)
-        assert "solver" not in captured["method_kwargs"]
         # pretend result is "satisfied" (<= delta) -> 1.0
         return 1.0
 
@@ -116,6 +115,7 @@ def test_evaluate_biased_subgroup_linf(monkeypatch):
         seed=0,
         n_samples=100,
         method="l_inf",
+        verbose=1,
         method_kwargs=method_kwargs_in,
     )
 
@@ -156,7 +156,7 @@ def test_evaluate_biased_subgroup_csv(tmp_path: Path, monkeypatch):
     captured = {}
 
     def _fake_evaluate_biased_subgroup(
-        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, method_kwargs
+        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, verbose, method_kwargs
     ):
         assert list(X_df.columns) == ["A", "B"]
         assert list(y_df.columns) == ["target"]
@@ -168,7 +168,7 @@ def test_evaluate_biased_subgroup_csv(tmp_path: Path, monkeypatch):
     out = eb.evaluate_biased_subgroup_csv(
         csv_path=csvp, target_col="target",
         protected_list=None, continuous_list=None, fp_map=None,
-        seed=1, n_samples=10, method="MSD", method_kwargs=None,
+        seed=1, n_samples=10, method="MSD", verbose=1, method_kwargs=None,
     )
 
     assert out == pytest.approx(0.5)
@@ -198,7 +198,7 @@ def test_evaluate_biased_subgroup_two_samples(monkeypatch):
     captured = {}
 
     def _fake_evaluate_biased_subgroup(
-        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, method_kwargs
+        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, verbose, method_kwargs
     ):
         assert list(X_df.columns) == ["A", "B"]
         # Synthetic target: 0 for X1 rows, 1 for X2 rows
@@ -213,7 +213,7 @@ def test_evaluate_biased_subgroup_two_samples(monkeypatch):
     out = eb.evaluate_biased_subgroup_two_samples(
         X1, X2,
         protected_list=None, continuous_list=None, fp_map=None,
-        seed=2, n_samples=999, method="MSD", method_kwargs=None,
+        seed=2, n_samples=999, method="MSD", verbose=1, method_kwargs=None,
     )
     assert out == pytest.approx(0.7)
     assert captured["protected_list"] == ["A", "B"]

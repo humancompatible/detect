@@ -183,14 +183,14 @@ def most_biased_subgroup_csv(
     return most_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )
 
 
@@ -269,12 +269,12 @@ def most_biased_subgroup_two_samples(
     return most_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )
