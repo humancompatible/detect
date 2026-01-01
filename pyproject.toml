@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,7 +8,8 @@ version = "0.1.1"
 description = "A Python Toolkit for Detecting Bias in AI Models"
 readme = { file = "README.md", content-type = "text/markdown" }
 requires-python = ">=3.10"
-license = { file = "LICENSE" }
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [
   { name = "Germán Martínez Matilla" },
   { name = "Illia Kryvoviaz" },
@@ -77,7 +78,6 @@ Issues = "https://github.com/humancompatible/detect/issues"
 
 [tool.setuptools]
 include-package-data = false
-license-files = ["LICENSE"]
 
 [tool.setuptools.packages.find]
 where = ["."]
