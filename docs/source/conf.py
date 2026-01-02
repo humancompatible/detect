@@ -12,7 +12,7 @@ import sys
 project = "HumanCompatible.Detect"
 copyright = "2025, AutoFair Project"
 author = "AutoFair Project"
-release = "0.1.1"
+release = "0.1.3"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
