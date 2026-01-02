@@ -89,16 +89,21 @@ This method checks in a very efficient way whether the bias in any subgroup exce
 
 ### Requirements
 
-Requirements are included in the `pyproject.toml` file. They include:
+All Python dependencies are declared in pyproject.toml (core + optional extras).
 
 - **Python ≥ 3.10**
 
-- **A MILP solver** (to solve the mixed-integer program in the case of MSD)
-  - The default solver is [HiGHS](https://highs.dev/). This is an open-source solver included in the requirements.
-  - A faster, but proprietary solver [Gurobi](https://www.gurobi.com/) can also easily be used. Free academic licences are available. This solver was used in the original paper.
-  - We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html). Note that the implementation sets the graceful time limit only for solvers Gurobi, Cplex, HiGHS, Xpress, and GLPK.
+- **A MILP solver** (required for MSD).
+  > We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html).
 
-- **Other dependencies**: numpy, pandas, scipy, pyomo, tqdm etc.
+  - Default (recommended): HiGHS -- works out of the box because we install the HiGHS Python bindings (highspy) with the package.
+
+  - Optional commercial solvers (license required): Gurobi / CPLEX / Xpress
+  These require a valid installation + license from the vendor. (Some also have free community license, and pip-installable Python APIs.)
+
+  - Optional open-source fallback: GLPK requires the glpsol executable on your system PATH.
+
+- Other dependencies (installed automatically): numpy, pandas, scipy, pyomo, tqdm, etc.
 
 ### (Optional) create a fresh environment
 
@@ -116,13 +121,27 @@ source .venv/bin/activate     # Linux / macOS
 python -m pip install humancompatible-detect
 ```
 
-Developer install (editable):
+### Optional extras
+
+To install with optional commercial solvers:
 
 ```bash
-git clone https://github.com/humancompatible/detect.git
-cd detect
-python -m pip install -U pip
-python -m pip install -e ".[dev,docs,examples]"
+python -m pip install "humancompatible-detect[gurobi]"
+python -m pip install "humancompatible-detect[cplex]"
+python -m pip install "humancompatible-detect[xpress]"
+```
+
+Or if you want the notebooks + plotting dependencies:
+
+```bash
+python -m pip install "humancompatible-detect[examples]"
+```
+
+And if docs/dev dependencies are desired:
+
+```bash
+python -m pip install "humancompatible-detect[docs]"
+python -m pip install "humancompatible-detect[dev]"
 ```
 
 ### Verify it worked
