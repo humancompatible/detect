@@ -8,7 +8,7 @@ humancompatible.detect is an open-source toolkit for detecting bias in AI models
 
 ## AI Fairness
 
-In a fairness auditing, one would generally like to know if two distributions are identical.
+In fairness auditing, one would generally like to know if two distributions are identical.
 These distributions could be a distribution of internal private training data and publicly accessible data from a nationwide census, i.e., a good baseline.
 Or one can compare samples classified positively and negatively, to see if groups are represented equally in each class.
 
@@ -16,7 +16,7 @@ In other words, we ask
 
 > Is there _some_ combination of protected attributes (race × age × …) for which people are treated noticeably differently?
 
-Samples belonging to a given combination of protected attributes are called a subgroup.
+A set of samples belonging to a given combination of protected attributes is called a subgroup.
 
 <!-- Formally, let
 
@@ -30,7 +30,7 @@ We must consider every such intersection -- their number is exponential in |𝒫
 
 ## Using HumanCompatible.Detect
 
-1. Install the library (in virtual environment if desired):
+1. Install the library (in a virtual environment if desired):
    ```bash
    pip install humancompatible-detect
    ```
@@ -156,31 +156,6 @@ If the import fails you'll see:
 ModuleNotFoundError: No module named 'humancompatible'
 ```
 
-## Why classical distances fail
-
-<table class="metrics">
-<tr>
-  <th>Classical metric</th>
-  <th>Needs to look at</th>
-  <th>Sample cost</th>
-  <th>Drawback</th>
-</tr>
-<tr>
-  <td>Wasserstein, TV, MMD, ...</td>
-  <td>full d-dimensional joint</td>
-  <td>Ω(2<sup>d</sup>)</td>
-  <td>exponential sample cost, no group explanation</td>
-</tr>
-<tr>
-  <td>MSD (ours)</td>
-  <td>only protected attrs</td>
-  <td>O(d)</td>
-  <td>returns exact subgroup & gap</td>
-</tr>
-</table>
-
-MSD's linear sample complexity is proven in the paper and achieved in practice via an exact Mixed-Integer Optimization that scans the doubly-exponential search space implicitly, returning both the metric value and the rule that realises it.
-
 ---
 
 ## References
@@ -205,7 +180,7 @@ If you use the MSD in your work, please cite the following work:
 }
 ```
 
-If you liked the ℓ∞ method, please cite:
+If you used the ℓ∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,
