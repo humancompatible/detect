@@ -1,7 +1,7 @@
 # humancompatible.detect
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](LICENSE)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![Pypi](https://img.shields.io/pypi/v/humancompatible-detect)](https://pypi.org/project/humancompatible-detect/)
 
 humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
@@ -51,9 +51,9 @@ We must consider every such intersection -- their number is exponential in |𝒫
 
 ### More to explore
 
-- `examples/01_basic_usage.ipynb` -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
-- `examples/02_folktables_within-state.ipynb` -- a realistic Folktables/ACS Income example that runs MSD within a single state, reports the most affected subgroup, and interprets the signed gap.
-- More notebooks live in [`examples/`](examples/), new ones being added over time.
+- [`examples/01_basic_usage.ipynb`](https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb) -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
+- [`examples/02_folktables_within-state.ipynb`](https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb) -- a realistic Folktables/ACS Income example that runs MSD within a single state, reports the most affected subgroup, and interprets the signed gap.
+- More notebooks live in [`examples/`](https://github.com/humancompatible/detect/tree/main/examples), new ones being added over time.
 
 Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
@@ -89,7 +89,7 @@ This method checks in a very efficient way whether the bias in any subgroup exce
 
 ### Requirements
 
-Requirements are included in the `requirements.txt` file. They include:
+Requirements are included in the `pyproject.toml` file. They include:
 
 - **Python ≥ 3.10**
 
@@ -97,6 +97,8 @@ Requirements are included in the `requirements.txt` file. They include:
   - The default solver is [HiGHS](https://highs.dev/). This is an open-source solver included in the requirements.
   - A faster, but proprietary solver [Gurobi](https://www.gurobi.com/) can also easily be used. Free academic licences are available. This solver was used in the original paper.
   - We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html). Note that the implementation sets the graceful time limit only for solvers Gurobi, Cplex, HiGHS, Xpress, and GLPK.
+
+- **Other dependencies**: numpy, pandas, scipy, pyomo, tqdm etc.
 
 ### (Optional) create a fresh environment
 
