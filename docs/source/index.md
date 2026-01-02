@@ -6,7 +6,7 @@ A toolbox for measuring bias in data & models
 
 **Maximum Subgroup Discrepancy (MSD)** -- bias metric with linear sample complexity
 _...with a MILP formulation that also tells you which subgroup is most affected._
-\[[arxiv](https://arxiv.org/abs/2502.02221)\]
+\[[arxiv](https://dl.acm.org/doi/10.1145/3711896.3736857)\]
 
 **ℓ∞** -- fast pass/fail bias test for a chosen subgroup
 _...compares subgroup vs overall against a tolerance δ._
@@ -58,9 +58,16 @@ api/humancompatible.detect.methods.msd
 api/humancompatible.detect.methods.l_inf
 Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
 Examples <https://github.com/humancompatible/detect/blob/main/examples/>
-Simple example notebook <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
-Folktables example <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
 ```
+
+## Featured examples
+
+If you want to jump straight into notebooks:
+
+- **Simple example notebook**: <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
+- **Folktables example (within-state)**: <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
+- **Folktables example (cross-state)**: <https://github.com/humancompatible/detect/blob/main/examples/03_folktables_cross-state.ipynb>
+- and more in the [examples folder](https://github.com/humancompatible/detect/tree/main/examples)
 
 ---
 
@@ -140,7 +147,7 @@ If you use MSD, please cite:
 }
 ```
 
-If you liked the ℓ∞ method, please cite:
+If you used the ℓ∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,
