@@ -65,8 +65,8 @@ Examples <https://github.com/humancompatible/detect/blob/main/examples/>
 If you want to jump straight into notebooks:
 
 - **Simple example notebook**: <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
-- **Folktables example (within-state)**: <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
-- **Folktables example (cross-state)**: <https://github.com/humancompatible/detect/blob/main/examples/03_folktables_cross-state.ipynb>
+- **Realistic example on Folktables**: <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
+- **Exploring the API**: <https://github.com/humancompatible/detect/blob/main/examples/04_exploring_functionality.ipynb>
 - and more in the [examples folder](https://github.com/humancompatible/detect/tree/main/examples)
 
 ---
