@@ -1,5 +1,5 @@
 humancompatible.detect.data\_handler.features package
-=====================================
+=====================================================
 
 Submodules
 ----------
@@ -13,11 +13,3 @@ Submodules
    humancompatible.detect.data_handler.features.Feature
    humancompatible.detect.data_handler.features.Mixed
    humancompatible.detect.data_handler.features.utils
-
-Module contents
----------------
-
-.. automodule:: humancompatible.detect.data_handler.features
-   :members:
-   :show-inheritance:
-   :undoc-members:

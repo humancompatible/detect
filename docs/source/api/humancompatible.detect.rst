@@ -1,5 +1,5 @@
 API humancompatible.detect
-==========
+==========================
 
 .. toctree::
    :maxdepth: 2
