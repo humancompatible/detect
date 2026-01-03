@@ -1,6 +1,6 @@
 MSD (Maximum Subgroup Discrepancy)
 ==================================
-[**Link to the Paper**](https://dl.acm.org/doi/10.1145/3711896.3736857)
+`Link to the Paper <https://dl.acm.org/doi/10.1145/3711896.3736857>`_
 
 .. automodule:: humancompatible.detect.methods.msd.msd
    :members:
