@@ -9,7 +9,6 @@ from humancompatible.detect.methods.msd import get_conjuncts_MSD
 from humancompatible.detect.helpers.prepare import prepare_dataset
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def most_biased_subgroup(
@@ -66,6 +65,9 @@ def most_biased_subgroup(
         if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `rule`.")
         np.random.seed(seed)
     
+    if protected_list is None:
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
+        protected_list = list(X.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
@@ -181,14 +183,14 @@ def most_biased_subgroup_csv(
     return most_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )
 
 
@@ -250,13 +252,13 @@ def most_biased_subgroup_two_samples(
     X_df = pd.concat([X1, X2])
     y = np.concatenate([
         np.zeros(X1.shape[0], dtype=int),
-        np.ones (X2.shape[0], dtype=int),
+        np.ones(X2.shape[0], dtype=int),
     ])
     y_df = pd.DataFrame(y, columns=["target"])
 
     if protected_list is None:
         if verbose >= 1: logger.info("Assuming all attributes are protected")
-        protected_list = X_df.columns.tolist()
+        protected_list = list(X_df.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
@@ -267,12 +269,12 @@ def most_biased_subgroup_two_samples(
     return most_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )

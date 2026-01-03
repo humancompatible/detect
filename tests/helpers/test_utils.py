@@ -115,7 +115,7 @@ def test_detect_and_score_linf(monkeypatch):
         method="l_inf",
         method_kwargs=method_kwargs,
     )
-    assert rule is None
+    assert rule == []
     assert val == pytest.approx(0.123)
     assert method_kwargs == {"feature_involved": "A", "subgroup_to_check": 1, "delta": 0.05}
 

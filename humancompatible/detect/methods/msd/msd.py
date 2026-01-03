@@ -11,7 +11,6 @@ from .mapping_msd import subgroup_map_from_conjuncts_dataframe
 from .one_rule import OneRule
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def get_conjuncts_MSD(
@@ -72,7 +71,7 @@ def evaluate_MSD(
     **kwargs
 ) -> float:
     """
-    Compute the MSD value (delta  or |delta|) for already calculated rules.
+    Compute the MSD value (delta  or abs(delta)) for already calculated rules.
     
     Args:
         X (pd.DataFrame): DataFrame with the protected columns referenced by

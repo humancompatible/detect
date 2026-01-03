@@ -18,6 +18,26 @@ def make_feature(
     monotone: bool,
     modifiable: bool,
 ) -> Feature:
+    """
+    Factory that creates the appropriate Feature subclass for a single column.
+
+    The returned class depends on whether the feature is categorical, binary, mixed,
+    or continuous, and whether a predefined list of allowed categorical values is given.
+
+    Args:
+        data: One feature column (NumPy array or pandas Series).
+        feat_name: Feature name (may be ``None``).
+        categ_vals: Allowed categorical values. ``None`` means continuous.
+        real_bounds: Optional bounds for continuous/mixed features.
+        ordered: Whether categorical values should be treated as ordered (if applicable).
+        discrete: Whether a continuous feature should be treated as discrete.
+        monotone: Whether monotonicity constraints apply.
+        modifiable: Whether the feature is modifiable.
+
+    Returns:
+        A ``humancompatible.detect.data_handler.features.Feature`` instance
+        (one of Binary/Categorical/Contiguous/Mixed).
+    """
     if categ_vals is None:
         return Contiguous(
             data,

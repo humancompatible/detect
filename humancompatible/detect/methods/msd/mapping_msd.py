@@ -18,11 +18,11 @@ def subgroup_map_from_conjuncts_binarized(
             input array `X`. Each index represents a feature
             that must be `True` for an individual to be included
             in the subgroup.
-        X (np.ndarray[np.bool_]): A 2D NumPy array of boolean values, where rows
+        X (np.ndarray[`np.bool_`]): A 2D NumPy array of boolean values, where rows
             represent individuals and columns represent features.
 
     Returns:
-        np.ndarray[np.bool_]: A 1D boolean NumPy array (`mapping`) of the same
+        np.ndarray[`np.bool_`]: A 1D boolean NumPy array (`mapping`) of the same
             length as the number of rows in `X`. An element
             `mapping[i]` is `True` if `X[i, conj]` is `True` for
             all `conj` in `conjuncts`, and `False` otherwise.
@@ -96,7 +96,7 @@ def subgroup_map_from_conjuncts_dataframe(
             in the rule's Bins.
 
     Returns:
-        np.ndarray[np.bool_]: A 1-D boolean array where True marks rows 
+        np.ndarray[`np.bool_`]: A 1-D boolean array where True marks rows 
             belonging to the subgroup.
 
     Raises:

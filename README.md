@@ -1,20 +1,22 @@
 # humancompatible.detect
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
+[![Pypi](https://img.shields.io/pypi/v/humancompatible-detect)](https://pypi.org/project/humancompatible-detect/)
 
 humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
 
 ## AI Fairness
 
-In a fairness auditing, one would generally like to know if two distributions are identical.
-These distributions could be a distribution of internal private training data and publicly accessible data from a nation-wide census, i.e., a good baseline.
+In fairness auditing, one would generally like to know if two distributions are identical.
+These distributions could be a distribution of internal private training data and publicly accessible data from a nationwide census, i.e., a good baseline.
 Or one can compare samples classified positively and negatively, to see if groups are represented equally in each class.
 
 In other words, we ask
 
 > Is there _some_ combination of protected attributes (race × age × …) for which people are treated noticeably differently?
 
-Samples belonging to a given combination of protected attributes is called a subgroup.
+A set of samples belonging to a given combination of protected attributes is called a subgroup.
 
 <!-- Formally, let
 
@@ -23,25 +25,25 @@ Samples belonging to a given combination of protected attributes is called a sub
 * **𝒫** ⊂ {1,…,d} the indices of *protected* features (age, sex, race, …).
 
 A **sub-group** *S* is all samples whose protected attributes take one fixed value each.
-We must consider every such intersection – their number is exponential in |𝒫|.
+We must consider every such intersection -- their number is exponential in |𝒫|.
  -->
 
 ## Using HumanCompatible.Detect
 
-1. Install the library:
+1. Install the library (in a virtual environment if desired):
    ```bash
-   python -m pip install git+https://github.com/humancompatible/detect.git
+   pip install humancompatible-detect
    ```
 2. Compute the bias ([MSD](#maximum-subgroup-discrepancy-msd) in this case):
 
    ```python
-   from humancompatible.detect import detect_bias_csv
+   from humancompatible.detect import detect_and_score
 
    # toy example
    # (col 1 = Race, col 2 = Age, col 3 = (binary) target)
-   msd, rule_idx = detect_bias_csv(
-       csv_path = csv,
-       target = "Target",
+   rule_idx, msd = detect_and_score(
+       csv_path = "./data/01_data.csv",
+       target_col = "Target",
        protected_list = ["Race", "Age"],
        method = "MSD",
    )
@@ -49,12 +51,13 @@ We must consider every such intersection – their number is exponential in |�
 
 ### More to explore
 
-- `examples/01_usage.ipynb` – a 5-minute notebook reproducing the call above,
-  then translating `rule_idx` back to human-readable conditions.
+- [`examples/01_basic_usage.ipynb`](https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb) -- a 5-minute notebook reproducing the call above, then translating `rule_idx` back to human-readable conditions.
+- [`examples/02_folktables_within-state.ipynb`](https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb) -- a realistic Folktables/ACS Income example that runs MSD within a single state, reports the most affected subgroup, and interprets the signed gap.
+- More notebooks live in [`examples/`](https://github.com/humancompatible/detect/tree/main/examples), new ones being added over time.
 
 Feel free to start with the light notebook, then dive into the experiments with different datasets.
 
-We also provide [documentation](https://humancompatible-detect.readthedocs.io/en/latest/detect.MSD.html). For more details on installation, see [Installation details](#installation-details).
+We also provide [documentation](https://humancompatible-detect.readthedocs.io/en/latest). For more details on installation, see [Installation details](#installation-details).
 
 ---
 
@@ -64,10 +67,6 @@ We also provide [documentation](https://humancompatible-detect.readthedocs.io/en
 
 MSD is the subgroup maximal difference in probability mass of a given subgroup, comparing the mass given by each distribution.
 
-<div align="center">
-  <img src="images/motivation_MSD.png" alt="Motivating example" width="550"/>
-</div>
-
 <!-- ```math
 
 \text{MSD}(P,Q;\,𝒫)=
@@ -76,11 +75,11 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 
 ``` -->
 
-- Naturally, two distributions are _fair_ iff all sub-groups have similar mass.
+- Naturally, two distributions are _fair_ iff all subgroups have similar mass.
 - The **arg max** immediately tells you _which_ group is most disadvantaged as an interpretable attribute-value combination.
 - MSD has linear sample complexity, a stark contrast to exponential complexity of other distributional distances (Wasserstein, TV...)
 
-### Subsampled l<inf>∞</inf> norm
+### Subsampled ℓ∞ norm
 
 This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
@@ -90,65 +89,72 @@ This method checks in a very efficient way whether the bias in any subgroup exce
 
 ### Requirements
 
-Requirements are included in the `requirements.txt` file. They include:
+All Python dependencies are declared in pyproject.toml (core + optional extras).
 
 - **Python ≥ 3.10**
 
-- **A MILP solver** (to solve the mixed-integer program in the case of MSD)
-  - The default solver is [HiGHS](https://highs.dev/). This is an open-source solver included in the requirements.
-  - A faster, but proprietary solver [Gurobi](https://www.gurobi.com/) can also easily be used. Free academic licences are available. This solver was used in the original paper.
-  - We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html). Note that the implementation sets the graceful time limit only for solvers Gurobi, Cplex, HiGHS, Xpress, and GLPK.
+- **A MILP solver** (required for MSD).
+  > We use [Pyomo](https://pyomo.readthedocs.io/) for modelling. This allows for multiple solvers, see the lists of [solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/solvers/index.html) and [persistent solver interfaces](https://pyomo.readthedocs.io/en/stable/reference/topical/appsi/appsi.html).
+
+  - Default (recommended): HiGHS -- works out of the box because we install the HiGHS Python bindings (highspy) with the package.
+
+  - Optional commercial solvers (license required): Gurobi / CPLEX / Xpress
+  These require a valid installation + license from the vendor. (Some also have free community license, and pip-installable Python APIs.)
+
+  - Optional open-source fallback: GLPK requires the glpsol executable on your system PATH.
+
+- Other dependencies (installed automatically): numpy, pandas, scipy, pyomo, tqdm, etc.
 
 ### (Optional) create a fresh environment
 
 ```bash
 python -m venv .venv
-# ── Activate it ─────────────────────────────────────────────
-# Linux / macOS
-source .venv/bin/activate
-# Windows – cmd.exe
-.venv\Scripts\activate.bat
-# Windows – PowerShell
-.venv\Scripts\Activate.ps1
+# Activate it
+source .venv/bin/activate     # Linux / macOS
+.venv\Scripts\activate.bat    # Windows -- cmd.exe
+.venv\Scripts\Activate.ps1    # Windows -- PowerShell
 ```
 
 ### Install the package
 
-> Before we complete the PyPI release you can install the latest snapshot straight from GitHub in one line:
-
 ```bash
-python -m pip install git+https://github.com/humancompatible/detect.git
+python -m pip install humancompatible-detect
 ```
 
-If you prefer an editable (developer) install:
+### Optional extras
+
+To install with optional commercial solvers:
 
 ```bash
-git clone https://github.com/humancompatible/detect.git
-cd detect
-python -m pip install -r requirements.txt
-python -m pip install -e .
+python -m pip install "humancompatible-detect[gurobi]"
+python -m pip install "humancompatible-detect[cplex]"
+python -m pip install "humancompatible-detect[xpress]"
+```
+
+Or if you want the notebooks + plotting dependencies:
+
+```bash
+python -m pip install "humancompatible-detect[examples]"
+```
+
+And if docs/dev dependencies are desired:
+
+```bash
+python -m pip install "humancompatible-detect[docs]"
+python -m pip install "humancompatible-detect[dev]"
 ```
 
 ### Verify it worked
 
 ```bash
-python -c "from humancompatible.detect.MSD import compute_MSD; print('MSD imported OK')"
+python -c "from humancompatible.detect import detect_and_score; print('detect imported OK')"
 ```
 
-If the import fails you’ll see:
+If the import fails you'll see:
 
 ```bash
 ModuleNotFoundError: No module named 'humancompatible'
 ```
-
-## Why classical distances fail
-
-| Distance                             | Needs to look at            | Worst-case samples | Drawback                                      |
-| ------------------------------------ | --------------------------- | ------------------ | --------------------------------------------- |
-| Wasserstein, Total Variation, MMD, … | full _d_-dimensional joint  | Ω(2<sup>d</sup>)   | exponential sample cost, no group explanation |
-| **MSD (ours)**                       | only the protected marginal | **O(d)**           | exact group, human-readable                   |
-
-MSD’s linear sample complexity is proven in the paper and achieved in practice via an **exact Mixed-Integer Optimisation** that scans the doubly-exponential search space implicitly, returning **both** the metric value and the rule that realises it.
 
 ---
 
@@ -174,7 +180,7 @@ If you use the MSD in your work, please cite the following work:
 }
 ```
 
-If you liked the l<inf>∞</inf> method, please cite:
+If you used the ℓ∞ method, please cite:
 
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,

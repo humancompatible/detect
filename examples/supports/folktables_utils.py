@@ -211,7 +211,7 @@ def load_state_data(
     return X, y
 
 
-# ────────── folktables state‐code mapping ──────────
+# ────────── folktables state-code mapping ──────────
 # ACS "place of birth" recodes for states (POBP)
 # https://www.icpsr.umich.edu/web/DSDR/studies/25042/datasets/0002/variables/POBP?archive=dsdr
 STATE_POBP_CODE: dict[str, int] = {

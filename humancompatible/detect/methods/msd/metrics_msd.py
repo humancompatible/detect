@@ -14,13 +14,13 @@ def subgroup_gap(
     *,
     signed: bool = True,
 ) -> float:
-    """Compute the subgroup discrepancy `delta` or `|delta|` for a given rule.
+    """Compute the subgroup discrepancy `delta` or `abs(delta)` for a given rule.
 
     Args:
         rule: Rule returned by `detect_bias` - list of (col_idx, Bin).
         X: DataFrame containing the protected columns referenced in `rule`.
         y: Binary outcome vector aligned with `X` (1 = positive outcome).
-        signed: If True returns signed `delta`, else returns `|delta|`.
+        signed: If True returns signed `delta`, else returns `abs(delta)`.
 
     Returns:
         float: Subgroup discrepancy (signed or absolute).
