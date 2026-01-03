@@ -34,9 +34,10 @@ def detect_and_score(
     """
     One-shot helper: find the most biased subgroup and return its score.
     Works with three input modes:
-      - DataFrame mode: pass X, y
-      - CSV mode: pass csv_path, target_col
-      - Two-sample mode: pass X1, X2
+
+    - DataFrame mode: pass X, y
+    - CSV mode: pass csv_path, target_col
+    - Two-sample mode: pass X1, X2
 
     It first calls `most_biased_subgroup()` (or similar, depending on the mode) to obtain the rule, then
     evaluates that rule through `evaluate_biased_subgroup()` (depending on the mode).
@@ -70,8 +71,9 @@ def detect_and_score(
     Returns:
         tuple[list[tuple[int, Bin]], float]: A pair containing
         (rule, value):
-            * **rule** - list of ``(feature_index, Bin)`` pairs.
-            * **value** - MSD or l_inf score, depending on *method*.
+        
+        * **rule** - list of ``(feature_index, Bin)`` pairs.
+        * **value** - MSD or l_inf score, depending on *method*.
 
     Raises:
         ValueError: If modes are mixed, required arguments for a mode are missing,
