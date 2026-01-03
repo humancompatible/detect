@@ -6,11 +6,11 @@ A toolbox for measuring bias in data & models
 
 **Maximum Subgroup Discrepancy (MSD)** -- bias metric with linear sample complexity
 _...with a MILP formulation that also tells you which subgroup is most affected._
-\[[arxiv](https://dl.acm.org/doi/10.1145/3711896.3736857)\]
+\[[Paper Link](https://dl.acm.org/doi/10.1145/3711896.3736857)\]
 
 **ℓ∞** -- fast pass/fail bias test for a chosen subgroup
 _...compares subgroup vs overall against a tolerance δ._
-\[[arxiv](https://arxiv.org/abs/2502.02623)\]
+\[[Paper Link](https://arxiv.org/abs/2502.02623)\]
 
 </div>
 
