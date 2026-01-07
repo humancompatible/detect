@@ -81,7 +81,7 @@ MSD is the subgroup maximal difference in probability mass of a given subgroup, 
 
 ### Subsampled ℓ∞ norm
 
-This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
+This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. That is, it tells us to which extent, a particular subgroup obtains the positive outcome more or less frequently than the general trend in the dataset. Here, the fact that we can perform a subsampling with guaranties is key. It is the method of choice in cases in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
 ---
 
