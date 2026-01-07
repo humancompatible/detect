@@ -7,7 +7,6 @@ from humancompatible.detect.binarizer.Binarizer import Binarizer
 from humancompatible.detect.data_handler import DataHandler
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def prepare_dataset(
@@ -55,11 +54,14 @@ def prepare_dataset(
         - Requires `DataHandler` and `Binarizer` classes to be defined elsewhere
           for `dhandler_protected` and `binarizer_protected` to work correctly.
     """
-    mask = ~input_data.isnull().any(axis=1)
+    mask_x = (~input_data.isnull().any(axis=1)).to_numpy()
+    mask_y = (~target_data.isnull().any(axis=1)).to_numpy()
+    mask = mask_x & mask_y
     
-    if verbose >= 1: logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
-    input_data = input_data.loc[mask.values].copy()
-    target_data = target_data.loc[mask.values].copy()
+    if verbose >= 1: 
+        logger.debug(f"Removing {input_data.shape[0] - mask.sum()} rows with nans")
+    input_data = input_data.loc[mask].copy()
+    target_data = target_data.loc[mask].copy()
 
     # Preprocess the data
     for col, map_f in feature_processing.items():

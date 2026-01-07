@@ -4,17 +4,22 @@ A toolbox for measuring bias in data & models
 
 <div align="center">
 
-**Maximum Subgroup Discrepancy (MSD)** - bias metric with linear sample complexity
-_...with a MILP formulation that also tells you **which subgroup is most affected**._
+**Maximum Subgroup Discrepancy (MSD)** -- bias metric with linear sample complexity
+_...with a MILP formulation that also tells you which subgroup is most affected._
+\[[Paper Link](https://dl.acm.org/doi/10.1145/3711896.3736857)\]
+
+**ℓ∞** -- fast pass/fail bias test for a chosen subgroup
+_...compares subgroup vs overall against a tolerance δ._
+\[[Paper Link](https://arxiv.org/abs/2502.02623)\]
 
 </div>
 
 ---
 
-## Quick install & 60-second demo
+## Quick install & demo
 
 ```bash
-python -m pip install git+https://github.com/humancompatible/detect.git
+python -m pip install humancompatible-detect
 ```
 
 ```python
@@ -26,48 +31,43 @@ rule, msd_val = detect_and_score(
     protected_list=["Race", "Age"],
     method="MSD",
 )
-
-print(f"MSD = {msd_val:.3f}\nRule = {rule}")
-# MSD = 0.111
-# Rule = [(0, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C330467A10>, <Operation.EQ: '='>, 'Blue')), (1, Bin(<humancompatible.detect.data_handler.features.Categorical.Categorical object at 0x000001C33051EAD0>, <Operation.EQ: '='>, '0-18'))]
 ```
 
 The function returns
 
-- **`msd_val`** – the maximum gap (in percentage‐points) between any subgroup and its complement
-- **`rule`** – the raw subgroup encoding as a list of `(feature_index, Bin)` pairs.
-  To get a human‐readable description, do the following:
+- **`msd_val`** -- the maximum gap (in percentage-points) between any subgroup and its complement
+- **`rule`** -- the raw subgroup encoding as a list of `(feature_index, Bin)` pairs.
 
-  ```python
-  pretty = " AND ".join(str(cond) for _, cond in rule)
-  print("Subgroup:", pretty)
-  # Subgroup: Race = Blue AND Age = 0-18
-  ```
+To get a human-readable description, do the following:
+
+```python
+pretty = " AND ".join(str(cond) for _, cond in rule)
+
+print(f"MSD = {msd_val:.3f}")
+print("Subgroup:", pretty)
+```
 
 ## Contents
-
-<!-- Probably for the future -->
-<!-- ```{toctree}
-:maxdepth: 2
-:hidden:
-
-tutorials/quickstart
-examples/index
-user_guide/index
-api/modules
-contributing
-``` -->
 
 ```{toctree}
 :maxdepth: 1
 
-api/detect
+self
+api/humancompatible.detect
+api/humancompatible.detect.methods.msd
+api/humancompatible.detect.methods.l_inf
+Tutorial <https://github.com/humancompatible/detect/blob/main/README.md>
+Examples <https://github.com/humancompatible/detect/blob/main/examples/>
 ```
 
-<!-- TODO: I think it would be better to change on the way, as above -->
+## Featured examples
 
-- [**Tutorial**](https://github.com/humancompatible/detect/blob/main/README.md) -> Your first audit in 5 minutes
-- [**Examples**](https://github.com/humancompatible/detect/blob/main/examples/) -> Start with a simple [example notebook](https://github.com/humancompatible/detect/blob/main/examples/01_usage.ipynb), or go directly to a [realistic example using Folktables](https://github.com/humancompatible/detect/blob/main/examples/02_folktables.ipynb)
+If you want to jump straight into notebooks:
+
+- **Simple example notebook**: <https://github.com/humancompatible/detect/blob/main/examples/01_basic_usage.ipynb>
+- **Realistic example on Folktables**: <https://github.com/humancompatible/detect/blob/main/examples/02_folktables_within-state.ipynb>
+- **Exploring the API**: <https://github.com/humancompatible/detect/blob/main/examples/04_exploring_functionality.ipynb>
+- and more in the [examples folder](https://github.com/humancompatible/detect/tree/main/examples)
 
 ---
 
@@ -77,12 +77,51 @@ Bias detection can be understood as measuring some distance between two distribu
 
 However, most distances have exponential sample complexity, whereas MSD requires a linear number of samples (w.r.t. the dimension) to achieve the same error.
 
-|        Classical metric | Needs full d‐dim joint? | Sample cost | Drawbacks                             |
-| ----------------------: | :---------------------: | :---------: | ------------------------------------- |
-| Wasserstein, TV, MMD, … |           yes           |   Ω(2^d)    | exponential samples, no subgroup info |
-|          **MSD (ours)** |  only protected attrs   |    O(d)     | ✓ returns exact subgroup & gap        |
+<table class="metrics">
+<tr>
+  <th>Classical metric</th>
+  <th>Needs to look at</th>
+  <th>Sample cost</th>
+  <th>Drawback</th>
+</tr>
+<tr>
+  <td>Wasserstein, TV, MMD, ...</td>
+  <td>full d-dimensional joint</td>
+  <td>Ω(2<sup>d</sup>)</td>
+  <td>exponential sample cost, no group explanation</td>
+</tr>
+<tr>
+  <td>MSD (ours)</td>
+  <td>only protected attrs</td>
+  <td>O(d)</td>
+  <td>returns exact subgroup & gap</td>
+</tr>
+</table>
 
-MSD maximises the absolute difference in probability over all protected‐attribute combinations (subgroups), yet is solvable in practice through an exact Mixed‐Integer optimization that scans the doubly‐exponential space effectively.
+<style>
+table.metrics {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.75rem 0 1.5rem;
+}
+table.metrics th, table.metrics td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+table.metrics thead th {
+  background: #f7f7f7;
+  font-weight: 600;
+}
+</style>
+
+
+MSD maximises the absolute difference in probability over all protected-attribute combinations (subgroups), yet is solvable in practice through an exact Mixed-Integer optimization that scans the doubly-exponential space effectively.
+
+## Subsampled ℓ∞ norm
+
+This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
 
 ---
 
@@ -105,6 +144,20 @@ If you use MSD, please cite:
   numpages = {12},
   location = {Toronto ON, Canada},
   series = {KDD '25}
+}
+```
+
+If you used the ℓ∞ method, please cite:
+
+```bibtex
+@misc{matilla2025samplecomplexitybiasdetection,
+      title={Sample Complexity of Bias Detection with Subsampled Point-to-Subspace Distances},
+      author={M. Matilla, Germán and Mareček, Jakub},
+      year={2025},
+      eprint={2502.02623},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG},
+      url={https://arxiv.org/abs/2502.02623v1},
 }
 ```
 

@@ -9,7 +9,6 @@ import pandas as pd
 from humancompatible.detect.binarizer import Bin
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def detect_and_score(
@@ -29,14 +28,16 @@ def detect_and_score(
     seed: int | None = None,
     n_samples: int = 1_000_000,
     method: str = "MSD",
+    verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> Tuple[List[Tuple[int, Bin]], float]:
+) -> Tuple[List[Tuple[int, Bin]], float | bool]:
     """
     One-shot helper: find the most biased subgroup and return its score.
     Works with three input modes:
-      - DataFrame mode: pass X, y
-      - CSV mode: pass csv_path, target_col
-      - Two-sample mode: pass X1, X2
+
+    - DataFrame mode: pass X, y
+    - CSV mode: pass csv_path, target_col
+    - Two-sample mode: pass X1, X2
 
     It first calls `most_biased_subgroup()` (or similar, depending on the mode) to obtain the rule, then
     evaluates that rule through `evaluate_biased_subgroup()` (depending on the mode).
@@ -61,15 +62,18 @@ def detect_and_score(
             after random subsampling.
         method (str, default "MSD"): Subgroup-search routine to invoke.
             `"MSD"` or `"l_inf"` is supported at present.
+        verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
+            2 = all detailed logs (including solver output).
         method_kwargs (dict[str, Any] | None, default None): Extra keyword
             arguments forwarded to the chosen `method` (for MSD these include
             `time_limit`, `n_min`, `solver`, etc.).
 
     Returns:
-        tuple[list[tuple[int, Bin]], float]: A pair containing
+        tuple[list[tuple[int, Bin]], float | bool]: A pair containing
         (rule, value):
-            * **rule** - list of ``(feature_index, Bin)`` pairs.
-            * **value** - MSD or l_inf score, depending on *method*.
+
+        * **rule** - list of ``(feature_index, Bin)`` pairs [for method == "l_inf" the rule is an empty list].
+        * **value** - MSD [return float] or l_inf [return bool], depending on *method*.
 
     Raises:
         ValueError: If modes are mixed, required arguments for a mode are missing,
@@ -103,7 +107,7 @@ def detect_and_score(
     m_kwargs: Dict[str, Any] = {} if method_kwargs is None else deepcopy(method_kwargs)
     
     if method == "l_inf":
-        rule = None
+        rule = []
     else:
         if mode_csv:
             if not (csv_path and target_col):
@@ -117,6 +121,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method="MSD",
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         elif mode_two:
@@ -130,6 +135,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method="MSD",
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         else:
@@ -143,6 +149,7 @@ def detect_and_score(
                 seed=seed,
                 n_samples=n_samples,
                 method=method,
+                verbose=verbose,
                 method_kwargs=m_kwargs,
             )
         
@@ -158,6 +165,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
     elif mode_two:
@@ -169,6 +177,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
     else:
@@ -180,6 +189,7 @@ def detect_and_score(
             seed=seed,
             n_samples=n_samples,
             method=method,
+            verbose=verbose,
             method_kwargs=m_kwargs,
         )
 
@@ -271,7 +281,7 @@ def evaluate_subgroup_discrepancy(
     verbose: int = 1,
 ) -> float:
     """
-    Absolute subgroup discrepancy |delta| between positive and negative outcomes.
+    Absolute subgroup discrepancy abs(delta) between positive and negative outcomes.
 
     Simply returns the magnitude of `signed_subgroup_discrepancy(subgroup, y)`.
     
@@ -283,7 +293,7 @@ def evaluate_subgroup_discrepancy(
             2 = all detailed logs (including solver output).
 
     Returns:
-        float: |delta| - the absolute difference in subgroup prevalence between
+        float: abs(delta) - the absolute difference in subgroup prevalence between
             positives and negatives (fractional units).
 
     Raises:

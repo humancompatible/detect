@@ -64,7 +64,8 @@ class DataHandler:
                 Target feature (e.g., labels or regression targets). Shape: (num_samples,)
             categ : dictionary
                 Dictionary with indices (or column names for DataFrame) of categorical features as keys
-                    and a list of unique categorical values as values
+                and a list of unique categorical values as values.
+                
                 If the list is empty, each unique value of the feature is considered categorical
                 If the list is non-empty, but does not cover all values, the feature is considered mixed
             regression : bool

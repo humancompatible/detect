@@ -12,18 +12,18 @@ def lin_prog_feas(
     """Specifies a number of samples as a fraction of the total
     histogram bins and checks whether all the sampled bins satisfy
     
-    |hist1 - hist2| <= delta.
+    `|hist1 - hist2| <= delta`
 
     Args:
         hist1 (np.ndarray): 1-D array of histogram bin densities for the full dataset.
         hist2 (np.ndarray): 1-D array of histogram bin densities for the subgroup.
-        delta (float): Threshold for the absolute difference |hist1 - hist2|.
+        delta (float): Threshold for the absolute difference `|hist1 - hist2|`.
         num_samples (float): Fraction of total bins to sample.
             The function draws int(num_samples * (len(hist1) - 1)) random samples.
 
     Returns:
         int: Status code from `scipy.optimize.linprog`. A status of 0 indicates
-             the constraints are feasible (i.e., |hist1 - hist2| <= delta for all
+             the constraints are feasible (i.e., `|hist1 - hist2| <= delta` for all
              sampled bins); other codes signal infeasibility or solver errors.
     """
     rand_lst1 = []

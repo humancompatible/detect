@@ -1,4 +1,3 @@
-from copy import deepcopy
 import logging
 import pandas as pd
 import numpy as np
@@ -10,7 +9,6 @@ from humancompatible.detect.methods.msd import evaluate_MSD
 from humancompatible.detect.helpers.prepare import prepare_dataset
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def evaluate_biased_subgroup(
@@ -24,7 +22,7 @@ def evaluate_biased_subgroup(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Evaluate how far a *given* subgroup departs from the reference population.
 
@@ -62,10 +60,10 @@ def evaluate_biased_subgroup(
             `feature_involved`, `subgroup_to_check` and `delta`.
 
     Returns:
-        float:  
+        float | bool:
             * MSD - the subgroup discrepancy (signed or absolute, depending on
               flags inside `method_kwargs`).  
-            * l_inf - 1.0 if the subgroup gap is <= `delta`, otherwise 0.0.
+            * l_inf - True if the subgroup gap is <= `delta`, otherwise False.
 
     Raises:
         ValueError: If the requested `method` is unknown, or required keys are
@@ -76,10 +74,15 @@ def evaluate_biased_subgroup(
         if verbose >= 1: logger.info(f"Seeding the run with seed={seed} for searching the `value`.")
         np.random.seed(seed)
     
+    if protected_list is None:
+        if verbose >= 1: logger.info("Assuming all attributes are protected")
+        protected_list = list(X.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
         fp_map = {}
+    if method_kwargs is None:
+        method_kwargs = {}
 
     binarizer, X_prot, y = prepare_dataset(
         X,
@@ -120,7 +123,7 @@ def evaluate_biased_subgroup_csv(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Load a CSV file, split it into features / target and forward everything to
     `evaluate_biased_subgroup`.
@@ -154,9 +157,9 @@ def evaluate_biased_subgroup_csv(
             (see `evaluate_biased_subgroup` for details).
     
     Returns:
-        float:  
+        float | bool:
             * MSD - subgroup discrepancy value.  
-            * l_inf - 1.0 if the gap is <= `delta`, otherwise 0.0.
+            * l_inf - True if the gap is <= `delta`, otherwise False.
 
     Raises:
         ValueError: If `target_col` is absent from the CSV or if the delegated
@@ -184,14 +187,14 @@ def evaluate_biased_subgroup_csv(
     return evaluate_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )
 
 
@@ -206,7 +209,7 @@ def evaluate_biased_subgroup_two_samples(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Quantify the subgroup discrepancy between **two** datasets.
 
@@ -238,12 +241,11 @@ def evaluate_biased_subgroup_two_samples(
             `delta`, `feature_involved`, `subgroup_to_check` for l_inf).
 
     Returns:
-        float:  
+        float | bool:  
             * MSD - discrepancy value for the supplied subgroup rule between the
               two samples.  
-            * l_inf - 1.0 if the subgroup's positive-class histogram differs by
-              at most `delta`; otherwise 0.0.
-
+            * l_inf - True if the subgroup's positive-class histogram differs by
+              at most `delta`; otherwise False.
     Raises:
         ValueError: If `X1` and `X2` have different columns, or if the chosen
             `method` is unsupported, or if required keys are missing from
@@ -262,7 +264,7 @@ def evaluate_biased_subgroup_two_samples(
 
     if protected_list is None:
         if verbose >= 1: logger.info("Assuming all attributes are protected")
-        protected_list = X_df.columns.tolist()
+        protected_list = list(X_df.columns)
     if continuous_list is None:
         continuous_list = []
     if fp_map is None:
@@ -273,12 +275,12 @@ def evaluate_biased_subgroup_two_samples(
     return evaluate_biased_subgroup(
         X_df,
         y_df,
-        protected_list,
-        continuous_list,
-        fp_map,
-        seed,
-        n_samples,
-        method,
-        verbose,
-        method_kwargs,
+        protected_list=protected_list,
+        continuous_list=continuous_list,
+        fp_map=fp_map,
+        seed=seed,
+        n_samples=n_samples,
+        method=method,
+        verbose=verbose,
+        method_kwargs=method_kwargs,
     )

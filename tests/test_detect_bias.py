@@ -69,13 +69,14 @@ def test_most_biased_subgroup(monkeypatch):
 
     captured = {}
 
-    def _fake_prepare_dataset(X_, y_, n_samples, protected_attrs, continuous_feats, feature_processing):
+    def _fake_prepare_dataset(X_, y_, n_samples, protected_attrs, continuous_feats, feature_processing, verbose):
         assert list(X_.columns) == ["A", "B"]
         assert y_.shape[0] == X_.shape[0]
         captured["n_samples"] = n_samples
         captured["protected_attrs"] = protected_attrs
         captured["continuous_feats"] = continuous_feats
         captured["feature_processing"] = feature_processing
+        captured["verbose"] = verbose
         return fake_bin, X_[["A", "B"]], y_["target"]
 
     def _fake_get_conjuncts_MSD(X_bin, y_bin, **kwargs):
@@ -94,6 +95,7 @@ def test_most_biased_subgroup(monkeypatch):
         seed=123,
         n_samples=1000,
         method="MSD",
+        verbose=1,
         method_kwargs={"time_limit": 7, "n_min": 2},
     )
 
@@ -104,6 +106,7 @@ def test_most_biased_subgroup(monkeypatch):
     assert captured["protected_attrs"] == ["A", "B"]
     assert captured["continuous_feats"] == ["A"]
     assert captured["feature_processing"] == {"A": int}
+    assert captured["verbose"] == 1
     assert captured["method_kwargs"]["time_limit"] == 7
     assert captured["method_kwargs"]["n_min"] == 2
 
@@ -135,7 +138,7 @@ def test_most_biased_subgroup_csv(tmp_path: Path, monkeypatch):
     captured = {}
 
     def _fake_most_biased_subgroup(
-        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, method_kwargs
+        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, verbose, method_kwargs
     ):
         assert list(X_df.columns) == ["A", "B"]
         assert list(y_df.columns) == ["target"]
@@ -147,7 +150,7 @@ def test_most_biased_subgroup_csv(tmp_path: Path, monkeypatch):
     out = db.most_biased_subgroup_csv(
         csv_path=csvp, target_col="target",
         protected_list=None, continuous_list=None, fp_map=None,
-        seed=7, n_samples=100, method="MSD", method_kwargs=None,
+        seed=7, n_samples=100, method="MSD", verbose=1, method_kwargs=None,
     )
     assert out == fake_rule
     assert captured["protected_list"] == ["A", "B"]
@@ -177,7 +180,7 @@ def test_most_biased_subgroup_two_samples(monkeypatch):
     captured = {}
 
     def _fake_most_biased_subgroup(
-        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, method_kwargs
+        X_df, y_df, protected_list, continuous_list, fp_map, seed, n_samples, method, verbose, method_kwargs
     ):
         assert list(X_df.columns) == ["A", "B"]
         # y is 0 for X1 rows, 1 for X2 rows
@@ -192,7 +195,7 @@ def test_most_biased_subgroup_two_samples(monkeypatch):
     out = db.most_biased_subgroup_two_samples(
         X1, X2,
         protected_list=None, continuous_list=None, fp_map=None,
-        seed=1, n_samples=999, method="MSD", method_kwargs=None,
+        seed=1, n_samples=999, method="MSD", verbose=1, method_kwargs=None,
     )
     assert out == fake_rule
     assert captured["protected_list"] == ["A", "B"]

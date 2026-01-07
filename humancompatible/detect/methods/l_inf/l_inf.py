@@ -6,7 +6,6 @@ from .lp_tools import lin_prog_feas
 from humancompatible.detect.binarizer import Binarizer
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO, format="[%(levelname)s] %(message)s")
 
 
 def check_l_inf_gap(
@@ -17,7 +16,7 @@ def check_l_inf_gap(
     subgroup_to_check: Any,
     delta: float,
     verbose: int = 1,
-) -> float:
+) -> bool:
     """
     Test whether a protected subgroup's outcome distribution differs from the
     overall population by **at most** `delta` in the l_inf-norm.
@@ -33,8 +32,7 @@ def check_l_inf_gap(
             2 = all detailed logs (including solver output).
 
     Returns:
-        float: 1.0 (which means True) if the subgroup histogram is within `delta`; 
-            0.0 (which means False) otherwise.
+        bool: True if the subgroup histogram is within `delta`; False otherwise.
 
     Raises:
         ValueError: If `delta` is not positive.
@@ -88,7 +86,7 @@ def check_l_inf_gap(
     all_tot = all_counts.sum()
     discr_tot = discr_counts.sum()
     if all_tot == 0 or discr_tot == 0:
-        raise ValueError("Zero total counts after filtering; cannot compute L∞.")
+        raise ValueError("Zero total counts after filtering; cannot compute ℓ∞.")
 
     all_hist = all_counts / all_tot
     discr_hist = discr_counts / discr_tot
@@ -102,7 +100,7 @@ def check_l_inf_gap(
     discr_rsh = discr_hist.reshape(dim, 1)
 
     status = lin_prog_feas(all_rsh, discr_rsh, delta=delta)
-    is_within = float(status == 0)  # 0 = feasible
+    is_within = bool(status == 0)  # 0 = feasible
     if is_within:
         if verbose >= 1: logger.info(f"The most impacted subgroup bias <= {delta}")
     else:

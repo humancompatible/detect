@@ -211,12 +211,14 @@ class OneRule:
                 Note that only some solvers support this option.
             solver_name (str, default "appsi_highs"): Method for solving the MIO formulation. 
                 Can be chosen among:
-                    - "appsi_highs"
-                    - "gurobi"
-                    - "cplex"
-                    - "glpk"
-                    - "xpress"
-                    - Other solvers, see Pyomo documentation 
+                
+                - "appsi_highs"
+                - "gurobi"
+                - "cplex"
+                - "glpk"
+                - "xpress"
+                - Other solvers, see Pyomo documentation 
+                
                 (Note that only the 5 solvers above support the graceful `time_limit`)
             verbose (int, default 1): Verbosity level. 0 = silent, 1 = logger output only,
                 2 = all detailed logs (including solver output).

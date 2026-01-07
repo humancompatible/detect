@@ -66,7 +66,7 @@ def test_check_l_inf_gap_calls_linprog_with_expected_shapes_and_returns_1(monkey
         delta=0.05,
     )
 
-    assert out == 1.0
+    assert out is True
     assert captured["delta"] == 0.05
 
     # Expected bins exclude the tested feature (SEX), so use SCHL and RACE
@@ -88,7 +88,7 @@ def test_check_l_inf_gap_infeasible_returns_0(monkeypatch):
 
     monkeypatch.setattr(linf_mod, "lin_prog_feas", lambda a, b, delta, num_samples=1.0: 2)
     out = linf_mod.check_l_inf_gap(X, y, binarizer, feature_involved="SEX", subgroup_to_check=1, delta=0.1)
-    assert out == 0.0
+    assert out is False
 
 def test_check_l_inf_gap_requires_positive_delta():
     X = pd.DataFrame({"SEX": [0, 1]})
