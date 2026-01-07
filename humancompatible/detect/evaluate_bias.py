@@ -22,7 +22,7 @@ def evaluate_biased_subgroup(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Evaluate how far a *given* subgroup departs from the reference population.
 
@@ -60,10 +60,10 @@ def evaluate_biased_subgroup(
             `feature_involved`, `subgroup_to_check` and `delta`.
 
     Returns:
-        float:  
+        float | bool:
             * MSD - the subgroup discrepancy (signed or absolute, depending on
               flags inside `method_kwargs`).  
-            * l_inf - 1.0 if the subgroup gap is <= `delta`, otherwise 0.0.
+            * l_inf - True if the subgroup gap is <= `delta`, otherwise False.
 
     Raises:
         ValueError: If the requested `method` is unknown, or required keys are
@@ -123,7 +123,7 @@ def evaluate_biased_subgroup_csv(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Load a CSV file, split it into features / target and forward everything to
     `evaluate_biased_subgroup`.
@@ -157,9 +157,9 @@ def evaluate_biased_subgroup_csv(
             (see `evaluate_biased_subgroup` for details).
     
     Returns:
-        float:  
+        float | bool:
             * MSD - subgroup discrepancy value.  
-            * l_inf - 1.0 if the gap is <= `delta`, otherwise 0.0.
+            * l_inf - True if the gap is <= `delta`, otherwise False.
 
     Raises:
         ValueError: If `target_col` is absent from the CSV or if the delegated
@@ -209,7 +209,7 @@ def evaluate_biased_subgroup_two_samples(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> float:
+) -> float | bool:
     """
     Quantify the subgroup discrepancy between **two** datasets.
 
@@ -241,12 +241,11 @@ def evaluate_biased_subgroup_two_samples(
             `delta`, `feature_involved`, `subgroup_to_check` for l_inf).
 
     Returns:
-        float:  
+        float | bool:  
             * MSD - discrepancy value for the supplied subgroup rule between the
               two samples.  
-            * l_inf - 1.0 if the subgroup's positive-class histogram differs by
-              at most `delta`; otherwise 0.0.
-
+            * l_inf - True if the subgroup's positive-class histogram differs by
+              at most `delta`; otherwise False.
     Raises:
         ValueError: If `X1` and `X2` have different columns, or if the chosen
             `method` is unsupported, or if required keys are missing from

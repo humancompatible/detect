@@ -30,7 +30,7 @@ def detect_and_score(
     method: str = "MSD",
     verbose: int = 1,
     method_kwargs: Dict[str, Any] | None = None,
-) -> Tuple[List[Tuple[int, Bin]], float]:
+) -> Tuple[List[Tuple[int, Bin]], float | bool]:
     """
     One-shot helper: find the most biased subgroup and return its score.
     Works with three input modes:
@@ -69,11 +69,11 @@ def detect_and_score(
             `time_limit`, `n_min`, `solver`, etc.).
 
     Returns:
-        tuple[list[tuple[int, Bin]], float]: A pair containing
+        tuple[list[tuple[int, Bin]], float | bool]: A pair containing
         (rule, value):
-        
-        * **rule** - list of ``(feature_index, Bin)`` pairs.
-        * **value** - MSD or l_inf score, depending on *method*.
+
+        * **rule** - list of ``(feature_index, Bin)`` pairs [for method == "l_inf" the rule is an empty list].
+        * **value** - MSD [return float] or l_inf [return bool], depending on *method*.
 
     Raises:
         ValueError: If modes are mixed, required arguments for a mode are missing,

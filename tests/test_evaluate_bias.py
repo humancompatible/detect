@@ -94,8 +94,8 @@ def test_evaluate_biased_subgroup_linf(monkeypatch):
     def _fake_check_l_inf_gap(X_prot, y_ser, *, binarizer, **kwargs):
         assert binarizer is fake_bin
         captured["method_kwargs"] = deepcopy(kwargs)
-        # pretend result is "satisfied" (<= delta) -> 1.0
-        return 1.0
+        # pretend result is "satisfied" (<= delta) -> True
+        return True
 
     monkeypatch.setattr(eb, "prepare_dataset", _fake_prepare_dataset, raising=True)
     monkeypatch.setattr(eb, "check_l_inf_gap", _fake_check_l_inf_gap, raising=True)
@@ -119,7 +119,7 @@ def test_evaluate_biased_subgroup_linf(monkeypatch):
         method_kwargs=method_kwargs_in,
     )
 
-    assert out == pytest.approx(1.0)
+    assert out is True
     assert "solver" in method_kwargs_in
 
 def test_evaluate_biased_subgroup_unknown_method(monkeypatch):
