@@ -123,11 +123,9 @@ MSD maximises the absolute difference in probability over all protected-attribut
 
 A different approach is that of the subsampled distances on measure spaces. In this setting, after choosing a group to be tested for bias, the data is transformed into a multidimensional histogram that is compared bin by bin to a reference histogram obtained from the whole dataset under study. For this comparison, a threshold ∆ is specified in advance. Subsampling is of capital importance here, since the number of comparisons can be exceedingly high. Crucially, the following guarantee for the subsample holds:
 
-$$
-s=O\left(\frac{n\log n}{\epsilon}\log\frac{n\log n}{\epsilon}+\frac{1}{\epsilon}\log\frac{1}{\delta}\right),\ \epsilon,\delta\in(0,1),
-$$
+s=O(nlog n / ε · log(nlog n / ε) + log(1/δ)/ε)
 
-where $s$ is the number of samples taken, $n$ is the number of subgroups considered, $\varepsilon$ is the fraction of comparisons over the threshold ∆, and $\delta$ is the probability of missing out a biased subgroup.
+where s is the number of samples taken, n is the number of subgroups considered, ε is the fraction of comparisons over the threshold ∆, and δ is the probability of missing out a biased subgroup.
 
 ---
 
