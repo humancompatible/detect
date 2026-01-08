@@ -8,8 +8,8 @@ A toolbox for measuring bias in data & models
 _...with a MILP formulation that also tells you which subgroup is most affected._
 \[[Paper Link](https://dl.acm.org/doi/10.1145/3711896.3736857)\]
 
-**ℓ∞** -- fast pass/fail bias test for a chosen subgroup
-_...compares subgroup vs overall against a tolerance δ._
+**ℓ∞** -- fast pass/fail bias test for a chosen (sub)group
+_...it compares a (sub)group vs the general dataset trend against a tolerance ∆._
 \[[Paper Link](https://arxiv.org/abs/2502.02623)\]
 
 </div>
@@ -121,7 +121,13 @@ MSD maximises the absolute difference in probability over all protected-attribut
 
 ## Subsampled ℓ∞ norm
 
-This method checks in a very efficient way whether the bias in any subgroup exceeds a given threshold. It is to be selected in the case in which one wants to be sure that a given dataset is compliant with a predefined acceptable bias level for all its subgroups.
+A different approach is that of the subsampled distances on measure spaces. In this setting, after choosing a group to be tested for bias, the data is transformed into a multidimensional histogram that is compared bin by bin to a reference histogram obtained from the whole dataset under study. For this comparison, a threshold ∆ is specified in advance. Subsampling is of capital importance here, since the number of comparisons can be exceedingly high. Crucially, the following guarantee for the subsample holds:
+
+$$
+s=O\left(\frac{n\log n}{\epsilon}\log\frac{n\log n}{\epsilon}+\frac{1}{\epsilon}\log\frac{1}{\delta}\right),\ \epsilon,\delta\in(0,1),
+$$
+
+where $s$ is the number of samples taken, $n$ is the number of subgroups considered, $\varepsilon$ is the fraction of comparisons over the threshold ∆, and $\delta$ is the probability of missing out a biased subgroup.
 
 ---
 
