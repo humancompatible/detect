@@ -31,8 +31,8 @@ def lin_prog_feas(
 
     for _ in range(0, int(num_samples * (hist1.shape[0] - 1))):
         i = randrange(0, hist1.shape[0] - 1)
-        rand_lst1.append(float(hist1[i]))
-        rand_lst2.append(float(hist2[i]))
+        rand_lst1.append(float(hist1[i][0]))
+        rand_lst2.append(float(hist2[i][0]))
 
     rand_arr1 = np.expand_dims(np.array(rand_lst1), axis=1)
     rand_arr2 = np.expand_dims(np.array(rand_lst2), axis=1)
