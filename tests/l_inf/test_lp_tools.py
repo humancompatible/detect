@@ -1,5 +1,6 @@
 import types
 import numpy as np
+import pytest
 
 from humancompatible.detect.methods.l_inf.lp_tools import lin_prog_feas
 
@@ -71,3 +72,37 @@ def test_builds_expected_number_of_constraints(monkeypatch):
     assert captured["A_ub_shape"] == (2 * k, 1)
     assert captured["b_ub_shape"] == (2 * k, 1)
     assert captured["bounds"] == [(1, 1)]
+
+def test_accepts_column_vector_histograms(monkeypatch):
+    # Same histogram, but as (n,1) column vectors
+    h = np.array([[0.2], [0.3], [0.5]], dtype=float)
+
+    # Deterministic sampling: always pick bin 0
+    monkeypatch.setattr("humancompatible.detect.methods.l_inf.lp_tools.randrange", lambda a, b: 0)
+
+    status = lin_prog_feas(h, h.copy(), delta=0.0, num_samples=1.0)
+    assert status == 0
+
+def test_detects_violation_with_column_vector_histograms(monkeypatch):
+    h1 = np.array([[0.1], [0.9]], dtype=float)
+    h2 = np.array([[0.9], [0.1]], dtype=float)
+    delta = 0.2
+
+    monkeypatch.setattr("humancompatible.detect.methods.l_inf.lp_tools.randrange", lambda a, b: 0)
+
+    status = lin_prog_feas(h1, h2, delta=delta, num_samples=1.0)
+    assert status != 0
+
+def test_rejects_mismatched_histogram_shapes():
+    h1 = np.zeros((3, 4), dtype=float)
+    h2 = np.zeros((2, 6), dtype=float)
+
+    with pytest.raises(ValueError):
+        lin_prog_feas(h1, h2, delta=0.1, num_samples=1.0)
+
+def test_rejects_matrix_histograms_even_if_same_shape():
+    h1 = np.zeros((3, 4), dtype=float)
+    h2 = np.zeros((3, 4), dtype=float)
+
+    with pytest.raises(ValueError):
+        lin_prog_feas(h1, h2, delta=0.1, num_samples=1.0)

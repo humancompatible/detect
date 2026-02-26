@@ -15,8 +15,8 @@ def lin_prog_feas(
     `|hist1 - hist2| <= delta`
 
     Args:
-        hist1 (np.ndarray): 1-D array of histogram bin densities for the full dataset.
-        hist2 (np.ndarray): 1-D array of histogram bin densities for the subgroup.
+        hist1 (np.ndarray): 1-D array (or (n,1) column vector) of histogram bin densities for the full dataset.
+        hist2 (np.ndarray): 1-D array (or (n,1) column vector) of histogram bin densities for the subgroup.
         delta (float): Threshold for the absolute difference `|hist1 - hist2|`.
         num_samples (float): Fraction of total bins to sample.
             The function draws int(num_samples * (len(hist1) - 1)) random samples.
@@ -26,13 +26,27 @@ def lin_prog_feas(
              the constraints are feasible (i.e., `|hist1 - hist2| <= delta` for all
              sampled bins); other codes signal infeasibility or solver errors.
     """
+    h1_raw = np.asarray(hist1, dtype=float)
+    h2_raw = np.asarray(hist2, dtype=float)
+
+    def _is_vector(x: np.ndarray) -> bool:
+        return x.ndim == 1 or (x.ndim == 2 and 1 in x.shape)
+
+    if not _is_vector(h1_raw) or not _is_vector(h2_raw):
+        raise ValueError(f"histograms must be 1-D or (n,1)/(1,n); got {h1_raw.shape} and {h2_raw.shape}")
+
+    # Normalize to 1-D
+    h1 = h1_raw.reshape(-1)
+    h2 = h2_raw.reshape(-1)
+
+
     rand_lst1 = []
     rand_lst2 = []
 
-    for _ in range(0, int(num_samples * (hist1.shape[0] - 1))):
-        i = randrange(0, hist1.shape[0] - 1)
-        rand_lst1.append(float(hist1[i][0]))
-        rand_lst2.append(float(hist2[i][0]))
+    for _ in range(0, int(num_samples * (h1.shape[0] - 1))):
+        i = randrange(0, h1.shape[0] - 1)
+        rand_lst1.append(float(h1[i]))
+        rand_lst2.append(float(h2[i]))
 
     rand_arr1 = np.expand_dims(np.array(rand_lst1), axis=1)
     rand_arr2 = np.expand_dims(np.array(rand_lst2), axis=1)

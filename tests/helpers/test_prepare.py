@@ -50,7 +50,7 @@ def test_prepare_protected_intersection_only():
         input_data=X,
         target_data=y,
         n_max=10,
-        protected_attrs=["A", "Z"],  # Z doesn’t exist
+        protected_attrs=["A", "Z"],  # Z doesn't exist
         continuous_feats=[],
         feature_processing={},
     )
