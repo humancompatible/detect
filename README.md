@@ -2,7 +2,7 @@
 
 [![Docs](https://readthedocs.org/projects/humancompatible-detect/badge/?version=latest)](https://humancompatible-detect.readthedocs.io/en/latest)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Pypi](https://img.shields.io/pypi/v/humancompatible-detect)](https://pypi.org/project/humancompatible-detect/)
+[![PyPI](https://img.shields.io/pypi/v/humancompatible-detect?cacheSeconds=300)](https://pypi.org/project/humancompatible-detect/)
 
 humancompatible.detect is an open-source toolkit for detecting bias in AI models and their training data.
 
