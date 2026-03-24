@@ -39,17 +39,18 @@ def lin_prog_feas(
     h1 = h1_raw.reshape(-1)
     h2 = h2_raw.reshape(-1)
 
-
     rand_lst1 = []
     rand_lst2 = []
-
-    for _ in range(0, int(num_samples * (h1.shape[0] - 1))):
-        i = randrange(0, h1.shape[0] - 1)
-        rand_lst1.append(float(h1[i]))
-        rand_lst2.append(float(h2[i]))
-
-    rand_arr1 = np.expand_dims(np.array(rand_lst1), axis=1)
-    rand_arr2 = np.expand_dims(np.array(rand_lst2), axis=1)
+    if num_samples != 1:
+        for _ in range(0, int(num_samples * (h1.shape[0] - 1))):
+            i = randrange(0, h1.shape[0] - 1)
+            rand_lst1.append(float(h1[i]))
+            rand_lst2.append(float(h2[i]))
+        rand_arr1 = np.expand_dims(np.array(rand_lst1), axis=1)
+        rand_arr2 = np.expand_dims(np.array(rand_lst2), axis=1)
+    else: # = Case in which no sampling occurs, whole histograms are compared
+        rand_arr1 = np.expand_dims(h1,axis=1)
+        rand_arr2 = np.expand_dims(h2,axis=1)
 
     # We are not interested in the optimization itself, but in the
     # feasibility of the problem, therefore the coefficient in the

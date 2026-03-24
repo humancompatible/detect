@@ -185,7 +185,7 @@ If you used the ℓ∞ method, please cite:
 ```bibtex
 @misc{matilla2025samplecomplexitybiasdetection,
       title={Sample Complexity of Bias Detection with Subsampled Point-to-Subspace Distances},
-      author={M. Matilla, Germán and Mareček, Jakub},
+      author={M. Matilla, Germ\'{a}n and Mare\v{c}ek, Jakub},
       year={2025},
       eprint={2502.02623},
       archivePrefix={arXiv},

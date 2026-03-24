@@ -64,17 +64,33 @@ def check_l_inf_gap(
     # Filter instances of the (potentially) discriminated subgroup -> discr
     discr = X_bin_pos[X_bin_pos[:, feat_idx] == subgroup_code]
 
-    # Create array with the dataset feature values (to create histograms) and
-    # get number of encoded subgroups per feature (required for binning)
-    bins = []
+    # List the feature types considered and remove the one under study
+    d_h_cp: list[Feature] = binarizer.data_handler.features #<-DataHandlerCopy
+    d_h_cp.pop(feat_idx)
+
+    # Drop the feature being inspected as it is not required for
+    # histogram construction
+    X_bin_pos = np.delete(X_bin_pos, feat_idx, 1)
+    discr = np.delete(discr, feat_idx, 1)
+
+    # Create arrays with the dataset feature values (to create histograms) and
+    # calculate apropriate binning on a per feature basis
+    bins: list[int] = []
     columns_all = np.empty(X_bin_pos.shape[0], )
     columns_discr = np.empty(discr.shape[0], )
-
     for i in range(X_bin_pos.shape[1]):
-        if i != feat_idx:
+        # Set two bins for a binary feature
+        if 'Binary' in str(d_h_cp[i].__class__):
+            bins.append(2)
+        # Set as many bins as the number of different encoded subgroups
+        # for a categorical feature
+        elif 'Categorical' in str(d_h_cp[i].__class__):
             bins.append(int(X_bin_pos[:, i].max() + 1))
-            columns_all = np.vstack((columns_all, X_bin_pos[:, i]))
-            columns_discr = np.vstack((columns_discr, discr[:, i]))
+        # Use the Freedman Diaconis Estimator to bin continuous features
+        elif 'Contiguous' in str(d_h_cp[i].__class__):
+            bins.append(len(np.histogram_bin_edges(X_bin_pos[:,i],bins='fd'))-1)
+        columns_all = np.vstack((columns_all, X_bin_pos[:, i]))
+        columns_discr = np.vstack((columns_discr, discr[:, i]))
 
     columns_all = columns_all[1:, :]
     columns_discr = columns_discr[1:, :]
